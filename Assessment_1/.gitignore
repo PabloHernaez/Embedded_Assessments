@@ -1,13 +1,51 @@
-# Zephyr build outputs
+# Zephyr/CMake build outputs
 build/
 build-*/
+cmake-build-*/
+out/
 .zephyr-cache/
+twister-out*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+.ninja_deps
+.ninja_log
+build.ninja
 
 # Generated files
 compile_commands.json
+*.elf
+*.hex
+*.bin
+*.map
+*.lst
 
-# VS Code local noise
-.vscode/.ropeproject/
+# Local Zephyr/west state
+.west/
+
+# Editors and IDEs
+.vscode/
+.idea/
+*.code-workspace
+*.swp
+*.swo
+*~
+
+# Python tooling and virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local environment and runtime files
+.env
+.env.*
+!.env.example
+*.log
+*.tmp
 
 # OS noise
 Thumbs.db

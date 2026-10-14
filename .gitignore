@@ -1,0 +1,4 @@
+# Ignore the build, cache and vscode files from Assessment_1
+/Assessment_1/.vscode/
+/Assessment_1/.zephyr-cache/
+/Assessment_1/build/

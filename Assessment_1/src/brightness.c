@@ -12,6 +12,20 @@
 
 static const struct adc_dt_spec light_adc = ADC_DT_SPEC_GET(ADC_NODE);
 
+enum brightness_level brightness_classify(uint32_t value, uint32_t full_scale)
+{
+	if ((full_scale == 0U) ||
+	    ((uint64_t)value * 100U < (uint64_t)full_scale * 33U)) {
+		return BRIGHTNESS_RED;
+	}
+
+	if ((uint64_t)value * 100U > (uint64_t)full_scale * 66U) {
+		return BRIGHTNESS_GREEN;
+	}
+
+	return BRIGHTNESS_YELLOW;
+}
+
 int brightness_init(void)
 {
 	if (!adc_is_ready_dt(&light_adc)) {
@@ -66,10 +80,10 @@ int brightness_read(struct brightness_sample *sample)
 		return -ERANGE;
 	}
 
-	/* En este montaje el ADC baja cuando aumenta la luz. */
 	brightness_value = full_scale - result.adc_raw;
 	result.percent = (uint8_t)DIV_ROUND_CLOSEST(
 		brightness_value * 100U, full_scale);
+	result.level = brightness_classify(brightness_value, full_scale);
 
 	*sample = result;
 	return 0;

@@ -1,9 +1,32 @@
 #include <zephyr/dt-bindings/adc/adc.h>
+#include <zephyr/dt-bindings/gpio/gpio.h>
 
 / {
+	aliases {
+		rgb-red = &rgb_red;
+		rgb-green = &rgb_green;
+		rgb-blue = &rgb_blue;
+	};
+
+	rgb_leds: rgb-leds {
+		compatible = "gpio-leds";
+
+		/* RGB de anodo comun: pin comun conectado a 3V3. */
+		rgb_red: red {
+			gpios = <&gpiob 5 GPIO_ACTIVE_LOW>; /* D4 */
+		};
+
+		rgb_green: green {
+			gpios = <&gpiob 8 GPIO_ACTIVE_LOW>; /* D5 */
+		};
+
+		rgb_blue: blue {
+			gpios = <&gpiob 10 GPIO_ACTIVE_LOW>; /* D6 */
+		};
+	};
+
 	zephyr,user {
-		/* Arduino A0 = PB1 = ADC1_IN5. */
-		io-channels = <&adc1 5>;
+		io-channels = <&adc1 5>; /* A0 = PB1 = ADC1_IN5 */
 	};
 };
 

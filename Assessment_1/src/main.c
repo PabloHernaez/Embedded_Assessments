@@ -1,37 +1,32 @@
 #include <zephyr/kernel.h>
-#include <zephyr/drivers/gpio.h>
 #include <zephyr/sys/printk.h>
 
-/*
- * El alias led0 se resuelve desde el Devicetree / overlay.
- * Cambia únicamente el overlay si quieres usar otro LED físico.
- */
-static const struct gpio_dt_spec led =
-    GPIO_DT_SPEC_GET(DT_ALIAS(led0), gpios);
+#include "brightness.h"
+
+#define SAMPLE_PERIOD_MS 2000
 
 int main(void)
 {
-    int ret;
+	int err = brightness_init();
 
-    printk("UPM Zephyr project template\n");
-    printk("Board: NUCLEO-WL55JC\n");
+	if (err != 0) {
+		printk("Error al iniciar el ADC: %d\n", err);
+		return 0;
+	}
 
-    if (!gpio_is_ready_dt(&led)) {
-        printk("ERROR: LED GPIO device is not ready\n");
-        return 0;
-    }
+	while (true) {
+		struct brightness_sample sample;
 
-    ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT_INACTIVE);
-    if (ret < 0) {
-        printk("ERROR: could not configure LED (%d)\n", ret);
-        return 0;
-    }
+		err = brightness_read(&sample);
+		if (err == 0) {
+			printk("ADC=%u, brillo=%u %%\n",
+			       sample.adc_raw, sample.percent);
+		} else {
+			printk("Error al leer el ADC: %d\n", err);
+		}
 
-    while (1) {
-        gpio_pin_toggle_dt(&led);
-        printk("Toggle!\n");
-        k_msleep(500);
-    }
+		k_sleep(K_MSEC(SAMPLE_PERIOD_MS));
+	}
 
-    return 0;
+	return 0;
 }

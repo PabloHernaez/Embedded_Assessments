@@ -10,6 +10,7 @@ target_sources(app PRIVATE
   src/main.c
   src/brightness.c
   src/rgb_led.c
+  src/sensor_thread.c
 )
 
 if(CMAKE_HOST_WIN32)

@@ -1,10 +1,10 @@
+#include <stdint.h>
+
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
 
-#include "brightness.h"
 #include "rgb_led.h"
-
-#define SAMPLE_PERIOD_MS 2000
+#include "sensor_service.h"
 
 static enum rgb_color color_for_level(enum brightness_level level)
 {
@@ -22,34 +22,51 @@ static enum rgb_color color_for_level(enum brightness_level level)
 
 int main(void)
 {
+	uint32_t sample_count = 0U;
 	int err = rgb_init();
 
-	if (err == 0) {
-		err = brightness_init();
+	if (err != 0) {
+		printk("Error al iniciar el RGB: %d\n", err);
+		return 0;
 	}
 
+	err = sensor_service_init();
 	if (err != 0) {
-		printk("Error de inicializacion: %d\n", err);
+		printk("Error al iniciar el servicio ADC: %d\n", err);
+		return 0;
+	}
+
+	printk("Demo NORMAL: primera lectura inmediata; periodo=%d ms\n",
+	       SENSOR_SAMPLE_PERIOD_MS);
+	err = sensor_start();
+	if (err != 0) {
+		printk("Error al activar el sensor: %d\n", err);
 		return 0;
 	}
 
 	while (true) {
-		struct brightness_sample sample;
+		struct sensor_result result;
 
-		err = brightness_read(&sample);
+		err = sensor_get_result(&result, K_FOREVER);
 		if (err != 0) {
-			printk("Error al leer el ADC: %d\n", err);
-			k_sleep(K_MSEC(SAMPLE_PERIOD_MS));
+			printk("Error al recibir una muestra: %d\n", err);
 			continue;
 		}
 
-		err = rgb_set(color_for_level(sample.level));
+		if (result.status != 0) {
+			printk("Error al leer el ADC: %d\n", result.status);
+			continue;
+		}
+
+		sample_count++;
+		err = rgb_set(color_for_level(result.sample.level));
 		if (err != 0) {
 			printk("Error al controlar el RGB: %d\n", err);
 		}
 
-		printk("ADC=%u, brillo=%u %%\n", sample.adc_raw, sample.percent);
-		k_sleep(K_MSEC(SAMPLE_PERIOD_MS));
+		printk("Muestra %u: ADC=%u, brillo=%u %%\n",
+		       sample_count, result.sample.adc_raw,
+		       result.sample.percent);
 	}
 
 	return 0;

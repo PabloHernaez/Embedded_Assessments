@@ -14,6 +14,7 @@ static const struct adc_dt_spec light_adc = ADC_DT_SPEC_GET(ADC_NODE);
 
 enum brightness_level brightness_classify(uint32_t value, uint32_t full_scale)
 {
+	/* Multiplicar antes de comparar evita clasificar un porcentaje redondeado. */
 	if ((full_scale == 0U) ||
 	    ((uint64_t)value * 100U < (uint64_t)full_scale * 33U)) {
 		return BRIGHTNESS_RED;
@@ -37,6 +38,7 @@ int brightness_init(void)
 
 int brightness_read(struct brightness_sample *sample)
 {
+	/* Construir una copia local evita entregar una muestra parcial si falla. */
 	struct brightness_sample result;
 	int16_t adc_value;
 	uint32_t sum = 0U;
@@ -61,6 +63,7 @@ int brightness_read(struct brightness_sample *sample)
 		return err;
 	}
 
+	/* El promedio de ocho conversiones reduce pequeñas oscilaciones del ADC. */
 	for (uint32_t i = 0U; i < READS_PER_SAMPLE; i++) {
 		err = adc_read_dt(&light_adc, &sequence);
 		if (err != 0) {
@@ -80,6 +83,7 @@ int brightness_read(struct brightness_sample *sample)
 		return -ERANGE;
 	}
 
+	/* El KY-018 entrega menos tension cuando recibe mas luz. */
 	brightness_value = full_scale - result.adc_raw;
 	result.percent = (uint8_t)DIV_ROUND_CLOSEST(
 		brightness_value * 100U, full_scale);

@@ -8,6 +8,7 @@
 
 static enum rgb_color color_for_level(enum brightness_level level)
 {
+	/* Traduccion explicita: no acoplar los valores numericos de ambos enum. */
 	switch (level) {
 	case BRIGHTNESS_RED:
 		return RGB_RED;
@@ -22,6 +23,10 @@ static enum rgb_color color_for_level(enum brightness_level level)
 
 int main(void)
 {
+	/*
+	 * Esta es una demo NORMAL. Se DEBE reemplazar esta decision fija por su
+	 * controlador, pero reutilizara las mismas llamadas publicas.
+	 */
 	uint32_t sample_count = 0U;
 	int err = rgb_init();
 
@@ -53,6 +58,7 @@ int main(void)
 			continue;
 		}
 
+		/* La cola puede funcionar aunque la conversion ADC haya fallado. */
 		if (result.status != 0) {
 			printk("Error al leer el ADC: %d\n", result.status);
 			continue;

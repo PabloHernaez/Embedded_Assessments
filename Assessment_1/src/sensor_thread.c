@@ -25,6 +25,7 @@ static void publish_latest(const struct sensor_result *result)
 {
 	struct sensor_result discarded;
 
+	/* Una aplicacion lenta recibe la muestra nueva, no una cola de datos viejos. */
 	if (k_msgq_put(&result_queue, result, K_NO_WAIT) == 0) {
 		return;
 	}
@@ -35,6 +36,7 @@ static void publish_latest(const struct sensor_result *result)
 
 static void acknowledge_pause(void)
 {
+	/* BLUE y OFF no deben consumir una muestra generada antes de la pausa. */
 	k_msgq_purge(&result_queue);
 	k_sem_give(&pause_ack);
 }
@@ -48,6 +50,7 @@ static void sensor_thread(void *arg1, void *arg2, void *arg3)
 	while (true) {
 		enum sensor_command command;
 
+		/* Pausado, el hilo no hace polling ni inicia conversiones. */
 		(void)k_msgq_get(&command_queue, &command, K_FOREVER);
 		if (command == SENSOR_COMMAND_PAUSE) {
 			atomic_clear(&run_requested);
@@ -59,6 +62,7 @@ static void sensor_thread(void *arg1, void *arg2, void *arg3)
 			continue;
 		}
 
+		/* La primera lectura comienza inmediatamente despues de START. */
 		int64_t next_sample = k_uptime_get();
 
 		while (true) {
@@ -72,7 +76,7 @@ static void sensor_thread(void *arg1, void *arg2, void *arg3)
 
 			result.status = brightness_read(&result.sample);
 
-			/* Si llega PAUSE durante el promedio, no se publica. */
+			/* Una pausa durante el promedio descarta el resultado completo. */
 			if (!atomic_get(&run_requested)) {
 				(void)k_msgq_get(&command_queue, &command, K_NO_WAIT);
 				acknowledge_pause();
@@ -80,6 +84,7 @@ static void sensor_thread(void *arg1, void *arg2, void *arg3)
 			}
 
 			publish_latest(&result);
+			/* Fecha absoluta: el tiempo de lectura no se suma al periodo. */
 			next_sample += SENSOR_SAMPLE_PERIOD_MS;
 
 			while (atomic_get(&run_requested)) {
@@ -104,6 +109,7 @@ static void sensor_thread(void *arg1, void *arg2, void *arg3)
 	}
 }
 
+/* K_THREAD_DEFINE crea una sola instancia estatica durante todo el programa. */
 K_THREAD_DEFINE(sensor_thread_id, SENSOR_THREAD_STACK_SIZE, sensor_thread,
 		NULL, NULL, NULL, SENSOR_THREAD_PRIORITY, 0, 0);
 
@@ -130,6 +136,7 @@ int sensor_start(void)
 		return -EACCES;
 	}
 
+	/* Si ya estaba activo, no se crea otro periodo ni otro hilo. */
 	if (!atomic_cas(&run_requested, 0, 1)) {
 		return 0;
 	}
@@ -163,6 +170,7 @@ int sensor_pause(k_timeout_t timeout)
 		return err;
 	}
 
+	/* El flag tambien permite detectar PAUSE durante las ocho conversiones. */
 	atomic_clear(&run_requested);
 	return k_sem_take(&pause_ack, timeout);
 }

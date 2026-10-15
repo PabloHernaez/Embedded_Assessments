@@ -17,6 +17,7 @@ static const struct gpio_dt_spec blue_led =
 static int set_channel(const struct gpio_dt_spec *led, bool enabled,
 		       int first_error)
 {
+	/* gpio_pin_set_dt aplica automaticamente GPIO_ACTIVE_LOW del overlay. */
 	int err = gpio_pin_set_dt(led, enabled ? 1 : 0);
 
 	return (first_error == 0) ? err : first_error;
@@ -62,6 +63,7 @@ int rgb_set(enum rgb_color color)
 		blue = false;
 		break;
 	case RGB_YELLOW:
+		/* El amarillo se obtiene encendiendo rojo y verde a la vez. */
 		red = true;
 		green = true;
 		blue = false;

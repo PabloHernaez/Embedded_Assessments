@@ -10,8 +10,12 @@
 
 	rgb_leds: rgb-leds {
 		compatible = "gpio-leds";
-
-		/* RGB de anodo comun: pin comun conectado a 3V3. */
+		
+		/*
+		 * RGB de anodo comun: pata larga a 3V3. Cada canal lleva una
+		 * resistencia de 330 ohm. ACTIVE_LOW permite que rgb_led.c use
+		 * valores logicos sin conocer la polaridad fisica.
+		 */
 		rgb_red: red {
 			gpios = <&gpiob 5 GPIO_ACTIVE_LOW>; /* D4 */
 		};

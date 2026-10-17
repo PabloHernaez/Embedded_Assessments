@@ -1,7 +1,8 @@
 #ifndef MODES_H
 #define MODES_H
 
-#include "modes.h"
+#include "button.h"
+#include "sensor_service.h"
 
 enum app_mode {
     NORMAL,
@@ -9,13 +10,9 @@ enum app_mode {
     OFF
 };
 
-enum app_event {
-    EVENT_B2_SHORT_PRESS
-};
-
 void modes_init(void);
-void modes_handle_event(enum app_event event);
+void modes_handle_button_event(const struct button_event *event);
+void modes_handle_sensor_result(const struct sensor_result *result);
 enum app_mode modes_get_current(void);
-
 
 #endif

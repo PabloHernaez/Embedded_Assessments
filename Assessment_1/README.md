@@ -1,5 +1,7 @@
 # Brightness monitoring con Zephyr
 
+Alumni: Pablo Hernaez, David Matamoros Ghisays
+
 Aplicación para la NUCLEO-WL55JC1 que mide la iluminación con un KY-018 y
 muestra el nivel mediante un RGB externo.
 

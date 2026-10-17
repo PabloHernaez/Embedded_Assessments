@@ -23,27 +23,63 @@ static enum rgb_color color_for_level(enum brightness_level level)
 
 int main(void)
 {
-	/*
-	 * Esta es una demo NORMAL. Se DEBE reemplazar esta decision fija por su
-	 * controlador, pero reutilizara las mismas llamadas publicas.
-	 */
-	uint32_t sample_count = 0U;
-	int err = rgb_init();
 
+	//Inicializamos la parte del proceso del led
+	int err = rgb_init();
 	if (err != 0) {
 		printk("Error al iniciar el RGB: %d\n", err);
 		return 0;
 	}
 
+	//Inicializamos el servicio de los hilos que se encargan de leer
 	err = sensor_service_init();
 	if (err != 0) {
 		printk("Error al iniciar el servicio ADC: %d\n", err);
 		return 0;
 	}
 
+
+}
+
+//OFF mode implementation
+void OFF_execution(void) {
+
+	enum rgb_color color = RGB_OFF;
+	int err = rgb_set(color);
+	if (err != 0) {
+		printk("AN error has appeared while transitioning between colors %d", err);
+	}
+
+    err = sensor_pause(K_MSEC(1000));
+    if (err != 0) {
+		printk("An error has appeared while stoping the sensor %d", err);
+    }
+
+}
+
+//BLUE mode implementation
+void BLUE_execution(void) {
+
+	enum rgb_color color = RGB_BLUE;
+	int err = rgb_set(color);
+	if (err != 0) {
+		printk("AN error has appeared while transitioning between colors %d", err);
+	}
+
+    int err = sensor_pause(K_MSEC(1000));
+    if (err != 0) {
+		printk("An error has appeared while stoping the sensor %d", err);
+    }
+}
+
+//NORMAL mode implementation
+void NORMAL_execution(void){
+
+	uint32_t sample_count = 0U;
+
 	printk("Demo NORMAL: primera lectura inmediata; periodo=%d ms\n",
 	       SENSOR_SAMPLE_PERIOD_MS);
-	err = sensor_start();
+	int err = sensor_start();
 	if (err != 0) {
 		printk("Error al activar el sensor: %d\n", err);
 		return 0;

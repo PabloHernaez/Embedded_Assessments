@@ -7,14 +7,28 @@ muestra el nivel mediante un RGB externo.
 
 ## Comportamiento
 
-- Promedia ocho conversiones ADC.
-- Convierte el resultado a un porcentaje entero de 0 a 100.
-- Menos del 33 % enciende rojo.
-- Del 33 % al 66 %, incluidos, enciende amarillo.
-- Más del 66 % enciende verde.
-- Produce una primera lectura inmediata y después una cada 2 segundos.
-- Permite activar y pausar la adquisición desde el controlador de estados.
-- Utiliza únicamente gestión de energía system-managed de Zephyr.
+El sistema arranca en NORMAL. El botón B2 controla los modos:
+
+| Modo | Funcionamiento | Pulsación corta |
+|---|---|---|
+| NORMAL | Mide la luz y muestra su nivel en el RGB | Pasa a BLUE |
+| BLUE | RGB azul y adquisición ADC pausada | Vuelve a NORMAL |
+| OFF | RGB apagado y adquisición ADC pausada | Vuelve a NORMAL |
+
+Mantener B2 pulsado durante al menos 1 segundo activa OFF desde NORMAL o
+BLUE, sin esperar a soltarlo. Soltar después no provoca una pulsación corta.
+
+En NORMAL se realiza una primera lectura inmediata y después una cada
+2 segundos. Cada muestra es el promedio de ocho conversiones ADC. Como el
+KY-018 entrega menos tensión con más luz, se calcula el brillo con
+`4095 - adc_average`, respecto a la escala completa de 12 bits (0 a 4095).
+
+- Menos del 33 %: rojo.
+- Del 33 % al 66 %, incluidos: amarillo.
+- Más del 66 %: verde.
+
+El terminal serie (115200 8N1) muestra los cambios de modo y, en NORMAL, el
+ADC y el porcentaje de brillo. Al entrar en OFF muestra `System OFF`.
 
 ## Cableado
 
@@ -31,22 +45,69 @@ muestra el nivel mediante un RGB externo.
 Cada canal del RGB necesita su propia resistencia. No conectar un canal
 directamente al GPIO.
 
-## Estructura
+## Hilos y comunicación
+
+Se usan dos hilos de aplicación:
+
+- `main.c`: recibe los eventos de B2 y las muestras; `modes.c` decide el modo
+  y el color del RGB.
+- `sensor_thread.c`: realiza las lecturas cada 2 segundos. Se mantiene
+  separado para que la adquisición no bloquee la atención al botón.
+
+El botón usa interrupciones para enviar eventos a una cola. Un temporizador
+genera el evento de pulsación larga al cumplirse 1 segundo.
+El circuito antirrebote de B2 se describe en [Hardware](docs/HARDWARE_AND_BUILD.md).
+
+El hilo del sensor recibe órdenes START/PAUSE por una cola y entrega las
+muestras por otra. La cola de muestras conserva solo el resultado más reciente
+para evitar datos atrasados. Un semáforo confirma que el sensor se ha pausado
+antes de fijar azul o apagado. Los indicadores atómicos permiten compartir
+el estado del servicio entre los dos hilos sin accesos simultáneos inseguros.
+
+Estas herramientas permiten esperar a eventos sin hacer espera activa.
+Cuando está pausado, el hilo del sensor espera una orden y no inicia lecturas.
+La gestión de energía usa el modo system-managed de Zephyr.
+
+## Archivos principales
 
 - `brightness.c`: ADC, promedio, inversión, porcentaje y clasificación.
 - `rgb_led.c`: control lógico de los cinco colores.
 - `sensor_thread.c`: periodo, pausa y entrega de resultados.
-- `main.c`: consumidor NORMAL temporal.
+- `button.c`: interrupciones de B2 y temporizador de pulsación larga.
+- `modes.c`: transiciones entre NORMAL, BLUE y OFF.
+- `main.c`: inicialización y recepción de eventos y muestras.
 
 La polaridad del RGB está declarada como `GPIO_ACTIVE_LOW` en Devicetree.
 
-El terminal serie utiliza 115200 8N1.
+## Compilar y cargar
 
-## Integración
+Se necesita Zephyr 4.4.2, su entorno Python con west, Zephyr SDK 1.0.1 y
+STM32CubeProgrammer. Este último debe estar disponible en el PATH para cargar
+el firmware por ST-LINK.
 
-1. Inicializar RGB y servicio del sensor.
-2. Llamar a `sensor_start()` al entrar en NORMAL.
-3. Consumir solo resultados cuyo `status` sea cero.
-4. Llamar a `sensor_pause()` antes de entrar en BLUE u OFF.
-5. Fijar azul o apagado desde el controlador de estados.
+Desde `Assessment_1`, ejecutar en PowerShell. Ajustar las rutas si el entorno
+está instalado en otra carpeta:
 
+```powershell
+$env:ZEPHYR_BASE = "C:\ZephyrUPM\zephyrproject-4.4\zephyr"
+$env:ZEPHYR_TOOLCHAIN_VARIANT = "zephyr"
+$env:ZEPHYR_SDK_INSTALL_DIR = "C:\Users\davma\zephyr-sdk-1.0.1"
+$zephyrPython = "C:\ZephyrUPM\zephyrproject-4.4\.venv\Scripts\python.exe"
+
+& $zephyrPython -m west build -b nucleo_wl55jc -d build -- "-DCONF_FILE=confs/prj_nucleo_wl55jc.conf" "-DDTC_OVERLAY_FILE=boards/nucleo_wl55jc.overlay"
+```
+
+Conectar la placa por USB al ST-LINK y cargar:
+
+```powershell
+& $zephyrPython -m west flash -d build
+```
+
+## Comprobación en placa
+
+1. En NORMAL, variar la luz y comprobar ADC, porcentaje y colores cada 2 segundos.
+2. Pulsar B2 brevemente: BLUE fijo y sin nuevas lecturas. Repetir para volver a NORMAL.
+3. Mantener B2 pulsado desde NORMAL y desde BLUE: al segundo debe apagarse el
+   RGB y aparecer `System OFF`, antes de soltar.
+4. Soltar tras la pulsación larga: debe seguir en OFF. Una nueva pulsación
+   corta debe restaurar NORMAL.

@@ -23,6 +23,9 @@ compile_commands.json
 # Local Zephyr/west state
 .west/
 
+# Local exercise statement
+/docs/05_EmbeddedSystems_Hands-on_Exercise_2026_27 (1).pdf
+
 # Editors and IDEs
 .vscode/
 .idea/

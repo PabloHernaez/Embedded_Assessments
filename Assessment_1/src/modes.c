@@ -75,7 +75,7 @@ static void OFF_execution(void)
         printk("Error al apagar el LED: %d\n", err);
     }
 
-    printk("Modo OFF\n");
+    printk("System OFF\n");
 }
 
 /* Aplica las acciones asociadas a cada modo. */
@@ -83,17 +83,14 @@ static void apply_mode(enum app_mode mode)
 {
     switch (mode) {
     case NORMAL:
-        printk("Entering NORMAL state");
         NORMAL_execution();
         break;
 
     case BLUE:
-        printk("Entering BLUE state");
         BLUE_execution();
         break;
 
     case OFF:
-        printk("Entering OFF state");
         OFF_execution();
         break;
 
@@ -159,8 +156,7 @@ void modes_handle_button_event(const struct button_event *event)
 
             case BLUE:
             case OFF:
-                current_mode =
-                    (current_mode == BLUE) ? NORMAL : BLUE;
+                current_mode = NORMAL;
                 break;
             }
 

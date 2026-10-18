@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdint.h>
 
 #include <zephyr/kernel.h>
@@ -53,7 +54,7 @@ int main(void)
 
 		if (err == 0) {
 			modes_handle_sensor_result(&result);
-		} else if (err != -EAGAIN) {
+		} else if (err != -ENOMSG) {
 			printk("Error receiving sensor measure: %d\n", err);
 		}
 	}

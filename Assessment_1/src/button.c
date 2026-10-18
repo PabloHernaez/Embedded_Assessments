@@ -2,9 +2,7 @@
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/gpio.h>
-#include <zephyr/sys/printk.h>
 #include <errno.h>
-#include <stdbool.h>
 
 #include "button.h"
 
@@ -34,16 +32,11 @@ static void button_callback(const struct device *dev, struct gpio_callback *cb, 
     };
 
     if (pressed) {
-
-        printk("The button is pressed");
-
         event.type = BUTTON_PRESSED;
 
         k_timer_start(&long_press_timer, K_MSEC(1000), K_NO_WAIT);
     } else {
         event.type = BUTTON_RELEASED;
-
-        printk("The callback of the button is considered a short one");
 
         k_timer_stop(&long_press_timer);
     }
@@ -93,8 +86,6 @@ int button_get_event(struct button_event *event, k_timeout_t timeout)
 static void long_press_expiry(struct k_timer *timer)
 {
     ARG_UNUSED(timer);
-
-    printk("Long Button Press detected");
 
     struct button_event event = {
         .type = BUTTON_LONG_TIMEOUT,

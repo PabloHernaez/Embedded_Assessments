@@ -10,7 +10,7 @@ participant "Hilo main" as M
 participant "RGB / GPIO" as RGB
 
 par Adquisición del sensor
-    loop Mientras se solicita adquisición
+    loop Vueltas del bucle único en estado activo
         S -> S : Comprobar run_requested
         S -> ADC : [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/brightness.c#L39{brightness_read()} brightness_read()]]:\nhasta 8 conversiones síncronas
         ADC --> S : Valores ADC o error
@@ -22,15 +22,16 @@ par Adquisición del sensor
                 Capacidad 1: si está llena,
                 retirar la antigua y reintentar el envío
             end note
-            S -> S : next_sample += 2000
-            S -> S : Esperar orden hasta\nK_TIMEOUT_ABS_MS(next_sample)
-            note over S
-                Timeout: siguiente muestra
-                PAUSE: atender la secuencia de pausa
-            end note
         else Se solicitó pausa durante el promedio
-            S -> S : Descartar resultado y confirmar pausa\nSalir del bucle activo
+            S -> S : Descartar resultado
         end
+        S -> S : next_sample += 2000
+        S -> S : Siguiente vuelta: esperar orden hasta\nK_TIMEOUT_ABS_MS(next_sample)
+        note over S
+            Timeout (-EAGAIN): siguiente muestra
+            PAUSE: pasar a pausado y confirmar
+            Pausado: esperar órdenes con K_FOREVER
+        end note
     end
 else Atención de main
     loop Bucle principal
@@ -39,7 +40,7 @@ else Atención de main
         opt Recibió un evento
             M -> M : [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/modes.c#L111{modes_handle_button_event()} modes_handle_button_event()]]
         end
-        M -> R : [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/sensor_thread.c#L178{sensor_get_result()} sensor_get_result()]]:\nK_NO_WAIT
+        M -> R : [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/sensor_thread.c#L173{sensor_get_result()} sensor_get_result()]]:\nK_NO_WAIT
         R --> M : Resultado o cola vacía
         opt Recibió un resultado
             M -> M : [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/modes.c#L170{modes_handle_sensor_result()} modes_handle_sensor_result()]]

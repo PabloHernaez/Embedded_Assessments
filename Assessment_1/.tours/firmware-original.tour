@@ -67,8 +67,8 @@
     {
       "title": "11 · START despierta al sensor y permite la primera lectura",
       "file": "src/sensor_thread.c",
-      "pattern": "^\\s*int64_t next_sample = k_uptime_get\\(\\);$",
-      "description": "El sensor recibe START y comprueba que `run_requested` siga en uno. Guarda el tiempo actual como primer objetivo y entra directamente en la adquisición; no espera dos segundos antes de la primera muestra. La llamada a `brightness_read()` sucede en este hilo. Si encuentra una orden PAUSE mientras estaba detenido, limpia la bandera, confirma la pausa y vuelve a esperar sin adquirir.\n\n[Ver primera adquisición](./docs/FIRMWARE_SEQUENCE.md). Sección: muestreo."
+      "pattern": "^\\s*next_sample = k_uptime_get\\(\\);$",
+      "description": "El sensor mantiene un único bucle y un estado local `active`. Al recibir START comprueba que no esté activo y que `run_requested` siga en uno. Pasa a activo, guarda el tiempo actual como primer objetivo y adquiere en esa misma vuelta; no espera dos segundos antes de la primera muestra. La llamada a `brightness_read()` sucede en este hilo. PAUSE pasa el estado a pausado, confirma la pausa y continúa sin adquirir.\n\n[Ver primera adquisición](./docs/FIRMWARE_SEQUENCE.md). Sección: muestreo."
     },
     {
       "title": "12 · Ocho conversiones construyen una muestra",
@@ -97,8 +97,8 @@
     {
       "title": "16 · Esperar una orden hasta un instante absoluto",
       "file": "src/sensor_thread.c",
-      "pattern": "^\\s*K_TIMEOUT_ABS_MS\\(next_sample\\)\\);$",
-      "description": "Después de publicar, `next_sample` avanza 2000 ms respecto al objetivo anterior. La recepción de órdenes espera hasta ese instante absoluto; así el tiempo de conversión no se suma en cada período. Si llega PAUSE antes, la espera termina para atenderlo. Si vence el plazo sin orden, el bucle continúa hacia otra lectura. El planificador y la duración del trabajo pueden retrasar la ejecución: el objetivo absoluto no garantiza ausencia de latencia ni recupera tiempo de CPU.\n\n[Ver calendario de muestreo](./docs/FIRMWARE_SEQUENCE.md). Sección: muestreo."
+      "pattern": "^\\s*timeout = K_TIMEOUT_ABS_MS\\(next_sample\\);$",
+      "description": "En cada vuelta, el estado `active` decide la espera: `K_FOREVER` si está pausado o el plazo absoluto `next_sample` si está activo. Después de adquirir, el objetivo avanza 2000 ms; así el tiempo de conversión no se suma en cada período. PAUSE interrumpe la espera para atender la orden. Si vence el plazo sin orden, `k_msgq_get()` devuelve `-EAGAIN` y permite otra lectura. El planificador y la duración del trabajo pueden retrasar la ejecución: el objetivo absoluto no garantiza ausencia de latencia ni recupera tiempo de CPU.\n\n[Ver calendario de muestreo](./docs/FIRMWARE_SEQUENCE.md). Sección: muestreo."
     },
     {
       "title": "17 · Solo NORMAL permite que la muestra cambie el RGB",
@@ -158,7 +158,7 @@
       "title": "26 · Una pausa durante el promedio descarta el resultado",
       "file": "src/sensor_thread.c",
       "pattern": "^\\s*/\\* Una pausa durante el promedio descarta el resultado completo\\. \\*/$",
-      "description": "El sensor consulta `run_requested` antes de adquirir y después de `brightness_read()`. Si encuentra cero, intenta retirar la orden pendiente, confirma la pausa y abandona el bucle activo. Una conversión en curso no se cancela: termina el promedio y se descarta su resultado. La otra vía es recibir PAUSE durante la espera del plazo absoluto; entonces el sensor limpia la bandera y confirma. Ambas desembocan en la misma limpieza de resultados.\n\n[Ver las dos vías de atención a PAUSE](./docs/FIRMWARE_SEQUENCE.md). Sección: pausa."
+      "description": "El sensor consulta `run_requested` antes de adquirir y después de `brightness_read()`. Si encuentra cero antes, evita la lectura; si lo encuentra después, descarta el resultado. Una conversión en curso no se cancela: termina el promedio. En la siguiente vuelta recibe la orden PAUSE pendiente. Tanto esa orden como una PAUSE recibida durante la espera del plazo se atienden en un único caso del switch: pasa a pausado y confirma después de limpiar los resultados.\n\n[Ver atención a PAUSE en el bucle único](./docs/FIRMWARE_SEQUENCE.md). Sección: pausa."
     },
     {
       "title": "27 · Entregar la confirmación después de limpiar",

@@ -47,65 +47,60 @@ static void sensor_thread(void *arg1, void *arg2, void *arg3)
 	ARG_UNUSED(arg2);
 	ARG_UNUSED(arg3);
 
+	/* Estado local del hilo; run_requested expresa la peticion compartida. */
+	bool active = false;
+	int64_t next_sample = 0;
+
 	while (true) {
 		enum sensor_command command;
+		k_timeout_t timeout;
 
-		/* Pausado, el hilo no hace polling ni inicia conversiones. */
-		(void)k_msgq_get(&command_queue, &command, K_FOREVER);
-		if (command == SENSOR_COMMAND_PAUSE) {
-			atomic_clear(&run_requested);
-			acknowledge_pause();
+		/* Pausado espera una orden; activo espera hasta la proxima muestra. */
+		if (active) {
+			timeout = K_TIMEOUT_ABS_MS(next_sample);
+		} else {
+			timeout = K_FOREVER;
+		}
+
+		int err = k_msgq_get(&command_queue, &command, timeout);
+
+		if (err == 0) {
+			switch (command) {
+			case SENSOR_COMMAND_PAUSE:
+				active = false;
+				acknowledge_pause();
+				continue;
+
+			case SENSOR_COMMAND_START:
+				if (active || !atomic_get(&run_requested)) {
+					continue;
+				}
+
+				active = true;
+				/* La primera lectura comienza inmediatamente despues de START. */
+				next_sample = k_uptime_get();
+				break;
+			}
+		} else if (err != -EAGAIN || !active) {
 			continue;
 		}
 
+		/* Una pausa solicitada impide iniciar otra lectura. */
 		if (!atomic_get(&run_requested)) {
 			continue;
 		}
 
-		/* La primera lectura comienza inmediatamente despues de START. */
-		int64_t next_sample = k_uptime_get();
+		struct sensor_result result = { 0 };
 
-		while (true) {
-			struct sensor_result result = { 0 };
+		result.status = brightness_read(&result.sample);
 
-			if (!atomic_get(&run_requested)) {
-				(void)k_msgq_get(&command_queue, &command, K_NO_WAIT);
-				acknowledge_pause();
-				break;
-			}
-
-			result.status = brightness_read(&result.sample);
-
-			/* Una pausa durante el promedio descarta el resultado completo. */
-			if (!atomic_get(&run_requested)) {
-				(void)k_msgq_get(&command_queue, &command, K_NO_WAIT);
-				acknowledge_pause();
-				break;
-			}
-
+		/* Una pausa durante el promedio descarta el resultado completo. */
+		if (atomic_get(&run_requested)) {
 			publish_latest(&result);
-			/* Fecha absoluta: el tiempo de lectura no se suma al periodo. */
-			next_sample += SENSOR_SAMPLE_PERIOD_MS;
-
-			while (atomic_get(&run_requested)) {
-				int err = k_msgq_get(&command_queue, &command,
-						     K_TIMEOUT_ABS_MS(next_sample));
-
-				if (err != 0) {
-					break;
-				}
-
-				if (command == SENSOR_COMMAND_PAUSE) {
-					atomic_clear(&run_requested);
-					acknowledge_pause();
-					break;
-				}
-			}
-
-			if (!atomic_get(&run_requested)) {
-				break;
-			}
 		}
+
+		/* Fecha absoluta: el tiempo de lectura no se suma al periodo. */
+		next_sample += SENSOR_SAMPLE_PERIOD_MS;
 	}
 }
 

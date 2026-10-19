@@ -49,6 +49,11 @@ El sensor produce una estructura `sensor_result` que incluye el estado de
 la lectura y la muestra. La cola copia esa estructura; no transporta un
 puntero a una variable local. Los errores del ADC también se publican.
 
+El hilo usa un único bucle con un estado local `active`. Pausado espera órdenes
+con `K_FOREVER`; activo espera una orden hasta el plazo absoluto de la próxima
+muestra. START activa el estado y permite adquirir en esa misma vuelta. Si el
+plazo vence sin orden, `-EAGAIN` permite la siguiente adquisición.
+
 [Vista interactiva](diagrams/muestreo.html) · [Fuente PlantUML](diagrams/muestreo.puml)
 
 [![Secuencia: Muestreo y actualización del RGB](diagrams/muestreo.svg)](diagrams/muestreo.html)
@@ -127,6 +132,8 @@ La coordinación entre `main` y el sensor utiliza estos mecanismos:
 
 La bandera no cancela una conversión en curso. Si la pausa llega durante
 `brightness_read()`, termina esa llamada y se descarta su resultado.
+En la siguiente vuelta se recibe PAUSE. La orden siempre se atiende en un
+único punto: se pone `active` en falso y se llama a `acknowledge_pause()`.
 El semáforo bloquea al llamador que espera la confirmación; no bloquea al
 sensor que debe producirla. Si `give` ocurre antes de `take`, queda disponible
 una ficha y la recepción puede completarse sin esperar.
@@ -158,20 +165,20 @@ implementación.
 | --- | --- | --- |
 | 1 | 01 · Arranque y orden de inicialización | [`src/main.c:13`](../src/main.c#L13) |
 | 2 | 02 · Preparar las salidas RGB | [`src/rgb_led.c:26`](../src/rgb_led.c#L26) |
-| 3 | 03 · Preparar ADC y marcar el servicio disponible | [`src/sensor_thread.c:116`](../src/sensor_thread.c#L116) |
-| 4 | 04 · Un hilo sensor durante toda la aplicación | [`src/sensor_thread.c:113`](../src/sensor_thread.c#L113) |
+| 3 | 03 · Preparar ADC y marcar el servicio disponible | [`src/sensor_thread.c:111`](../src/sensor_thread.c#L111) |
+| 4 | 04 · Un hilo sensor durante toda la aplicación | [`src/sensor_thread.c:108`](../src/sensor_thread.c#L108) |
 | 5 | 05 · Registrar el botón y habilitar sus flancos | [`src/button.c:47`](../src/button.c#L47) |
 | 6 | 06 · NORMAL es el modo inicial | [`src/modes.c:104`](../src/modes.c#L104) |
-| 7 | 07 · START: CAS, una orden y posible reversión | [`src/sensor_thread.c:131`](../src/sensor_thread.c#L131) |
+| 7 | 07 · START: CAS, una orden y posible reversión | [`src/sensor_thread.c:126`](../src/sensor_thread.c#L126) |
 | 8 | 08 · main atiende primero un evento del botón | [`src/main.c:43`](../src/main.c#L43) |
 | 9 | 09 · main consulta después el resultado ADC | [`src/main.c:53`](../src/main.c#L53) |
 | 10 | 10 · Un resultado transporta estado y muestra | [`include/sensor_service.h:10`](../include/sensor_service.h#L10) |
-| 11 | 11 · START despierta al sensor y permite la primera lectura | [`src/sensor_thread.c:66`](../src/sensor_thread.c#L66) |
+| 11 | 11 · START despierta al sensor y permite la primera lectura | [`src/sensor_thread.c:81`](../src/sensor_thread.c#L81) |
 | 12 | 12 · Ocho conversiones construyen una muestra | [`src/brightness.c:39`](../src/brightness.c#L39) |
 | 13 | 13 · Invertir el ADC y mostrar un porcentaje | [`src/brightness.c:87`](../src/brightness.c#L87) |
 | 14 | 14 · Clasificar antes del redondeo | [`src/brightness.c:15`](../src/brightness.c#L15) |
 | 15 | 15 · Publicar la muestra más reciente | [`src/sensor_thread.c:24`](../src/sensor_thread.c#L24) |
-| 16 | 16 · Esperar una orden hasta un instante absoluto | [`src/sensor_thread.c:92`](../src/sensor_thread.c#L92) |
+| 16 | 16 · Esperar una orden hasta un instante absoluto | [`src/sensor_thread.c:60`](../src/sensor_thread.c#L60) |
 | 17 | 17 · Solo NORMAL permite que la muestra cambie el RGB | [`src/modes.c:170`](../src/modes.c#L170) |
 | 18 | 18 · Colores lógicos y errores de GPIO | [`src/rgb_led.c:48`](../src/rgb_led.c#L48) |
 | 19 | 19 · La interrupción registra presión o liberación | [`src/button.c:19`](../src/button.c#L19) |
@@ -180,8 +187,8 @@ implementación.
 | 22 | 22 · Resolver la larga antes de soltar | [`src/modes.c:128`](../src/modes.c#L128) |
 | 23 | 23 · Liberar: corta, larga de respaldo o ninguna acción | [`src/modes.c:146`](../src/modes.c#L146) |
 | 24 | 24 · BLUE espera la pausa antes de escribir el color | [`src/modes.c:46`](../src/modes.c#L46) |
-| 25 | 25 · Solicitar PAUSE y bloquear únicamente al llamador | [`src/sensor_thread.c:154`](../src/sensor_thread.c#L154) |
-| 26 | 26 · Una pausa durante el promedio descarta el resultado | [`src/sensor_thread.c:79`](../src/sensor_thread.c#L79) |
+| 25 | 25 · Solicitar PAUSE y bloquear únicamente al llamador | [`src/sensor_thread.c:149`](../src/sensor_thread.c#L149) |
+| 26 | 26 · Una pausa durante el promedio descarta el resultado | [`src/sensor_thread.c:97`](../src/sensor_thread.c#L97) |
 | 27 | 27 · Entregar la confirmación después de limpiar | [`src/sensor_thread.c:37`](../src/sensor_thread.c#L37) |
 | 28 | 28 · OFF lógico y vuelta a NORMAL | [`src/modes.c:64`](../src/modes.c#L64) |
 

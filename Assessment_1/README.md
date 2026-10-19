@@ -64,6 +64,10 @@ para evitar datos atrasados. Un semáforo confirma que el sensor se ha pausado
 antes de fijar azul o apagado. Los indicadores atómicos permiten compartir
 el estado del servicio entre los dos hilos sin accesos simultáneos inseguros.
 
+El sensor tiene un único bucle y un estado local activo/pausado. Pausado espera
+una orden indefinidamente; activo espera una orden hasta la próxima muestra.
+START permite una lectura inmediata y PAUSE se confirma en un único punto.
+
 Estas herramientas permiten esperar a eventos sin hacer espera activa.
 Cuando está pausado, el hilo del sensor espera una orden y no inicia lecturas.
 La gestión de energía usa el modo system-managed de Zephyr.

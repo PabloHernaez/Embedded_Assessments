@@ -9,19 +9,20 @@ participant "ADC" as ADC
 participant "command_queue" as C
 participant "Hilo sensor" as S
 
-note over S: Una instancia estática creada por [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/sensor_thread.c#L113{K_THREAD_DEFINE} K_THREAD_DEFINE]]\nEspera una orden con K_FOREVER
+note over S: Una instancia estática creada por [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/sensor_thread.c#L108{K_THREAD_DEFINE} K_THREAD_DEFINE]]\nEspera una orden con K_FOREVER
 M -> RGB: [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/rgb_led.c#L26{rgb_init()} rgb_init()]]: configurar salidas inactivas
 RGB --> M: Estado de inicialización
-M -> ADC: [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/sensor_thread.c#L116{sensor_service_init()} sensor_service_init()]] llama a [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/brightness.c#L30{brightness_init()} brightness_init()]]
+M -> ADC: [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/sensor_thread.c#L111{sensor_service_init()} sensor_service_init()]] llama a [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/brightness.c#L30{brightness_init()} brightness_init()]]
 ADC --> M: Canal ADC preparado
 M -> M: service_ready = 1
 M -> M: [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/button.c#L47{button_init()} button_init()]]: entrada, callback e interrupciones\nen ambos flancos
 M -> M: [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/modes.c#L104{modes_init()} modes_init()]]: current_mode = NORMAL
-M -> M: [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/modes.c#L82{apply_mode(NORMAL)} apply_mode(NORMAL)]] llama a [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/sensor_thread.c#L131{sensor_start()} sensor_start()]]
+M -> M: [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/modes.c#L82{apply_mode(NORMAL)} apply_mode(NORMAL)]] llama a [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/sensor_thread.c#L126{sensor_start()} sensor_start()]]
 M -> M: CAS de run_requested de 0 a 1
 M -> M: Vaciar result_queue
 M -> C: Encolar START con K_NO_WAIT
 C --> S: Recibir START
+S -> S: active = true
 S -> S: next_sample = k_uptime_get()
 note over S: Primera adquisición inmediata
 note over M: Entrar al bucle principal

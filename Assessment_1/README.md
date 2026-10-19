@@ -79,6 +79,46 @@ La gestión de energía usa el modo system-managed de Zephyr.
 
 La polaridad del RGB está declarada como `GPIO_ACTIVE_LOW` en Devicetree.
 
+## Recorrido del firmware en VS Code
+
+Abrir [firmware-study.code-workspace](firmware-study.code-workspace) con VS Code.
+El espacio de trabajo recomienda la extensión **CodeTour** (`vsls-contrib.codetour`).
+Después, `Ctrl+Shift+P` → **CodeTour: Start Tour** inicia las 28 paradas del
+[recorrido del firmware original](.tours/firmware-original.tour).
+
+Los [cuatro diagramas de secuencia](docs/FIRMWARE_SEQUENCE.md) explican arranque,
+muestreo, botón y pausa. Sus fuentes [PlantUML](docs/diagrams/) generan las
+vistas previas SVG del Markdown y una [galería HTML](docs/diagrams/index.html).
+En las vistas HTML, los nombres de función sobre las flechas enlazan a su
+implementación en GitHub. La tarea **Firmware: abrir diagramas** abre la galería
+local en el navegador, con navegación entre las cuatro secuencias y zoom.
+Los HTML también funcionan al abrirlos directamente, sin servidor ni extensiones.
+El recorrido usa patrones del código, y el documento incluye un índice de
+enlaces a las líneas actuales.
+
+Al cambiar funciones, ejecutar la tarea **Firmware: actualizar referencias**;
+para comprobar los enlaces, **Firmware: comprobar documentación**. También se
+puede usar Python 3 directamente desde esta carpeta:
+
+```powershell
+python scripts/check-firmware-docs.py --refresh
+python scripts/check-firmware-docs.py
+python scripts/firmware_diagrams.py --open
+```
+
+La regeneración requiere Java en PATH y Python 3. La primera ejecución descarga
+PlantUML 1.2026.9 de su distribución oficial a `.zephyr-cache/tools/` y verifica
+su SHA256. Las siguientes ejecuciones usan esa copia local. La tarea
+**Firmware: regenerar diagramas** actualiza únicamente las vistas y sus enlaces;
+**Firmware: actualizar referencias** actualiza también el índice de CodeTour.
+El verificador no necesita Java ni acceso a Internet: comprueba las referencias,
+los enlaces de los SVG y la correspondencia de fuentes y vistas HTML.
+
+El comportamiento de las secuencias se mantiene en los `.puml`; no se deduce
+automáticamente del C. Las referencias a funciones se localizan por su definición
+y enlazan a la rama `master`; los SVG y HTML se incluyen en el repositorio.
+El tema visual común está definido en `docs/diagrams/theme.puml`.
+
 ## Compilar y cargar
 
 Se necesita Zephyr 4.4.2, su entorno Python con west, Zephyr SDK 1.0.1 y

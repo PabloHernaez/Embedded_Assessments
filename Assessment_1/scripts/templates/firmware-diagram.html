@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{TITLE}} · Assessment 1</title>
+  <style>
+    :root { color-scheme: dark; font-family: "Segoe UI", sans-serif; color: #e2eaf3; background: #0b1220; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    header { position: sticky; top: 0; z-index: 1; padding: 20px 28px 16px; background: #0b1220f5; border-bottom: 1px solid #203347; }
+    .heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .eyebrow { display: inline-block; margin: 0 0 6px; color: #7fa0b6; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; }
+    h1 { margin: 0; font-size: 23px; font-weight: 600; letter-spacing: -.02em; }
+    .description { margin: 8px 0 0; color: #9db6c7; font-size: 13px; }
+    nav, .controls { display: flex; align-items: center; gap: 8px; }
+    nav { margin-top: 16px; flex-wrap: wrap; }
+    .controls { flex-shrink: 0; }
+    button, nav a, .controls a { border: 1px solid #294358; border-radius: 7px; padding: 8px 12px; background: #122235; color: #d7e7f0; font: inherit; font-size: 13px; cursor: pointer; text-decoration: none; }
+    button:hover, nav a:hover, .controls a:hover { background: #1c3549; border-color: #5eead4; }
+    nav a[aria-current="page"] { background: #153e42; border-color: #5eead4; color: #a7fff0; }
+    :focus-visible { outline: 2px solid #5eead4; outline-offset: 3px; }
+    output { min-width: 48px; text-align: center; font-size: 12px; color: #9db6c7; }
+    main { padding: 24px 28px 48px; overflow: auto; }
+    .canvas { width: 100%; min-width: 660px; }
+    .canvas > svg { display: block; width: 100% !important; height: auto !important; }
+    .canvas svg a { cursor: pointer; }
+    .canvas svg a:hover text { fill: #a7fff0 !important; }
+    @media (max-width: 760px) { header { padding: 18px; } .heading { align-items: flex-start; flex-direction: column; gap: 16px; } h1 { font-size: 20px; } main { padding: 16px; } }
+    @media print { header { position: static; } nav, .controls { display: none; } main { overflow: visible; padding: 0; } .canvas { min-width: 0; width: 100% !important; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="heading">
+      <div>
+        <a class="eyebrow" href="index.html">Assessment 1 · Firmware</a>
+        <h1>{{TITLE}}</h1>
+      </div>
+      <div class="controls" role="group" aria-label="Vista del diagrama">
+        <button type="button" id="zoom-out" aria-label="Reducir zoom">−</button>
+        <output id="zoom" aria-live="polite">100 %</output>
+        <button type="button" id="zoom-in" aria-label="Aumentar zoom">+</button>
+        <button type="button" id="fit">Ajustar ancho</button>
+        <a href="{{SLUG}}.svg" target="_blank" rel="noopener">SVG</a>
+      </div>
+    </div>
+    <p class="description">{{DESCRIPTION}}</p>
+    <nav aria-label="Secuencias del firmware">{{NAVIGATION}}</nav>
+  </header>
+  <main aria-label="Diagrama de secuencia">
+    <div class="canvas" id="canvas">{{SVG}}</div>
+  </main>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const output = document.getElementById('zoom');
+    let zoom = 1;
+    function setZoom(value) {
+      zoom = Math.max(0.5, Math.min(2.5, value));
+      canvas.style.width = `${zoom * 100}%`;
+      output.value = `${Math.round(zoom * 100)} %`;
+    }
+    document.getElementById('zoom-out').addEventListener('click', () => setZoom(zoom - 0.15));
+    document.getElementById('zoom-in').addEventListener('click', () => setZoom(zoom + 0.15));
+    document.getElementById('fit').addEventListener('click', () => setZoom(1));
+  </script>
+</body>
+</html>

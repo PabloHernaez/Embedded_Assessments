@@ -1,0 +1,30 @@
+!theme plain
+skinparam backgroundColor #0B1220
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 15
+skinparam defaultFontColor #E2EAF3
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam hyperlinkColor #5EEAD4
+skinparam hyperlinkUnderline true
+skinparam svgLinkTarget _blank
+skinparam BoxPadding 14
+skinparam maxMessageSize 310
+skinparam NoteBackgroundColor #172437
+skinparam NoteBorderColor #486079
+skinparam NoteFontColor #BCCCDD
+skinparam sequence {
+    ArrowColor #94A6BE
+    ArrowFontColor #E2EAF3
+    LifeLineBorderColor #486079
+    ParticipantBackgroundColor #122B3D
+    ParticipantBorderColor #397F91
+    ParticipantFontColor #E2EAF3
+    GroupBackgroundColor #183047
+    GroupBodyBackgroundColor #0B1220
+    GroupBorderColor #486079
+    GroupFontColor #B8CDD9
+    GroupHeaderFontColor #E2EAF3
+    DividerBackgroundColor #183047
+    DividerBorderColor #486079
+}

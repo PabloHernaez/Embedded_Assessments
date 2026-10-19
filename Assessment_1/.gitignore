@@ -30,6 +30,7 @@ compile_commands.json
 .vscode/
 .idea/
 *.code-workspace
+!firmware-study.code-workspace
 *.swp
 *.swo
 *~

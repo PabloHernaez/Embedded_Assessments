@@ -1,0 +1,176 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/codetour/main/schema.json",
+  "title": "Firmware original: de main al ADC, el botón y la pausa",
+  "description": "Recorrido del firmware original de Assessment_1. Cada paso se ancla al contenido del código mediante una expresión regular y enlaza su documentación. Las cuatro secuencias PlantUML disponen de vistas previas SVG y vistas HTML con enlaces directos a las funciones sobre las flechas.",
+  "isPrimary": true,
+  "steps": [
+    {
+      "title": "01 · Arranque y orden de inicialización",
+      "file": "src/main.c",
+      "pattern": "^int main\\(void\\)$",
+      "description": "El hilo principal ejecuta, en orden, `rgb_init()`, `sensor_service_init()`, `button_init()` y `modes_init()`. Las primeras tres funciones devuelven un estado: si falla alguna, se imprime el error y `main` termina. `modes_init()` arranca en NORMAL. Tener una función en otro archivo no crea un hilo: estas llamadas siguen ejecutándose en el hilo de `main`.\n\n[Ver secuencia de arranque](./docs/FIRMWARE_SEQUENCE.md). Sección: arranque."
+    },
+    {
+      "title": "02 · Preparar las salidas RGB",
+      "file": "src/rgb_led.c",
+      "pattern": "^int rgb_init\\(void\\)$",
+      "description": "El módulo recorre los tres descriptores GPIO, comprueba que sus dispositivos estén preparados y configura cada canal con `GPIO_OUTPUT_INACTIVE`. Inactivo es un valor lógico: los indicadores empiezan apagados. Los descriptores de pines son `static`, privados de este archivo; las funciones públicas se declaran en `rgb_led.h`. Si falla un canal, se devuelve su error al llamador.\n\n[Ver inicialización del RGB](./docs/FIRMWARE_SEQUENCE.md). Sección: arranque."
+    },
+    {
+      "title": "03 · Preparar ADC y marcar el servicio disponible",
+      "file": "src/sensor_thread.c",
+      "pattern": "^int sensor_service_init\\(void\\)$",
+      "description": "Inicializar el servicio llama a `brightness_init()`, que comprueba el ADC y prepara su canal. Solo si funciona se pone `service_ready` en uno. Una segunda inicialización devuelve éxito sin repetir el trabajo. `service_ready` significa «se puede usar el servicio»; `run_requested` significa «se ha solicitado adquirir». Son estados diferentes. Las API de adquisición rechazan su uso antes de inicializar con `-EACCES`.\n\n[Ver preparación del sensor](./docs/FIRMWARE_SEQUENCE.md). Sección: arranque."
+    },
+    {
+      "title": "04 · Un hilo sensor durante toda la aplicación",
+      "file": "src/sensor_thread.c",
+      "pattern": "^K_THREAD_DEFINE\\(sensor_thread_id, SENSOR_THREAD_STACK_SIZE, sensor_thread,$",
+      "description": "`K_THREAD_DEFINE` crea una sola instancia del hilo sensor, con pila de 1024 bytes y prioridad 5. `sensor_start()` no vuelve a crearlo. Al entrar en `sensor_thread()`, el hilo espera una orden con `K_FOREVER`; mientras está pausado no hace sondeos ni inicia conversiones. Hay dos hilos de aplicación: este y `main`; Zephyr también dispone de sus propios hilos internos. `command_queue` y `result_queue` tienen capacidad uno; `pause_ack` comienza en cero y admite una confirmación.\n\n[Ver relación entre los hilos](./docs/FIRMWARE_SEQUENCE.md). Sección: arranque."
+    },
+    {
+      "title": "05 · Registrar el botón y habilitar sus flancos",
+      "file": "src/button.c",
+      "pattern": "^int button_init\\(void\\)$",
+      "description": "El botón B2 se obtiene del alias `sw1`. Se comprueba su dispositivo, se configura como entrada, se prepara el objeto de callback, se registra y se habilitan interrupciones en ambos flancos. `button_cb_data` es estático porque el controlador conservará su dirección. Si falla la habilitación de la interrupción, se retira el callback antes de devolver el error. La cola del botón admite ocho eventos.\n\n[Ver preparación y eventos del botón](./docs/FIRMWARE_SEQUENCE.md). Sección: botón."
+    },
+    {
+      "title": "06 · NORMAL es el modo inicial",
+      "file": "src/modes.c",
+      "pattern": "^void modes_init\\(void\\)$",
+      "description": "El gestor asigna `current_mode = NORMAL` y llama a `apply_mode()`. La acción de NORMAL es solicitar `sensor_start()`. En el original no se escribe un color al entrar en NORMAL: la primera muestra válida será quien decida el RGB. Esto también se aplica al volver desde BLUE u OFF. `current_mode` se utiliza desde el hilo principal; las interrupciones no lo modifican.\n\n[Ver entrada en NORMAL](./docs/FIRMWARE_SEQUENCE.md). Sección: arranque."
+    },
+    {
+      "title": "07 · START: CAS, una orden y posible reversión",
+      "file": "src/sensor_thread.c",
+      "pattern": "^int sensor_start\\(void\\)$",
+      "description": "Tras comprobar `service_ready`, `atomic_cas(&run_requested, 0, 1)` compara y cambia la bandera como una operación atómica. Si ya era uno, retorna éxito sin duplicar START. Si cambia a uno, vacía resultados antiguos y envía START sin esperar. Si la cola rechaza el envío, revierte la bandera a cero para permitir otro intento. Que esta función retorne cero expresa una solicitud aceptada o ya vigente; no es una confirmación de que haya terminado una lectura.\n\n[Ver solicitud de arranque](./docs/FIRMWARE_SEQUENCE.md). Sección: arranque."
+    },
+    {
+      "title": "08 · main atiende primero un evento del botón",
+      "file": "src/main.c",
+      "pattern": "^\\s*err = button_get_event\\(&button_event, K_MSEC\\(20\\)\\);$",
+      "description": "Cada vuelta espera como máximo 20 ms por un evento del botón. Si ya existe uno, retorna inmediatamente; si llega durante la espera, despierta al receptor. Un resultado cero permite llamar a `modes_handle_button_event()`. `-EAGAIN` es el vencimiento esperado del plazo. Las interrupciones pueden encolar eventos mientras `main` está bloqueado, pero las decisiones se toman aquí, cuando el hilo los procesa. Se atiende un evento por vuelta.\n\n[Ver entrega de eventos a main](./docs/FIRMWARE_SEQUENCE.md). Sección: botón."
+    },
+    {
+      "title": "09 · main consulta después el resultado ADC",
+      "file": "src/main.c",
+      "pattern": "^\\s*err = sensor_get_result\\(&result, K_NO_WAIT\\);$",
+      "description": "Después del botón, `main` intenta recoger un resultado ADC con `K_NO_WAIT`: no queda esperando en esta segunda cola. Si está vacía, `-ENOMSG` es normal; si recibe un mensaje, lo entrega al gestor de modos. El bucle no espera simultáneamente ambas colas. Una muestra que llegue durante la espera del botón puede permanecer pendiente hasta que termine esa recepción, cuyo plazo es de 20 ms salvo que el procesamiento de otros eventos añada trabajo.\n\n[Ver consumo de muestras](./docs/FIRMWARE_SEQUENCE.md). Sección: muestreo."
+    },
+    {
+      "title": "10 · Un resultado transporta estado y muestra",
+      "file": "include/sensor_service.h",
+      "pattern": "^struct sensor_result \\{$",
+      "description": "`sensor_result` contiene `status` y una `brightness_sample`. La muestra reúne ADC promedio, porcentaje y nivel de color; `status` indica si pudo obtenerse. La cola copia la estructura completa. El resultado local del productor puede desaparecer al continuar su bucle: el consumidor recibe su propia copia, sin un puntero a esa variable local. Comprueba que el período público del servicio es de 2000 ms.\n\n[Ver el mensaje producido y consumido](./docs/FIRMWARE_SEQUENCE.md). Sección: muestreo."
+    },
+    {
+      "title": "11 · START despierta al sensor y permite la primera lectura",
+      "file": "src/sensor_thread.c",
+      "pattern": "^\\s*int64_t next_sample = k_uptime_get\\(\\);$",
+      "description": "El sensor recibe START y comprueba que `run_requested` siga en uno. Guarda el tiempo actual como primer objetivo y entra directamente en la adquisición; no espera dos segundos antes de la primera muestra. La llamada a `brightness_read()` sucede en este hilo. Si encuentra una orden PAUSE mientras estaba detenido, limpia la bandera, confirma la pausa y vuelve a esperar sin adquirir.\n\n[Ver primera adquisición](./docs/FIRMWARE_SEQUENCE.md). Sección: muestreo."
+    },
+    {
+      "title": "12 · Ocho conversiones construyen una muestra",
+      "file": "src/brightness.c",
+      "pattern": "^int brightness_read\\(struct brightness_sample \\*sample\\)$",
+      "description": "La función recibe la dirección donde entregará la muestra. Prepara una secuencia con un búfer `int16_t`, realiza ocho llamadas síncronas a `adc_read_dt()` y promedia mediante división entera. Rechaza parámetros, resoluciones o lecturas inválidas y propaga los errores del controlador. Construye el resultado en una estructura local y solo escribe `*sample = result` al terminar con éxito: evita entregar una muestra parcialmente actualizada. El promedio suaviza oscilaciones; no es una calibración de iluminancia.\n\n[Ver conversiones y promedio](./docs/FIRMWARE_SEQUENCE.md). Sección: muestreo."
+    },
+    {
+      "title": "13 · Invertir el ADC y mostrar un porcentaje",
+      "file": "src/brightness.c",
+      "pattern": "^\\s*brightness_value = full_scale - result\\.adc_raw;$",
+      "description": "Para este circuito KY-018, más luz produce una lectura ADC menor. Por eso el brillo se calcula como escala completa menos promedio. Con 12 bits, la escala completa es 4095. El porcentaje usa `DIV_ROUND_CLOSEST` para redondear al entero más cercano. Es una posición relativa dentro del rango ADC, no una medida en lux. `brightness_classify()` recibe el brillo sin convertirlo primero en un porcentaje redondeado.\n\n[Ver transformación de la medida](./docs/FIRMWARE_SEQUENCE.md). Sección: muestreo."
+    },
+    {
+      "title": "14 · Clasificar antes del redondeo",
+      "file": "src/brightness.c",
+      "pattern": "^enum brightness_level brightness_classify\\(uint32_t value, uint32_t full_scale\\)$",
+      "description": "Se comparan productos de 64 bits: brillo menor del 33 % da rojo; mayor del 66 % da verde; ambos límites y el intervalo intermedio dan amarillo. Comparar antes de redondear evita que la presentación altere la decisión. Por eso un 33 % mostrado podría corresponder a rojo si el valor real era ligeramente inferior al límite. Con escala completa cero, esta función devuelve rojo como comportamiento definido.\n\n[Ver selección del nivel](./docs/FIRMWARE_SEQUENCE.md). Sección: muestreo."
+    },
+    {
+      "title": "15 · Publicar la muestra más reciente",
+      "file": "src/sensor_thread.c",
+      "pattern": "^static void publish_latest\\(const struct sensor_result \\*result\\)$",
+      "description": "La cola de resultados tiene una posición, pero no sustituye automáticamente su contenido. `publish_latest()` intenta publicar; si no cabe, intenta retirar el resultado anterior y después reintenta el envío. Todo usa `K_NO_WAIT`. Esto da prioridad a información reciente cuando el consumidor se retrasa. Los retornos del descarte y del segundo envío se ignoran en esta implementación. Se publican tanto muestras válidas como resultados cuyo `status` contiene un error de lectura.\n\n[Ver publicación y sustitución](./docs/FIRMWARE_SEQUENCE.md). Sección: muestreo."
+    },
+    {
+      "title": "16 · Esperar una orden hasta un instante absoluto",
+      "file": "src/sensor_thread.c",
+      "pattern": "^\\s*K_TIMEOUT_ABS_MS\\(next_sample\\)\\);$",
+      "description": "Después de publicar, `next_sample` avanza 2000 ms respecto al objetivo anterior. La recepción de órdenes espera hasta ese instante absoluto; así el tiempo de conversión no se suma en cada período. Si llega PAUSE antes, la espera termina para atenderlo. Si vence el plazo sin orden, el bucle continúa hacia otra lectura. El planificador y la duración del trabajo pueden retrasar la ejecución: el objetivo absoluto no garantiza ausencia de latencia ni recupera tiempo de CPU.\n\n[Ver calendario de muestreo](./docs/FIRMWARE_SEQUENCE.md). Sección: muestreo."
+    },
+    {
+      "title": "17 · Solo NORMAL permite que la muestra cambie el RGB",
+      "file": "src/modes.c",
+      "pattern": "^void modes_handle_sensor_result\\(const struct sensor_result \\*result\\)$",
+      "description": "Esta función se ejecuta en `main`. Rechaza un puntero nulo y descarta el efecto de las muestras cuando el modo no es NORMAL. Si `status` contiene un error, lo imprime y mantiene el color anterior. Una muestra válida traduce su nivel a un color, llama a `rgb_set()` y muestra ADC y porcentaje. Extraer un mensaje y después ignorarlo no equivale a pausar el ADC: la pausa se coordina mediante el servicio sensor.\n\n[Ver decisión de color en main](./docs/FIRMWARE_SEQUENCE.md). Sección: muestreo."
+    },
+    {
+      "title": "18 · Colores lógicos y errores de GPIO",
+      "file": "src/rgb_led.c",
+      "pattern": "^int rgb_set\\(enum rgb_color color\\)$",
+      "description": "Cada color determina los tres canales; amarillo enciende rojo y verde, y azul apaga los otros dos. `set_channel()` utiliza valores lógicos: uno enciende y cero apaga; `gpio_pin_set_dt()` aplica `GPIO_ACTIVE_LOW` del descriptor para este LED de ánodo común. Se intentan las tres escrituras y se conserva el primer error. No es una actualización eléctrica simultánea: son tres llamadas consecutivas. Un color desconocido devuelve `-EINVAL` antes de escribir.\n\n[Ver aplicación del color](./docs/FIRMWARE_SEQUENCE.md). Sección: muestreo."
+    },
+    {
+      "title": "19 · La interrupción registra presión o liberación",
+      "file": "src/button.c",
+      "pattern": "^static void button_callback\\(const struct device \\*dev, struct gpio_callback \\*cb, uint32_t pins\\)$",
+      "description": "En contexto de interrupción se lee el estado lógico del pin y se registra `k_uptime_get()`. Al presionar se inicia un temporizador de un segundo, de una sola expiración; al liberar se detiene. Después se copia el evento a `button_queue` con `K_NO_WAIT`. Aquí no se decide el modo, no se espera un semáforo y no se lee el ADC. Si la lectura GPIO falla se abandona el callback; si la cola está llena, el envío puede perderse porque su retorno se ignora.\n\n[Ver flancos, temporizador y cola](./docs/FIRMWARE_SEQUENCE.md). Sección: botón."
+    },
+    {
+      "title": "20 · El temporizador avisa mientras se mantiene pulsado",
+      "file": "src/button.c",
+      "pattern": "^static void long_press_expiry\\(struct k_timer \\*timer\\)$",
+      "description": "La expiración del `k_timer` se ejecuta en contexto de interrupción. Construye un evento `BUTTON_LONG_TIMEOUT` con su timestamp y lo intenta enviar sin esperar. No cambia directamente el modo ni vuelve a leer el pin. La decisión llegará cuando `main` consuma el mensaje. Como en los eventos de flanco, el código ignora un posible error de envío; la cola no garantiza entrega si ya está llena.\n\n[Ver expiración de la pulsación larga](./docs/FIRMWARE_SEQUENCE.md). Sección: botón."
+    },
+    {
+      "title": "21 · Guardar el comienzo de una pulsación",
+      "file": "src/modes.c",
+      "pattern": "^\\s*case BUTTON_PRESSED:$",
+      "description": "El gestor conserva tres variables locales estáticas entre llamadas: si el botón está pulsado, si la larga ya fue atendida y cuándo empezó. PRESSED pone la primera en verdadero, reinicia la marca de larga y guarda el timestamp. No cambia el modo todavía. Estos datos los utiliza `main`; los callbacks se limitan a publicar eventos. `static` aquí conserva la memoria entre eventos sin crear otro hilo.\n\n[Ver memoria de la pulsación](./docs/FIRMWARE_SEQUENCE.md). Sección: botón."
+    },
+    {
+      "title": "22 · Resolver la larga antes de soltar",
+      "file": "src/modes.c",
+      "pattern": "^\\s*case BUTTON_LONG_TIMEOUT:$",
+      "description": "LONG_TIMEOUT solo produce una acción si sigue registrada una presión y la larga todavía no fue atendida. Primero marca `long_press_handled`; después, si no estaba en OFF, cambia a OFF y ejecuta sus acciones. De esta forma puede apagarse antes de liberar el botón. Una larga recibida cuando ya está en OFF no vuelve a aplicar el modo. La protección frente a duplicados depende de estas variables, no de que el temporizador elimine automáticamente eventos ya encolados.\n\n[Ver transición por pulsación larga](./docs/FIRMWARE_SEQUENCE.md). Sección: botón."
+    },
+    {
+      "title": "23 · Liberar: corta, larga de respaldo o ninguna acción",
+      "file": "src/modes.c",
+      "pattern": "^\\s*if \\(event->timestamp - press_start >= 1000\\) \\{$",
+      "description": "RELEASED se ignora si no hubo una presión registrada; en otro caso se cierra esa presión. Si duró al menos un segundo y la larga no se atendió, esta rama permite ir a OFF aunque faltara el evento del temporizador. Si duró menos y no hubo larga, una corta cambia NORMAL→BLUE y BLUE/OFF→NORMAL. Soltar tras una larga ya atendida no ejecuta una corta. Este respaldo no resuelve todos los posibles eventos perdidos, por ejemplo un PRESSED que nunca se recibió.\n\n[Ver liberación y transiciones](./docs/FIRMWARE_SEQUENCE.md). Sección: botón."
+    },
+    {
+      "title": "24 · BLUE espera la pausa antes de escribir el color",
+      "file": "src/modes.c",
+      "pattern": "^static void BLUE_execution\\(void\\)$",
+      "description": "La acción BLUE llama a `sensor_pause(K_MSEC(1000))` y después escribe `RGB_BLUE`. El segundo es el máximo de espera por confirmación, no una demora obligatoria. Si la pausa falla o vence su espera, se imprime el error y se aplica azul igualmente: el código no revierte el modo ni garantiza que el sensor ya esté detenido en esa rama. El filtro de resultados fuera de NORMAL evita que una muestra posterior sobrescriba el color.\n\n[Ver solicitud, confirmación y color](./docs/FIRMWARE_SEQUENCE.md). Sección: pausa."
+    },
+    {
+      "title": "25 · Solicitar PAUSE y bloquear únicamente al llamador",
+      "file": "src/sensor_thread.c",
+      "pattern": "^int sensor_pause\\(k_timeout_t timeout\\)$",
+      "description": "Si el servicio no está listo devuelve `-EACCES`; si la bandera ya está en cero retorna éxito directamente. En una solicitud activa: reinicia `pause_ack`, intenta encolar PAUSE y, solo si funciona, pone `run_requested` en cero y espera con `k_sem_take(timeout)`. La cola entrega la orden, la bandera expresa la intención y el semáforo confirma la finalización. Quien queda bloqueado aquí es `main`; el hilo sensor puede seguir trabajando y las interrupciones pueden encolar eventos.\n\n[Ver protocolo de pausa](./docs/FIRMWARE_SEQUENCE.md). Sección: pausa."
+    },
+    {
+      "title": "26 · Una pausa durante el promedio descarta el resultado",
+      "file": "src/sensor_thread.c",
+      "pattern": "^\\s*/\\* Una pausa durante el promedio descarta el resultado completo\\. \\*/$",
+      "description": "El sensor consulta `run_requested` antes de adquirir y después de `brightness_read()`. Si encuentra cero, intenta retirar la orden pendiente, confirma la pausa y abandona el bucle activo. Una conversión en curso no se cancela: termina el promedio y se descarta su resultado. La otra vía es recibir PAUSE durante la espera del plazo absoluto; entonces el sensor limpia la bandera y confirma. Ambas desembocan en la misma limpieza de resultados.\n\n[Ver las dos vías de atención a PAUSE](./docs/FIRMWARE_SEQUENCE.md). Sección: pausa."
+    },
+    {
+      "title": "27 · Entregar la confirmación después de limpiar",
+      "file": "src/sensor_thread.c",
+      "pattern": "^static void acknowledge_pause\\(void\\)$",
+      "description": "`acknowledge_pause()` vacía `result_queue` y después hace `k_sem_give(&pause_ack)`. La confirmación vale porque se entrega cuando el hilo ya decidió abandonar la adquisición y no conservar resultados previos. Si `main` estaba esperando, puede continuar; si aún no había llegado a `take`, queda una ficha disponible. Un envío de PAUSE aceptado por la cola no equivale por sí solo a esta confirmación. Tras la pausa, el sensor vuelve a bloquearse esperando órdenes.\n\n[Ver limpieza y confirmación](./docs/FIRMWARE_SEQUENCE.md). Sección: pausa."
+    },
+    {
+      "title": "28 · OFF lógico y vuelta a NORMAL",
+      "file": "src/modes.c",
+      "pattern": "^static void OFF_execution\\(void\\)$",
+      "description": "OFF solicita la misma pausa y escribe `RGB_OFF`; también continúa hacia el RGB aunque la pausa informe un error. OFF significa salidas apagadas y adquisición pausada cuando el protocolo tuvo éxito. No corta la alimentación ni impide atender B2: `main` conserva su bucle y el botón sigue generando interrupciones. Una corta desde OFF solicita NORMAL; START permite una primera lectura inmediata y esa muestra decide el nuevo color. La gestión de energía de Zephyr es un mecanismo adicional, separado de este modo lógico.\n\n[Ver OFF y el protocolo compartido de pausa](./docs/FIRMWARE_SEQUENCE.md). Sección: pausa."
+    }
+  ]
+}

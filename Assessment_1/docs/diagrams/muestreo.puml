@@ -1,0 +1,57 @@
+@startuml muestreo
+!include theme.puml
+hide footbox
+
+participant "Hilo sensor" as S
+participant "ADC" as ADC
+participant "result_queue" as R
+participant "button_queue" as B
+participant "Hilo main" as M
+participant "RGB / GPIO" as RGB
+
+par Adquisición del sensor
+    loop Mientras se solicita adquisición
+        S -> S : Comprobar run_requested
+        S -> ADC : [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/brightness.c#L39{brightness_read()} brightness_read()]]:\nhasta 8 conversiones síncronas
+        ADC --> S : Valores ADC o error
+        S -> S : Si hay éxito: promedio, inversión,\nporcentaje y clasificación
+        S -> S : Comprobar otra vez run_requested
+        alt Sigue solicitada la adquisición
+            S -> R : [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/sensor_thread.c#L24{publish_latest()} publish_latest()]]
+            note over R
+                Capacidad 1: si está llena,
+                retirar la antigua y reintentar el envío
+            end note
+            S -> S : next_sample += 2000
+            S -> S : Esperar orden hasta\nK_TIMEOUT_ABS_MS(next_sample)
+            note over S
+                Timeout: siguiente muestra
+                PAUSE: atender la secuencia de pausa
+            end note
+        else Se solicitó pausa durante el promedio
+            S -> S : Descartar resultado y confirmar pausa\nSalir del bucle activo
+        end
+    end
+else Atención de main
+    loop Bucle principal
+        M -> B : [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/button.c#L77{button_get_event()} button_get_event()]]:\nK_MSEC(20)
+        B --> M : Evento o timeout
+        opt Recibió un evento
+            M -> M : [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/modes.c#L111{modes_handle_button_event()} modes_handle_button_event()]]
+        end
+        M -> R : [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/sensor_thread.c#L178{sensor_get_result()} sensor_get_result()]]:\nK_NO_WAIT
+        R --> M : Resultado o cola vacía
+        opt Recibió un resultado
+            M -> M : [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/modes.c#L170{modes_handle_sensor_result()} modes_handle_sensor_result()]]
+            alt NORMAL y status = 0
+                M -> RGB : [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/rgb_led.c#L48{rgb_set()} rgb_set()]]:\nrojo, amarillo o verde
+                M -> M : Mostrar ADC y porcentaje
+            else NORMAL y status distinto de 0
+                M -> M : Mostrar error ADC y conservar el color
+            else BLUE u OFF
+                M -> M : Ignorar el resultado
+            end
+        end
+    end
+end
+@enduml

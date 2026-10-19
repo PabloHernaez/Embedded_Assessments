@@ -1,0 +1,42 @@
+@startuml boton
+!include theme.puml
+hide footbox
+
+participant "Botón B2" as B2
+participant "ISR GPIO" as G
+participant "Timer / ISR" as T
+participant "button_queue" as Q
+participant "Hilo main" as M
+
+B2 -> G: Flanco de pulsación
+G -> G: [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/button.c#L19{button_callback()} button_callback()]]:\nLeer estado lógico y timestamp
+G -> T: Iniciar temporizador de 1000 ms,\nuna sola expiración
+G -> Q: Encolar BUTTON_PRESSED con K_NO_WAIT
+Q --> M: Recibir BUTTON_PRESSED
+M -> M: [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/modes.c#L111{modes_handle_button_event()} modes_handle_button_event()]]\nbutton_down = true\nlong_press_handled = false\nGuardar press_start
+alt Liberación antes de 1000 ms
+    B2 -> G: Flanco de liberación
+    G -> T: Detener temporizador
+    G -> Q: Encolar BUTTON_RELEASED con K_NO_WAIT
+    Q --> M: Recibir BUTTON_RELEASED
+    M -> M: Calcular duración y reconocer corta
+    note over M: NORMAL pasa a BLUE\nBLUE u OFF pasan a NORMAL
+    M -> M: [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/modes.c#L82{apply_mode} apply_mode]](nuevo modo)
+else Se mantiene pulsado hasta vencer el temporizador
+    T -> T: Ejecutar [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/button.c#L86{long_press_expiry()} long_press_expiry()]] en ISR
+    T -> Q: Encolar BUTTON_LONG_TIMEOUT con K_NO_WAIT
+    Q --> M: Recibir BUTTON_LONG_TIMEOUT
+    opt Botón pulsado y larga no atendida
+        M -> M: long_press_handled = true
+        opt El modo todavía no es OFF
+            M -> M: current_mode = OFF\n[[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/modes.c#L82{apply_mode(OFF)} apply_mode(OFF)]]
+        end
+    end
+    B2 -> G: Liberación posterior
+    G -> T: Detener temporizador
+    G -> Q: Encolar BUTTON_RELEASED con K_NO_WAIT
+    Q --> M: Recibir BUTTON_RELEASED
+    M -> M: button_down = false\nSin otra transición
+end
+note over G,T: Las ISR programan el timer y encolan eventos.\nLas decisiones de modo se ejecutan en main.
+@enduml

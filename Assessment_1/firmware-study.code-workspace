@@ -1,0 +1,53 @@
+{
+  "folders": [
+    {
+      "name": "Firmware original — Assessment_1",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "codetour.recordMode": "pattern",
+    "codetour.showMarkers": true,
+    "markdown.validate.enabled": true
+  },
+  "extensions": {
+    "recommendations": ["vsls-contrib.codetour"]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Firmware: abrir diagramas",
+        "type": "process",
+        "command": "python",
+        "args": ["${workspaceFolder}/scripts/firmware_diagrams.py", "--open"],
+        "options": { "cwd": "${workspaceFolder}" },
+        "problemMatcher": []
+      },
+      {
+        "label": "Firmware: regenerar diagramas",
+        "type": "process",
+        "command": "python",
+        "args": ["${workspaceFolder}/scripts/firmware_diagrams.py"],
+        "options": { "cwd": "${workspaceFolder}" },
+        "problemMatcher": []
+      },
+      {
+        "label": "Firmware: comprobar documentación",
+        "type": "process",
+        "command": "python",
+        "args": ["${workspaceFolder}/scripts/check-firmware-docs.py"],
+        "options": { "cwd": "${workspaceFolder}" },
+        "problemMatcher": []
+      },
+      {
+        "label": "Firmware: actualizar referencias",
+        "type": "process",
+        "command": "python",
+        "args": ["${workspaceFolder}/scripts/check-firmware-docs.py", "--refresh"],
+        "options": { "cwd": "${workspaceFolder}" },
+        "problemMatcher": []
+      }
+    ]
+  }
+}

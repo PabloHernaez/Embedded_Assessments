@@ -1,0 +1,34 @@
+@startuml pausa
+!include theme.puml
+hide footbox
+
+autonumber
+participant "Hilo main" as M
+participant "command_queue" as C
+participant "Hilo sensor" as S
+participant "result_queue" as R
+participant "pause_ack" as A
+participant "RGB / GPIO" as RGB
+
+M -> M: [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/sensor_thread.c#L154{sensor_pause} sensor_pause]](K_MSEC(1000))
+M -> A: k_sem_reset()
+M -> C: Encolar PAUSE con K_NO_WAIT
+C --> M: Orden aceptada
+M -> M: atomic_clear(run_requested)
+M -> A: k_sem_take(): esperar confirmación
+note over M: main queda bloqueado.\nEl sensor y las interrupciones pueden avanzar.
+alt El sensor esperaba el próximo plazo
+    C --> S: La recepción entrega PAUSE
+    S -> S: atomic_clear(run_requested)
+else Detecta bandera cero antes o después del promedio
+    S -> S: Evitar nueva lectura o descartar resultado
+    S -> C: Retirar PAUSE pendiente con K_NO_WAIT
+end
+S -> S: [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/sensor_thread.c#L37{acknowledge_pause()} acknowledge_pause()]]
+S -> R: Vaciar resultados pendientes
+S -> A: k_sem_give()
+A --> M: k_sem_take() retorna 0
+M -> M: [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/sensor_thread.c#L154{sensor_pause()} sensor_pause()]] retorna 0
+M -> RGB: [[https://github.com/PabloHernaez/Embedded_Assessments/blob/master/Assessment_1/src/rgb_led.c#L48{rgb_set} rgb_set]](RGB_BLUE o RGB_OFF)
+note over S: Vuelve a esperar órdenes con K_FOREVER
+@enduml

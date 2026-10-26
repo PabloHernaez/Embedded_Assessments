@@ -12,6 +12,7 @@ target_sources(app PRIVATE
     src/drivers/imu.c
     src/drivers/environment.c
     src/algorithms/gyro_calibration.c
+    src/algorithms/motion.c
 )
 
 target_link_libraries(app PRIVATE m)

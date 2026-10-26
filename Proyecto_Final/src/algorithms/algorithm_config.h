@@ -6,4 +6,12 @@
 #define TRACKER_REST_GYRO_MAX_DPS        3.0f
 #define TRACKER_GYRO_CALIBRATION_SAMPLES 100U
 
+#define TRACKER_MOTION_ACCEL_DELTA_MPS2 0.8f
+#define TRACKER_MOTION_GYRO_MIN_DPS     8.0f
+#define TRACKER_MOTION_CONFIRM_MS       300
+#define TRACKER_REST_CONFIRM_MS         2000
+
+// Gap máximo entre muestras utilizables
+#define TRACKER_IMU_MAX_GAP_MS 50U
+
 #endif

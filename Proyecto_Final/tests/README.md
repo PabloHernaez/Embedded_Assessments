@@ -46,8 +46,8 @@ Los archivos originales se conservan en board/sensors/results/.
 
 La primera captura registra cambios a movimiento en 19.294 s y a reposo en
 29.674 s desde arranque; hubo 22 saturaciones. La segunda registra movimiento
-en 13.134 s y reposo en 67.594 s, sin saturacion. El autor mantuvo el sensor
-en movimiento hasta el final de esta segunda prueba y despues lo dejo quieto.
+en 13.134 s y reposo en 67.594 s, sin saturacion. En esta segunda prueba
+mantuvimos el sensor en movimiento hasta el final y despues lo dejamos quieto.
 
 En ambas capturas los contadores son coherentes con 50 consultas/s.
 Se obtuvieron 22 y 35 pares ambientales respectivamente, sin errores
@@ -58,7 +58,7 @@ Estas capturas respaldan el ciclo nominal reposo-movimiento-reposo. No
 registran el comienzo de cada condicion candidata, por lo que no miden
 directamente los 300 ms y 2 s de confirmacion.
 
-## Host: movimiento
+## Host: movimiento y orientacion
 
 Desde Proyecto_Final:
 
@@ -74,17 +74,41 @@ condiciones OR/AND, limites estrictos de giro, NO_NEW omitido por el
 llamador e interrupcion explicita de continuidad. Las comprobaciones
 siguen activas con NDEBUG.
 
-## Verificacion de este incremento
+## Orientacion incremental
+
+estimator_init prepara NavigationView con cuaternion identidad, velocidad
+y posicion cero y valid=false. estimator_orientation_update actualiza solo
+el cuaternion sensor-local Hamilton, a partir del giro corregido y dt real.
+Convierte grados/s a radianes/s, avanza por Euler y normaliza un candidato.
+Solo confirma el resultado si es numericamente valido. Rechaza intervalos
+negativos, no finitos o mayores de 50 ms y conserva el cuaternion anterior.
+
+El modulo es C puro. El llamador sigue siendo responsable de NO_NEW y de
+romper la referencia temporal ante error, saturacion o hueco excesivo.
+La integracion de velocidad/posicion y la publicacion de navegacion valida
+siguen pendientes. El ensayo de placa actual todavia prueba movimiento y
+ambiente; no consume esta funcion de orientacion.
+
+test_estimator.c cubre reposo, giros positivos/negativos en los tres ejes,
+composicion de giros en ejes del sensor, norma unitaria, intervalos de 0,
+20, 40 y 50 ms, intervalos rechazados y conservacion del estado ante
+NaN, infinito, desbordamiento o cuaternion degenerado.
+## Verificacion de los incrementos
 
 CTest de movimiento paso en Debug. Tambien se compilaron 12 objetos ARM de
 aplicacion con las configuraciones vigentes de produccion y ensayo, usando
 -Wextra -Werror. Las cabeceras generadas proceden de los builds configurados
 del proyecto original; esta comprobacion no es un enlace ELF completo.
 
+El incremento de orientacion paso ambos ejecutables de CTest en Debug y
+Release, y compilo 14 objetos ARM de aplicacion con los mismos perfiles.
+Las pruebas se ejecutaron sobre las fuentes que forman estos commits.
 Los intentos de build completo de ambos perfiles en la copia aislada se
 detuvieron al arrancar el DTC de Windows con codigo 0xc0000142, antes de
-compilar las fuentes. Queda repetir las tareas normales fuera de esa
-restriccion del entorno. No se ha realizado otro ensayo de placa aqui.
+compilar las fuentes. Al importar los commits en el repositorio original
+el 27/10/2026, los builds completos de produccion y sensores terminaron
+con codigo 0 y generaron sus ELF/HEX. CTest tambien paso en Debug y Release
+desde esa ubicacion. No hicimos otro ensayo de placa durante la importacion.
 ## Pendientes
 
 Quedan las pruebas de error/recuperacion en placa, la validacion y calibracion

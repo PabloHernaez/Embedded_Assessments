@@ -10,7 +10,11 @@ add_executable(motion_tests
     ../../src/algorithms/motion.c
 )
 
-foreach(test_target IN ITEMS motion_tests)
+add_executable(orientation_tests
+    test_estimator.c
+    ../../src/algorithms/estimator.c
+)
+foreach(test_target IN ITEMS motion_tests orientation_tests)
     target_include_directories(${test_target} PRIVATE
         ../../include
         ../../src/algorithms
@@ -25,3 +29,5 @@ foreach(test_target IN ITEMS motion_tests)
 endforeach()
 
 add_test(NAME motion_tests COMMAND motion_tests)
+
+add_test(NAME orientation_tests COMMAND orientation_tests)

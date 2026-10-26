@@ -26,17 +26,7 @@
       // Conecta GDB al servidor OpenOCD que escucha en el puerto local 3333.
       "gdbTarget": "localhost:3333",
 
-      // Indica la carpeta que contiene las herramientas ARM del SDK de Zephyr.
-      "armToolchainPath":
-        "C:/Users/davma/zephyr-sdk-1.0.1/gnu/arm-zephyr-eabi/bin",
-
-      // Define el prefijo común de los ejecutables de la cadena de herramientas ARM.
-      "toolchainPrefix":
-        "arm-zephyr-eabi",
-
-      // Especifica el programa GDB que depurará el firmware ARM.
-      "gdbPath":
-        "C:/Users/davma/zephyr-sdk-1.0.1/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
+      // Las rutas ARM/GDB y el prefijo arm-zephyr-eabi se heredan de settings.json.
 
       // Antes de depurar, ejecuta la tarea que compila el proyecto e inicia OpenOCD.
       "preLaunchTask": "Zephyr: Debug Server",

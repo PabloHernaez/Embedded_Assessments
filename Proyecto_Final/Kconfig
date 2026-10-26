@@ -1,7 +1,0 @@
-mainmenu "Drone tracker"
-
-source "Kconfig.zephyr"
-
-config TRACKER_PRODUCTION
-    bool "Aplicar invariantes del firmware de produccion"
-    default y

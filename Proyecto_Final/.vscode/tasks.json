@@ -1,5 +1,12 @@
 {
   "version": "2.0.0",
+  "options": {
+    "env": {
+      "ZEPHYR_BASE": "C:/ZephyrUPM/zephyrproject-4.4/zephyr",
+      "ZEPHYR_TOOLCHAIN_VARIANT": "zephyr",
+      "ZEPHYR_SDK_INSTALL_DIR": "C:/Users/davma/zephyr-sdk-1.0.1"
+    }
+  },
 
   "tasks": [
     {
@@ -17,16 +24,33 @@
         "-DCONF_FILE=confs/prj_nucleo_wl55jc.conf"
       ],
       "options": {
-        "cwd": "C:/ZephyrUPM/zephyrproject-4.4/zephyr",
-        "env": {
-          "ZEPHYR_BASE": "C:/ZephyrUPM/zephyrproject-4.4/zephyr",
-          "ZEPHYR_TOOLCHAIN_VARIANT": "zephyr",
-          "ZEPHYR_SDK_INSTALL_DIR": "C:/Users/davma/zephyr-sdk-1.0.1"
-        }
+        "cwd": "C:/ZephyrUPM/zephyrproject-4.4/zephyr"
       },
       "group": {
         "kind": "build",
         "isDefault": true
+      },
+      "problemMatcher": ["$gcc"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      }
+    },
+
+    {
+      "label": "West Build (sensores)",
+      "type": "process",
+      "command": "C:/ZephyrUPM/zephyrproject-4.4/.venv/Scripts/west.exe",
+      "args": [
+        "build",
+        "-p", "auto",
+        "-b", "nucleo_wl55jc",
+        "${workspaceFolder}/tests/board/sensors",
+        "-d", "${workspaceFolder}/build-sensors"
+      ],
+      "options": {
+        "cwd": "C:/ZephyrUPM/zephyrproject-4.4/zephyr"
       },
       "problemMatcher": ["$gcc"],
       "presentation": {
@@ -51,12 +75,7 @@
         "-DCONF_FILE=confs/prj_nucleo_wl55jc.conf"
       ],
       "options": {
-        "cwd": "C:/ZephyrUPM/zephyrproject-4.4/zephyr",
-        "env": {
-          "ZEPHYR_BASE": "C:/ZephyrUPM/zephyrproject-4.4/zephyr",
-          "ZEPHYR_TOOLCHAIN_VARIANT": "zephyr",
-          "ZEPHYR_SDK_INSTALL_DIR": "C:/Users/davma/zephyr-sdk-1.0.1"
-        }
+        "cwd": "C:/ZephyrUPM/zephyrproject-4.4/zephyr"
       },
       "problemMatcher": ["$gcc"],
       "presentation": {
@@ -81,6 +100,29 @@
         "--start"
       ],
       "dependsOn": ["West Build (auto)"],
+      "dependsOrder": "sequence",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+
+    {
+      "label": "Flash (Sensores)",
+      "type": "process",
+      "command":
+        "C:/Program Files/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin/STM32_Programmer_CLI.exe",
+      "args": [
+        "--connect",
+        "port=swd",
+        "mode=UR",
+        "reset=HWrst",
+        "--download",
+        "${workspaceFolder}/build-sensors/zephyr/zephyr.hex",
+        "--start"
+      ],
+      "dependsOn": ["West Build (sensores)"],
       "dependsOrder": "sequence",
       "problemMatcher": [],
       "presentation": {
@@ -159,12 +201,7 @@
         "${workspaceFolder}/build"
       ],
       "options": {
-        "cwd": "C:/ZephyrUPM/zephyrproject-4.4/zephyr",
-        "env": {
-          "ZEPHYR_BASE": "C:/ZephyrUPM/zephyrproject-4.4/zephyr",
-          "ZEPHYR_TOOLCHAIN_VARIANT": "zephyr",
-          "ZEPHYR_SDK_INSTALL_DIR": "C:/Users/davma/zephyr-sdk-1.0.1"
-        }
+        "cwd": "C:/ZephyrUPM/zephyrproject-4.4/zephyr"
       },
       "dependsOn": ["West Build (auto)"],
       "dependsOrder": "sequence",

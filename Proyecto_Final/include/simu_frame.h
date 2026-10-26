@@ -6,19 +6,14 @@
 
 #include "model.h"
 
-/*
- *  221 bytes es la trama incluyengo CRLF
- *  222 bytes es la trama con '\0 para manejarla como cadena C'       
+/**
+ *  221 bytes es la trama incluyendo CRLF.
+ *  El buffer reserva un byte mas para '\0' y permite usarla como cadena C.
  */
 #define SIMU_FRAME_WIRE_SIZE   221U
-#define SIMU_FRAME_BUFFER_SIZE 222U
+#define SIMU_FRAME_BUFFER_SIZE (SIMU_FRAME_WIRE_SIZE + 1U)
 
-_Static_assert(
-    SIMU_FRAME_BUFFER_SIZE > SIMU_FRAME_WIRE_SIZE,
-    "El buffer SIMU necesita espacio para el NUL final"
-);
-
-/*
+/**
  * Los punteros apuntan a copias del llamador.
  * Deben permanecer validos durante la llamada.
  */
@@ -31,7 +26,7 @@ typedef struct {
     uint64_t uptime_ms;
 } SimuFrameInput;
 
-/*
+/**
  * Todos los punteros son obligatorios y deben ser validos.
  * uptime_ms debe caber en las diez cifras del protocolo.
  *

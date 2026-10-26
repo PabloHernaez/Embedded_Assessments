@@ -1,79 +1,52 @@
-# UPM Zephyr Project Template
+# Drone tracker — proyecto final IoT UPM
 
-Plantilla reutilizable para proyectos de **Embedded Platforms and Communications for IoT**.
+Firmware para la NUCLEO-WL55JC del proyecto de Embedded Platforms and IoT.
+Integra en desarrollo un MPU6050, un Si7021 y un LDR KY-018, con contratos
+compartidos para adquisicion, navegacion, GPS y reportes NORMAL/SIMU.
 
-## Entorno esperado
+El main de produccion conserva el parpadeo provisional. Los drivers de sensores
+y la calibracion del giroscopio estan implementados; el ensayo independiente
+permite ejercitar MPU6050 y Si7021 con salida serie. La adquisicion integrada,
+GPS, supervision, formateadores y estimador de orientacion, velocidad y posicion
+siguen pendientes. D2 y D3 permanecen abiertos, incluida la calibracion final
+y el diagnostico electrico del LDR.
 
-- Zephyr 4.4.2
-- Zephyr SDK 1.0.1
-- Python 3.12
-- Board `nucleo_wl55jc`
-- Visual Studio Code
-- STM32CubeProgrammer
-- PuTTY/plink (opcional para monitor serie)
+## Entorno
 
-## Crear un proyecto nuevo
+- Zephyr 4.4.2: `C:/ZephyrUPM/zephyrproject-4.4/zephyr`.
+- Zephyr SDK 1.0.1, Python 3.12 y placa `nucleo_wl55jc/stm32wl55xx`.
+- VS Code, STM32CubeProgrammer/ST-LINK y PuTTY/plink para el ensayo.
 
-Copia esta carpeta a:
+## Compilar y programar
 
-```text
-C:\ZephyrUPM\workspace\NOMBRE_PROYECTO
-```
+Abrir `C:/ZephyrUPM/workspace/assesment_ldr_final/Embedded_Assessments/Proyecto_Final` en VS Code.
 
-Abre **la raíz del proyecto** en VS Code:
+Tambien se puede abrir `../Proyecto_Final.code-workspace`. En ambos casos,
+`${workspaceFolder}` debe ser `Proyecto_Final` para que las tareas de `.vscode/`
+resuelvan correctamente las fuentes y los directorios de compilacion.
+La raiz Git es la carpeta superior `Embedded_Assessments`, compartida con
+`Assessment_1`.
 
-```powershell
-code C:\ZephyrUPM\workspace\NOMBRE_PROYECTO
-```
+| Perfil | Compilacion | Programacion | Salida |
+| --- | --- | --- | --- |
+| Produccion | Ctrl+Shift+B / `West Build (auto)`; limpia: `West Build (pristine)` | `Flash (CubeProgrammer, UR+HWrst)` | `build/zephyr`, sin consola Zephyr |
+| Ensayo MPU6050 + Si7021 | `West Build (sensores)` | `Flash (Sensores)` | `build-sensors/zephyr`, consola LPUART1 a 115200 8N1 |
 
-`${workspaceFolder}` apuntará automáticamente a esa carpeta.
+Las tareas comparten el entorno definido en `.vscode/tasks.json`.
+Produccion usa `confs/prj_nucleo_wl55jc.conf` y `boards/nucleo_wl55jc.overlay`;
+el ensayo aplica despues sus ajustes en `tests/board/sensors/`.
+`src/build_checks.c` impide activar consola, printk, banner, shell o logs en
+produccion y comprueba la retirada de las asignaciones de consola de Devicetree.
 
-## Build
+`List COM Ports` permite identificar el puerto real y `Serial Monitor` abrirlo.
+La compilacion por si sola no demuestra funcionamiento en placa.
 
-```text
-Ctrl + Shift + B
-```
+## Documentacion
 
-Ejecuta `West Build (auto)`.
+- [Guia de desarrollo](docs/README_DESARROLLO.md): contratos, estado implementado,
+  validaciones realizadas, pendientes y captura breve en placa.
+- [Playbook Zephyr en Windows](docs/Zephyr_UPM_Playbook.md): entorno, tareas,
+  compilaciones limpias, programacion y depuracion.
 
-Para una compilación completamente limpia:
-
-```text
-Tasks: Run Task → West Build (pristine)
-```
-
-## Flash
-
-```text
-Tasks: Run Task → Flash (CubeProgrammer, UR+HWrst)
-```
-
-## Puerto serie
-
-```text
-Tasks: Run Task → List COM Ports
-```
-
-Después:
-
-```text
-Tasks: Run Task → Serial Monitor
-```
-
-## Archivos clave
-
-```text
-src/main.c                         lógica de aplicación
-boards/nucleo_wl55jc.overlay      descripción/adaptación de hardware
-confs/prj_nucleo_wl55jc.conf      configuración Kconfig de Zephyr
-CMakeLists.txt                     fuentes de la aplicación
-.vscode/settings.json              entorno VS Code
-.vscode/tasks.json                 build / flash / serial / debug
-```
-
-Consulta `docs/Zephyr_UPM_Playbook.md` para el procedimiento completo.
-
-## Desarrollo del proyecto final
-
-Consultar [la guía de desarrollo](docs/README_DESARROLLO.md)
-para el estado de la base, el entorno y los contratos compartidos.
+Los tipos y contratos publicos estan en `include/`; los drivers privados en
+`src/drivers/` y la calibracion en `src/algorithms/`.

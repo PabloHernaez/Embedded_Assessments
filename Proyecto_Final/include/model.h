@@ -4,12 +4,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/*
+/**
  *  model.h incluye todas las estructuras de datos que se van a usar para transmitir los datos
  *  a través de todo el firmware
  */
 
-/* 
+/** 
  *  Calidad del ultimo resultado de una familia de medidas.
  *  last_good_ms = -1 : Nunca hubo medida usable
  *  valid = true / last_good_ms = ts : calidad correcta con ts
@@ -20,7 +20,7 @@ typedef struct {
     int64_t last_good_ms;
 } SampleQuality;
 
-/* 
+/** 
  *  Vector de tres componentes; la unidad la indica el campo que lo usa
  */
 typedef struct {
@@ -29,11 +29,10 @@ typedef struct {
     float z;
 } Vec3f;
 
-/* 
+/** 
  *  Aceleracion con gravedad y giro expresado en grados por segundo. 
  *  range_limited indica alcanzar el umbral de saturación
  *  calibration_pending indica que aún falta la calibración inicial del giroscopio
- *  clipped: Hubo que recortar la luz al rango 0-100%
  */
 typedef struct {
     Vec3f accel_mps2;
@@ -44,8 +43,9 @@ typedef struct {
     bool calibration_pending;
 } ImuData;
 
-/* 
+/** 
  *  Luz relativa a la calibracion del montaje
+ *  clipped: Hubo que recortar la luz al rango 0-100%
  */
 typedef struct {
     float light_pct;
@@ -54,7 +54,7 @@ typedef struct {
     bool clipped;
 } LightData;
 
-/* 
+/** 
  *  Temperatura y humedad obtenidas en una misma operacion completa
  */
 typedef struct {
@@ -64,7 +64,7 @@ typedef struct {
     SampleQuality quality;
 } EnvironmentData;
 
-/* 
+/** 
  *  Cuaternion Hamilton [w, x, y, z], del sensor al marco local
  */
 typedef struct {
@@ -74,7 +74,7 @@ typedef struct {
     float z;
 } Quaternionf;
 
-/*
+/**
 *   Resultado publicado del estimador.
 *   q: la orientación del sensor respecto al sistema local
 *   velocity_mps: velocidad (ojo, es un vector Vec3f)
@@ -93,7 +93,7 @@ typedef struct {
     bool valid;
 } NavigationView;
 
-/* 
+/** 
  *  Enum para acceder al array!
  *      Ej: snapshot.stats.metric[STATS_TEMP].mean
  *
@@ -101,8 +101,8 @@ typedef struct {
  *  STATS_LIGHT -> Luz en porcentaje
  *  STATS_TEMP -> Temperatura en °C
  *  STATS_RH -> Humedad relativa en porcentaje
- *  STATS_ACCEL_NORM -> aceleracion en m/s2
- *  STATS_GYRO_NORM -> Magnitud de giro en degree/s
+ *  STATS_ACCEL_NORM -> magnitud de aceleracion en m/s2
+ *  STATS_GYRO_NORM -> magnitud de giro en grados/s
  *  STATS_METRIC_COUNT -> 5, determina el tamaño del array
  */
 typedef enum {
@@ -114,7 +114,7 @@ typedef enum {
     STATS_METRIC_COUNT
 } StatsMetric;
 
-/* 
+/** 
  *  Estadisticas finales de una metrica.
  */
 typedef struct {
@@ -124,7 +124,7 @@ typedef struct {
     uint32_t count;
 } MetricStats;
 
-/*
+/**
  * Ultima ventana completa de estadisticas.
  */
 typedef struct {
@@ -135,13 +135,13 @@ typedef struct {
     MetricStats metric[STATS_METRIC_COUNT];
 } StatsResult;
 
-/* 
+/** 
  *  Copia coherente que acquisition entrega a sus consumidores. Incluye estadísticas
  *
  *  moving -> movimiento confirmado. Eso junto con la salud del 
  *      sistema decide IDLE, FLYING o PROBLEM
  *  progress -> Aumenta al completar una adquisición, aun si fallan los sensores
- *      Con esto se peude distinguir un hilo trabajando de uno bloqueado 
+ *      Con esto se puede distinguir un hilo trabajando de uno bloqueado
  */
 typedef struct {
     ImuData imu;
@@ -155,7 +155,7 @@ typedef struct {
     uint32_t progress;
 } AcquisitionSnapshot;
 
-/* 
+/** 
  *  Datos publicados por el servicio GPS. 
  *   
  *  lat_udeg, lon_udeg -> enteros en microgrados (latitud y longitud)
@@ -165,7 +165,7 @@ typedef struct {
  *      (-1 en el arranque)
  *
  *  Indicadores de mensaje correcto:
- *      last_nmeas_ms actualizado
+ *      last_nmea_ms actualizado
  *      Posición usable -> fix_valid = true, se actualiza last_fix_ms
  *      Ultima GGA con hora válida -> utc_valid = true
  *
@@ -192,9 +192,9 @@ typedef struct {
     uint32_t progress;
 } GpsSnapshot;
 
-/* 
+/** 
     Modo de funcionamiento seleccionado por el usuario. 
-    El modo reporta cómo funciona y reporta con la aplicación
+    El modo determina el funcionamiento y el formato de los reportes de la aplicacion.
 */
 typedef enum {
     APP_MODE_TEST = 0,
@@ -202,7 +202,7 @@ typedef enum {
     APP_MODE_SIMU
 } AppMode;
 
-/* 
+/** 
     Estado global decidido por la aplicacion.
     En qué situación está el sistema
 */
@@ -212,7 +212,7 @@ typedef enum {
     TRACKER_STATE_PROBLEM
 } TrackerState;
 
-/* 
+/** 
  *  Bits definidos por el protocolo SIMU. 
  *  Los flags permiten establecer varias condiciones simultaneamente.
  *  Para combinarlas, se debe utilizar el operador | (OR de bits)
@@ -229,7 +229,9 @@ typedef enum {
     TRACKER_FLAG_YAW_UNRELIABLE      = 0x0080
 } TrackerFlag;
 
-/* Decision final que comparten LED y formateadores. */
+/**
+ * Decision final que comparten LED y formateadores.
+ */
 typedef struct {
     TrackerState state;
     uint16_t flags;

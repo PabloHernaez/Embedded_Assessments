@@ -1,4 +1,4 @@
-# Playbook de desarrollo Zephyr OS en Windows para la UPM
+# Nuestro entorno Zephyr en Windows
 
 > **Entorno objetivo actual**
 >
@@ -11,15 +11,15 @@
 > - **Flashing:** STM32CubeProgrammer / ST-LINK
 > - **Sistema operativo host:** Windows
 
-Este documento conserva la guia del entorno Zephyr del Master IoT UPM. Los ejemplos de configuracion y tareas siguientes corresponden a `Proyecto_Final`; el estado implementado, probado y pendiente se registra en [README_DESARROLLO.md](README_DESARROLLO.md).
+Aquí recogemos el entorno Zephyr que usamos en `Proyecto_Final`, las tareas y los comandos de trabajo. Mantenemos el estado del firmware y los pendientes en [README_DESARROLLO.md](README_DESARROLLO.md).
 
-La idea es **no volver a reconstruir el entorno desde cero en cada práctica**. Zephyr, el SDK y el entorno virtual se mantienen como infraestructura compartida. Cada nueva práctica vive en su propia carpeta de proyecto.
+Compartimos la instalación de Zephyr, el SDK y el entorno virtual entre prácticas. Mantenemos las fuentes y los resultados de compilación dentro de cada proyecto.
 
 ---
 
-# 1. Mapa mental del entorno
+# 1. Organización del entorno
 
-La instalación queda separada en tres capas:
+Organizamos la instalación en tres capas:
 
 ```text
 C:\ZephyrUPM
@@ -50,7 +50,7 @@ Y el SDK vive aparte:
 C:\Users\<usuario>\zephyr-sdk-1.0.1
 ```
 
-En mi caso actual:
+Ruta local del SDK:
 
 ```text
 C:\Users\davma\zephyr-sdk-1.0.1
@@ -71,11 +71,11 @@ Contiene:
 - el entorno virtual de Python;
 - `west`.
 
-**No escribir el código de las prácticas aquí.**
+Mantenemos las fuentes de las prácticas en `workspace`, separadas de la infraestructura Zephyr.
 
 ### `workspace`
 
-Contiene **mis proyectos**.
+Aquí mantenemos los proyectos de las prácticas.
 
 Ejemplo:
 
@@ -83,23 +83,23 @@ Ejemplo:
 C:\ZephyrUPM\workspace\imu_test
 ```
 
-Cada proyecto debe ser independiente.
+Separamos los directorios de fuentes y de compilación de cada proyecto.
 
 ### `templates`
 
-Aquí conviene guardar una plantilla limpia y conocida:
+Usamos esta ruta para la plantilla de partida:
 
 ```text
 C:\ZephyrUPM\templates\upm-zephyr-project
 ```
 
-Así cada nueva práctica se crea copiando la plantilla.
+A partir de esa plantilla creamos las prácticas nuevas.
 
 ---
 
-# 2. Regla de oro
+# 2. Versiones de trabajo
 
-Nunca mezclar versiones de Zephyr, SDK y build.
+Mantenemos emparejadas las versiones de Zephyr, SDK y build.
 
 La pareja actual de trabajo es:
 
@@ -109,7 +109,7 @@ Zephyr 4.4.2
 Zephyr SDK 1.0.1
 ```
 
-No mezclar, por ejemplo:
+Las siguientes combinaciones quedan fuera de nuestro entorno:
 
 ```text
 Zephyr 4.4.2
@@ -131,19 +131,19 @@ Eso genera entornos híbridos difíciles de diagnosticar.
 
 # 3. Verificación rápida del entorno
 
-Antes de empezar una práctica nueva, comprobar una vez:
+Al empezar una práctica comprobamos el entorno:
 
 ```powershell
 C:\ZephyrUPM\zephyrproject-4.4\.venv\Scripts\Activate.ps1
 ```
 
-La terminal debe mostrar algo parecido a:
+El entorno activo queda identificado por una salida como esta:
 
 ```text
 (.venv) PS C:\...
 ```
 
-Comprobar:
+Comprobamos:
 
 ```powershell
 python --version
@@ -153,7 +153,7 @@ ninja --version
 git --version
 ```
 
-También:
+También comprobamos:
 
 ```powershell
 $env:ZEPHYR_BASE = "C:\ZephyrUPM\zephyrproject-4.4\zephyr"
@@ -161,27 +161,27 @@ $env:ZEPHYR_TOOLCHAIN_VARIANT = "zephyr"
 $env:ZEPHYR_SDK_INSTALL_DIR = "C:\Users\davma\zephyr-sdk-1.0.1"
 ```
 
-Para inspeccionar las variables:
+Inspeccionamos las variables con:
 
 ```powershell
 Get-ChildItem Env:ZEPHYR*
 ```
 
-La salida relevante debería apuntar únicamente al entorno 4.4.2 / SDK 1.0.1.
+En nuestro entorno las rutas corresponden a Zephyr 4.4.2 y SDK 1.0.1.
 
 ---
 
-# 4. Crear un proyecto nuevo
+# 4. Creación de proyectos a partir de la plantilla
 
-## Opción recomendada: copiar la plantilla
+## Copia de la plantilla
 
-Suponiendo que existe:
+Con la plantilla disponible en:
 
 ```text
 C:\ZephyrUPM\templates\upm-zephyr-project
 ```
 
-crear, por ejemplo:
+creamos una carpeta de trabajo, por ejemplo:
 
 ```powershell
 Copy-Item `
@@ -190,7 +190,7 @@ Copy-Item `
   -Recurse
 ```
 
-Después abrir el proyecto:
+Después abrimos el proyecto:
 
 ```powershell
 code C:\ZephyrUPM\workspace\imu_test
@@ -202,7 +202,7 @@ code C:\ZephyrUPM\workspace\imu_test
 
 `${workspaceFolder}` es una variable propia de VS Code.
 
-**No se define manualmente.**
+Usamos el valor que asigna VS Code a la carpeta abierta.
 
 VS Code la asigna automáticamente a la carpeta que se abrió mediante:
 
@@ -212,7 +212,7 @@ File → Open Folder...
 
 Ejemplo:
 
-Si se abre:
+Cuando abrimos:
 
 ```text
 C:\ZephyrUPM\workspace\blink_basic
@@ -230,7 +230,7 @@ significa:
 C:\ZephyrUPM\workspace\blink_basic
 ```
 
-Si mañana se abre:
+Si abrimos otro proyecto:
 
 ```text
 C:\ZephyrUPM\workspace\imu_test
@@ -242,7 +242,7 @@ entonces exactamente el mismo `tasks.json` interpreta `${workspaceFolder}` como:
 C:\ZephyrUPM\workspace\imu_test
 ```
 
-Por eso es preferible usar `${workspaceFolder}` en los tasks en lugar de codificar la ruta del proyecto.
+Por eso usamos `${workspaceFolder}` para las rutas del proyecto en las tareas.
 
 ---
 
@@ -273,7 +273,7 @@ Los dos directorios de build son generados y estan excluidos de Git.
 
 El [CMake de produccion](../CMakeLists.txt) compila `src/main.c`,
 `src/build_checks.c`, los tres drivers y la calibracion del giroscopio.
-Los servicios y formateadores de `include/` siguen pendientes de implementacion.
+Tenemos pendientes las implementaciones de los servicios y formateadores declarados en `include/`.
 
 El [CMake del ensayo](../tests/board/sensors/CMakeLists.txt) compila su propio
 `src/main.c`, los drivers IMU/ambiente y la calibracion; excluye `build_checks.c`.
@@ -285,7 +285,7 @@ propio para desactivarlos: la separacion de ejecutables se hace en CMake.
 
 ---
 
-# 8. `settings.json` recomendado
+# 8. Nuestra configuración de `settings.json`
 
 Archivo:
 
@@ -323,10 +323,10 @@ Contenido:
 }
 ```
 
-No es necesario mantener una variable `PROJECT_DIR` si los tasks usan `${workspaceFolder}`.
+Las tareas resuelven el directorio del proyecto con `${workspaceFolder}`.
 
 Las rutas ARM/GDB y el prefijo `arm-zephyr-eabi` se mantienen en
-[settings.json](../.vscode/settings.json). Se verifico en el codigo de la
+[settings.json](../.vscode/settings.json). Comprobamos en el código de la
 extension instalada Cortex-Debug 1.12.1 que, si el perfil no los especifica,
 hereda `armToolchainPath`, `armToolchainPrefix` y `gdbPath` de la configuracion
 `cortex-debug`. El prefijo se asigna a `toolchainPrefix` y la ruta ARM a
@@ -618,7 +618,7 @@ de produccion parpadea y no emite diagnosticos por serie.
 
 # 10. Por qué usamos rutas relativas en `DTC_OVERLAY_FILE` y `CONF_FILE`
 
-Usar:
+Usamos:
 
 ```jsonc
 "-DDTC_OVERLAY_FILE=boards/nucleo_wl55jc.overlay",
@@ -667,7 +667,7 @@ Conserva los ajustes propios del montaje:
 - RGB activo bajo: PB5, PB8 y PB10.
 
 El [overlay de ensayo](../tests/board/sensors/app.overlay) restaura unicamente
-`zephyr,console = &lpuart1`. Revisar `zephyr.dts` de cada build tras cambiar hardware.
+`zephyr,console = &lpuart1`. Revisamos `zephyr.dts` de cada build tras cambiar el hardware.
 
 ---
 
@@ -697,8 +697,9 @@ CONFIG_CBPRINTF_FP_SUPPORT=y
 CONFIG_MAIN_STACK_SIZE=3072
 ```
 
-No copiar un perfil generico con logs o consola a produccion: sus guardas
-rechazan esas opciones y las asignaciones de consola de Devicetree.
+Mantenemos separados los ajustes de consola del ensayo y de producción.
+Las guardas de producción rechazan consola, logs y las asignaciones de consola
+de Devicetree.
 
 ---
 
@@ -740,15 +741,15 @@ Generating files ...
 
 # 14. Primer build de un proyecto nuevo
 
-Para un proyecto recién creado conviene hacer una compilación limpia.
+En un proyecto recién creado empezamos con una compilación limpia.
 
-Puede usarse temporalmente:
+Para esa primera compilación usamos:
 
 ```text
 -p always
 ```
 
-o ejecutar:
+o ejecutamos:
 
 ```text
 Clean Build
@@ -760,7 +761,7 @@ y luego:
 West Build (auto)
 ```
 
-Después del primer build satisfactorio, volver a:
+Después del primer build satisfactorio volvemos a:
 
 ```text
 -p auto
@@ -770,7 +771,7 @@ Después del primer build satisfactorio, volver a:
 
 # 15. Build manual desde PowerShell
 
-Activar el entorno:
+Activamos el entorno:
 
 ```powershell
 C:\ZephyrUPM\zephyrproject-4.4\.venv\Scripts\Activate.ps1
@@ -796,7 +797,7 @@ west build -p always `
   "-DCONF_FILE=C:/ZephyrUPM/workspace/assesment_ldr_final/Embedded_Assessments/Proyecto_Final/confs/prj_nucleo_wl55jc.conf"
 ```
 
-Si PowerShell empieza a interpretar mal argumentos multiline, usar una sola línea:
+Si PowerShell interpreta mal los argumentos multilínea, usamos una sola línea:
 
 ```powershell
 west build -p always -b nucleo_wl55jc C:/ZephyrUPM/workspace/assesment_ldr_final/Embedded_Assessments/Proyecto_Final -d C:/ZephyrUPM/workspace/assesment_ldr_final/Embedded_Assessments/Proyecto_Final/build -- "-DDTC_OVERLAY_FILE=C:/ZephyrUPM/workspace/assesment_ldr_final/Embedded_Assessments/Proyecto_Final/boards/nucleo_wl55jc.overlay" "-DCONF_FILE=C:/ZephyrUPM/workspace/assesment_ldr_final/Embedded_Assessments/Proyecto_Final/confs/prj_nucleo_wl55jc.conf"
@@ -811,7 +812,7 @@ west build -p always -b nucleo_wl55jc C:/ZephyrUPM/workspace/assesment_ldr_final
 ```
 
 El CMake del ensayo selecciona la base comun y sus ajustes. Para repetir una
-captura breve en placa, seguir [la guia de desarrollo](README_DESARROLLO.md#captura-breve-en-placa-pendiente).
+captura breve en placa usamos el procedimiento de [desarrollo](README_DESARROLLO.md#captura-breve-en-placa-pendiente).
 
 
 # 16. Artefactos importantes del build
@@ -869,7 +870,7 @@ prj.conf del ensayo (solo en build-sensors)
 
 # 17. Flashear la NUCLEO-WL55JC
 
-Conectar la placa por USB.
+Conectamos la placa por USB para programarla.
 
 Desde VS Code:
 
@@ -880,7 +881,7 @@ Ctrl + Shift + P
 ```
 
 La tarea `Flash (CubeProgrammer, UR+HWrst)` primero compila produccion.
-Para programar `build-sensors/zephyr/zephyr.hex`, usar `Flash (Sensores)`.
+Para programar `build-sensors/zephyr/zephyr.hex` usamos `Flash (Sensores)`.
 
 Después utiliza:
 
@@ -914,7 +915,7 @@ Get-CimInstance Win32_SerialPort |
 Select-Object DeviceID, Name, Description
 ```
 
-Buscar algo relacionado con STMicroelectronics / STLink.
+Identificamos el dispositivo STMicroelectronics / STLink.
 
 Ejemplo:
 
@@ -933,7 +934,7 @@ Tasks: Run Task
 → Serial Monitor
 ```
 
-Introducir:
+Usamos el puerto identificado, por ejemplo:
 
 ```text
 COM7
@@ -969,7 +970,7 @@ Si aparecen problemas extraños después de:
 - cambiar de SDK;
 - modificar estructura del proyecto;
 
-ejecutar:
+ejecutamos:
 
 ```text
 Tasks: Run Task
@@ -982,15 +983,15 @@ o:
 Remove-Item -Recurse -Force .\build
 ```
 
-Después compilar de nuevo.
+Después compilamos de nuevo.
 
 **El directorio `build` es desechable.**
 
 ---
 
-# 21. Nunca reutilizar un build entre versiones de Zephyr
+# 21. Builds separados por versión de Zephyr
 
-No hacer:
+Evitamos reutilizar el mismo build con estas dos versiones:
 
 ```text
 Zephyr 4.1
@@ -1000,14 +1001,14 @@ build/
 Zephyr 4.4
 ```
 
-Si se cambia de versión:
+Cuando cambiamos de versión:
 
 ```text
 Eliminar build
 → compilar de cero
 ```
 
-Durante pruebas paralelas puede usarse:
+Para las pruebas en paralelo separamos los directorios:
 
 ```text
 build-4.1
@@ -1018,7 +1019,7 @@ build-4.4
 
 # 22. Comprobar qué Zephyr se está usando realmente
 
-En un build correcto del entorno actual debe aparecer:
+Identificamos la versión del build por esta salida:
 
 ```text
 Zephyr version: 4.4.2
@@ -1030,7 +1031,7 @@ Y rutas como:
 C:/ZephyrUPM/zephyrproject-4.4/zephyr
 ```
 
-No debe aparecer:
+La ruta siguiente corresponde al entorno antiguo:
 
 ```text
 C:/ZephyrUPM/zephyrproject/zephyr
@@ -1038,7 +1039,7 @@ C:/ZephyrUPM/zephyrproject/zephyr
 
 si ese directorio corresponde al entorno antiguo 4.1.
 
-También debe aparecer:
+La toolchain queda identificada por:
 
 ```text
 Found toolchain: zephyr 1.0.1
@@ -1052,7 +1053,7 @@ zephyr 0.17.0
 
 ---
 
-# 23. Diagnóstico rápido de un entorno Frankenstein
+# 23. Diagnóstico de versiones mezcladas
 
 Si el log muestra algo parecido a:
 
@@ -1064,7 +1065,7 @@ SDK → 0.17.0
 
 el entorno está mezclado.
 
-Revisar:
+Revisamos:
 
 ```text
 settings.json
@@ -1107,13 +1108,13 @@ Select-Object TimeCreated, Id, Message |
 Format-List
 ```
 
-No asumir inmediatamente que:
+Revisamos los eventos de Code Integrity antes de atribuir el fallo a Zephyr:
 
 ```text
 Zephyr está roto
 ```
 
-Puede ser simplemente Windows bloqueando un ejecutable o DLL.
+Así distinguimos un fallo del entorno de un ejecutable o DLL bloqueado por Windows.
 
 ---
 
@@ -1141,7 +1142,7 @@ CONFIG_OUTPUT_STAT=n
 
 al `.conf` del proyecto.
 
-Usar únicamente si el bloqueo aparece.
+Solo aplicamos ese ajuste temporal cuando tenemos confirmado ese bloqueo.
 
 ---
 
@@ -1189,13 +1190,13 @@ No significa necesariamente:
 - PWM incorrecto;
 - GPIO ocupado.
 
-Primero comprobar el nombre real del nodo.
+Primero comprobamos el nombre real del nodo.
 
 ---
 
-# 28. Checklist de proyecto nuevo
+# 28. Comprobaciones de un proyecto nuevo
 
-Antes de programar:
+Antes de programar revisamos estos puntos:
 
 - [ ] Proyecto creado dentro de `C:\ZephyrUPM\workspace`
 - [ ] VS Code abrió la raíz correcta del proyecto
@@ -1224,13 +1225,13 @@ Antes de programar:
 
 ## Error de Devicetree
 
-Buscar:
+Buscamos:
 
 ```text
 devicetree error:
 ```
 
-Comprobar:
+Comprobamos:
 
 ```text
 board DTS
@@ -1242,7 +1243,7 @@ status
 
 ## Error de Kconfig
 
-Buscar:
+Buscamos:
 
 ```text
 warning:
@@ -1250,7 +1251,7 @@ error:
 Merged configuration:
 ```
 
-Inspeccionar:
+Inspeccionamos:
 
 ```text
 build/zephyr/.config
@@ -1258,7 +1259,7 @@ build/zephyr/.config
 
 ## Error de compiler/linker
 
-Buscar primero:
+Localizamos primero:
 
 ```text
 FAILED:
@@ -1266,7 +1267,7 @@ FAILED:
 
 y la primera línea de error real antes del traceback.
 
-No quedarse únicamente con:
+Distinguimos la causa inicial de este resumen final:
 
 ```text
 FATAL ERROR
@@ -1276,7 +1277,7 @@ porque normalmente es el resumen final.
 
 ## Error de rutas
 
-En Windows revisar especialmente:
+En Windows revisamos especialmente:
 
 ```text
 \
@@ -1286,13 +1287,11 @@ comillas
 variables no expandidas
 ```
 
-Evitar que CMake reciba cosas como:
+Comprobamos que CMake no reciba literalmente argumentos como:
 
 ```text
 $env:PROJECT_DIR
 ```
-
-literalmente.
 
 ## Error después de cambiar versiones
 
@@ -1302,7 +1301,7 @@ Primera acción:
 Clean Build
 ```
 
-Después verificar:
+Después verificamos:
 
 ```text
 Zephyr version
@@ -1312,19 +1311,19 @@ ZEPHYR_BASE
 
 ---
 
-# 30. Flujo diario recomendado
+# 30. Nuestro flujo de trabajo
 
 ## Al comenzar
 
-1. Abrir la carpeta correcta:
+1. Abrimos la carpeta de trabajo:
 
 ```powershell
 code C:\ZephyrUPM\workspace\assesment_ldr_final\Embedded_Assessments\Proyecto_Final
 ```
 
-2. Verificar visualmente que la raíz del Explorer de VS Code es el proyecto.
+2. Comprobamos que la raíz del Explorer de VS Code es el proyecto.
 
-3. Compilar:
+3. Compilamos:
 
 ```text
 Ctrl + Shift + B
@@ -1332,7 +1331,7 @@ Ctrl + Shift + B
 
 ## Durante desarrollo
 
-Editar:
+Trabajamos en:
 
 ```text
 src/
@@ -1416,9 +1415,9 @@ STM32WL55JC
 
 ---
 
-# 32. Regla final
+# 32. Diagnóstico por capas
 
-Cuando algo falle, separar siempre el problema por capas:
+Cuando encontramos un fallo, lo localizamos por capas:
 
 ```text
 1. VS Code / task
@@ -1433,13 +1432,13 @@ Cuando algo falle, separar siempre el problema por capas:
 10. hardware
 ```
 
-No asumir que un error al final de la cadena significa que todo el entorno está roto.
+Usamos el primer error para identificar la capa afectada.
 
 La mayoría de los errores quedan confinados a una sola capa.
 
 ---
 
-# 33. Resumen ultrarrápido
+# 33. Comandos habituales
 
 Para una nueva práctica:
 
@@ -1458,4 +1457,4 @@ Para una nueva práctica:
 
 Si eso funciona:
 
-> **La infraestructura deja de ser el problema y la práctica empieza de verdad.**
+Con el entorno verificado continuamos con el código y las pruebas de la práctica.

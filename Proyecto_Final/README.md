@@ -1,52 +1,56 @@
 # Drone tracker — proyecto final IoT UPM
 
-Firmware para la NUCLEO-WL55JC del proyecto de Embedded Platforms and IoT.
-Integra en desarrollo un MPU6050, un Si7021 y un LDR KY-018, con contratos
-compartidos para adquisicion, navegacion, GPS y reportes NORMAL/SIMU.
+Desarrollamos el firmware para NUCLEO-WL55JC del proyecto final de Embedded
+Platforms and IoT. Partimos de la base D1 y de los contratos compartidos de
+adquisición, GPS y reportes NORMAL/SIMU.
 
-El main de produccion conserva el parpadeo provisional. Los drivers de sensores
-y la calibracion del giroscopio estan implementados; el ensayo independiente
-permite ejercitar MPU6050 y Si7021 con salida serie. La adquisicion integrada,
-GPS, supervision, formateadores y estimador de orientacion, velocidad y posicion
-siguen pendientes. D2 y D3 permanecen abiertos, incluida la calibracion final
-y el diagnostico electrico del LDR.
+## Estado actual
 
-## Entorno
+Tenemos implementados los drivers privados del MPU6050, el Si7021 y el LDR
+KY-018, además de la calibración inicial del giroscopio. En
+`tests/board/sensors` mantenemos un ensayo independiente para MPU6050,
+calibración y Si7021, con salida por serie.
 
-- Zephyr 4.4.2: `C:/ZephyrUPM/zephyrproject-4.4/zephyr`.
-- Zephyr SDK 1.0.1, Python 3.12 y placa `nucleo_wl55jc/stm32wl55xx`.
-- VS Code, STM32CubeProgrammer/ST-LINK y PuTTY/plink para el ensayo.
+El main de producción conserva el parpadeo provisional. Seguimos trabajando
+en la validación física de sensores, la calibración final del LDR, la
+adquisición integrada y la estimación de orientación, velocidad y posición.
+D2 y D3 siguen abiertos; GPS, formatos y aplicación tienen sus contratos
+preparados para el trabajo en paralelo.
 
-## Compilar y programar
+## Entorno y perfiles
 
-Abrir `C:/ZephyrUPM/workspace/assesment_ldr_final/Embedded_Assessments/Proyecto_Final` en VS Code.
+Usamos Zephyr 4.4.2, SDK 1.0.1 y el target `nucleo_wl55jc/stm32wl55xx`.
+Trabajamos en VS Code con `../Proyecto_Final.code-workspace`; también podemos
+abrir directamente esta carpeta. En ambos casos, `${workspaceFolder}` es
+`Proyecto_Final` y la raíz Git es `Embedded_Assessments`.
 
-Tambien se puede abrir `../Proyecto_Final.code-workspace`. En ambos casos,
-`${workspaceFolder}` debe ser `Proyecto_Final` para que las tareas de `.vscode/`
-resuelvan correctamente las fuentes y los directorios de compilacion.
-La raiz Git es la carpeta superior `Embedded_Assessments`, compartida con
-`Assessment_1`.
-
-| Perfil | Compilacion | Programacion | Salida |
+| Perfil | Compilación | Programación | Salida |
 | --- | --- | --- | --- |
-| Produccion | Ctrl+Shift+B / `West Build (auto)`; limpia: `West Build (pristine)` | `Flash (CubeProgrammer, UR+HWrst)` | `build/zephyr`, sin consola Zephyr |
-| Ensayo MPU6050 + Si7021 | `West Build (sensores)` | `Flash (Sensores)` | `build-sensors/zephyr`, consola LPUART1 a 115200 8N1 |
+| Producción | Ctrl+Shift+B / `West Build (auto)`; limpia: `West Build (pristine)` | `Flash (CubeProgrammer, UR+HWrst)` | `build/zephyr`, sin consola Zephyr |
+| Ensayo MPU6050 + Si7021 | `West Build (sensores)` | `Flash (Sensores)` | `build-sensors/zephyr`, LPUART1 a 115200 8N1 |
 
-Las tareas comparten el entorno definido en `.vscode/tasks.json`.
-Produccion usa `confs/prj_nucleo_wl55jc.conf` y `boards/nucleo_wl55jc.overlay`;
-el ensayo aplica despues sus ajustes en `tests/board/sensors/`.
-`src/build_checks.c` impide activar consola, printk, banner, shell o logs en
-produccion y comprueba la retirada de las asignaciones de consola de Devicetree.
+Compartimos la configuración y el overlay de placa entre perfiles; el ensayo
+aplica sus ajustes propios después. Mantenemos las restricciones de consola
+en producción mediante `src/build_checks.c`.
 
-`List COM Ports` permite identificar el puerto real y `Serial Monitor` abrirlo.
-La compilacion por si sola no demuestra funcionamiento en placa.
+Las rutas de herramientas de `.vscode/` y `scripts/` corresponden al entorno
+local de David. Las ajustamos a cada equipo conservando las versiones fijadas.
 
-## Documentacion
+## Reparto del trabajo
 
-- [Guia de desarrollo](docs/README_DESARROLLO.md): contratos, estado implementado,
-  validaciones realizadas, pendientes y captura breve en placa.
-- [Playbook Zephyr en Windows](docs/Zephyr_UPM_Playbook.md): entorno, tareas,
-  compilaciones limpias, programacion y depuracion.
+| Bloque | Responsable | Contrato compartido |
+| --- | --- | --- |
+| Drivers, estimación, estadísticas y adquisición | David | `include/acquisition_api.h` |
+| GPS y parser NMEA | Pablo | `include/gps_api.h` |
+| Reportes SIMU y humano | Pablo | `include/simu_frame.h`, `include/human_report.h` |
+| Aplicación, modos, UART, estado y RGB | Pablo | Tipos de `include/model.h` |
 
-Los tipos y contratos publicos estan en `include/`; los drivers privados en
-`src/drivers/` y la calibracion en `src/algorithms/`.
+Mantenemos los tipos y las seis APIs públicas en `include/`, y los detalles
+privados de cada bloque en `src/`. Coordinamos los cambios de contratos;
+Pablo mantiene `main`, CMake, configuración y overlay tras la base D1.
+
+## Documentación
+
+- [Desarrollo y pendientes](docs/README_DESARROLLO.md).
+- [Entorno Zephyr en Windows](docs/Zephyr_UPM_Playbook.md).
+- [Ensayos](tests/README.md).

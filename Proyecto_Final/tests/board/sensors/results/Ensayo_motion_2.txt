@@ -1,0 +1,113 @@
+Ensayo MPU6050 + Si7021
+imu_init: 0
+environment_init: 0
+Calibrando: mantener el MPU quieto y nivelado.
+Calibrando: 0/100 (imu=1)
+Calibrando: 50/100 (imu=1)
+Sesgo gyro: -2.807 -0.604 -0.318 deg/s
+t=2294 | moving=0 | imu=1 | NEW=1 NO_NEW=0 ERR=0 SAT=0 GAP=0
+Temperatura: 24.36 C | Humedad: 86.41 %
+t=3294 | moving=0 | imu=1 | NEW=51 NO_NEW=0 ERR=0 SAT=0 GAP=0
+t=4294 | moving=0 | imu=1 | NEW=101 NO_NEW=0 ERR=0 SAT=0 GAP=0
+Temperatura: 24.40 C | Humedad: 86.45 %
+t=5294 | moving=0 | imu=1 | NEW=149 NO_NEW=2 ERR=0 SAT=0 GAP=0
+t=6294 | moving=0 | imu=1 | NEW=199 NO_NEW=2 ERR=0 SAT=0 GAP=0
+Temperatura: 24.39 C | Humedad: 86.45 %
+t=7294 | moving=0 | imu=1 | NEW=249 NO_NEW=2 ERR=0 SAT=0 GAP=0
+t=8294 | moving=0 | imu=1 | NEW=299 NO_NEW=2 ERR=0 SAT=0 GAP=0
+Temperatura: 24.38 C | Humedad: 86.45 %
+t=9294 | moving=0 | imu=1 | NEW=349 NO_NEW=2 ERR=0 SAT=0 GAP=0
+t=10294 | moving=0 | imu=1 | NEW=399 NO_NEW=2 ERR=0 SAT=0 GAP=0
+Temperatura: 24.38 C | Humedad: 86.44 %
+t=11294 | moving=0 | imu=1 | NEW=449 NO_NEW=2 ERR=0 SAT=0 GAP=0
+t=12294 | moving=0 | imu=1 | NEW=499 NO_NEW=2 ERR=0 SAT=0 GAP=0
+Temperatura: 24.38 C | Humedad: 86.41 %
+t=13134 ms | moving=1 | a=10.038 m/s2 | g=36.677 deg/s
+t=13294 | moving=1 | imu=1 | NEW=549 NO_NEW=2 ERR=0 SAT=0 GAP=0
+t=14294 | moving=1 | imu=1 | NEW=599 NO_NEW=2 ERR=0 SAT=0 GAP=0
+Temperatura: 24.41 C | Humedad: 86.63 %
+t=15294 | moving=1 | imu=1 | NEW=649 NO_NEW=2 ERR=0 SAT=0 GAP=0
+t=16294 | moving=1 | imu=1 | NEW=699 NO_NEW=2 ERR=0 SAT=0 GAP=0
+Temperatura: 24.42 C | Humedad: 86.67 %
+t=17294 | moving=1 | imu=1 | NEW=749 NO_NEW=2 ERR=0 SAT=0 GAP=0
+t=18294 | moving=1 | imu=1 | NEW=798 NO_NEW=3 ERR=0 SAT=0 GAP=0
+Temperatura: 24.49 C | Humedad: 87.07 %
+t=19294 | moving=1 | imu=1 | NEW=848 NO_NEW=3 ERR=0 SAT=0 GAP=0
+t=20294 | moving=1 | imu=1 | NEW=898 NO_NEW=3 ERR=0 SAT=0 GAP=0
+Temperatura: 24.49 C | Humedad: 87.38 %
+t=21294 | moving=1 | imu=1 | NEW=948 NO_NEW=3 ERR=0 SAT=0 GAP=0
+t=22294 | moving=1 | imu=1 | NEW=998 NO_NEW=3 ERR=0 SAT=0 GAP=0
+Temperatura: 24.49 C | Humedad: 87.32 %
+t=23294 | moving=1 | imu=1 | NEW=1048 NO_NEW=3 ERR=0 SAT=0 GAP=0
+t=24294 | moving=1 | imu=1 | NEW=1098 NO_NEW=3 ERR=0 SAT=0 GAP=0
+Temperatura: 24.49 C | Humedad: 87.26 %
+t=25294 | moving=1 | imu=1 | NEW=1148 NO_NEW=3 ERR=0 SAT=0 GAP=0
+t=26294 | moving=1 | imu=1 | NEW=1198 NO_NEW=3 ERR=0 SAT=0 GAP=0
+Temperatura: 24.48 C | Humedad: 87.42 %
+t=27294 | moving=1 | imu=1 | NEW=1248 NO_NEW=3 ERR=0 SAT=0 GAP=0
+t=28294 | moving=1 | imu=1 | NEW=1298 NO_NEW=3 ERR=0 SAT=0 GAP=0
+Temperatura: 24.53 C | Humedad: 87.71 %
+t=29294 | moving=1 | imu=1 | NEW=1348 NO_NEW=3 ERR=0 SAT=0 GAP=0
+t=30294 | moving=1 | imu=1 | NEW=1397 NO_NEW=4 ERR=0 SAT=0 GAP=0
+Temperatura: 24.54 C | Humedad: 87.78 %
+t=31294 | moving=1 | imu=1 | NEW=1447 NO_NEW=4 ERR=0 SAT=0 GAP=0
+t=32294 | moving=1 | imu=1 | NEW=1497 NO_NEW=4 ERR=0 SAT=0 GAP=0
+Temperatura: 24.53 C | Humedad: 87.87 %
+t=33294 | moving=1 | imu=1 | NEW=1547 NO_NEW=4 ERR=0 SAT=0 GAP=0
+t=34294 | moving=1 | imu=1 | NEW=1597 NO_NEW=4 ERR=0 SAT=0 GAP=0
+Temperatura: 24.55 C | Humedad: 87.88 %
+t=35294 | moving=1 | imu=1 | NEW=1647 NO_NEW=4 ERR=0 SAT=0 GAP=0
+t=36294 | moving=1 | imu=1 | NEW=1697 NO_NEW=4 ERR=0 SAT=0 GAP=0
+Temperatura: 24.56 C | Humedad: 88.01 %
+t=37294 | moving=1 | imu=1 | NEW=1747 NO_NEW=4 ERR=0 SAT=0 GAP=0
+t=38294 | moving=1 | imu=1 | NEW=1797 NO_NEW=4 ERR=0 SAT=0 GAP=0
+Temperatura: 24.60 C | Humedad: 88.07 %
+t=39294 | moving=1 | imu=1 | NEW=1847 NO_NEW=4 ERR=0 SAT=0 GAP=0
+t=40294 | moving=1 | imu=1 | NEW=1897 NO_NEW=4 ERR=0 SAT=0 GAP=0
+Temperatura: 24.56 C | Humedad: 88.02 %
+t=41294 | moving=1 | imu=1 | NEW=1946 NO_NEW=5 ERR=0 SAT=0 GAP=0
+t=42294 | moving=1 | imu=1 | NEW=1996 NO_NEW=5 ERR=0 SAT=0 GAP=0
+Temperatura: 24.56 C | Humedad: 88.00 %
+t=43294 | moving=1 | imu=1 | NEW=2046 NO_NEW=5 ERR=0 SAT=0 GAP=0
+t=44294 | moving=1 | imu=1 | NEW=2096 NO_NEW=5 ERR=0 SAT=0 GAP=0
+Temperatura: 24.58 C | Humedad: 87.98 %
+t=45294 | moving=1 | imu=1 | NEW=2146 NO_NEW=5 ERR=0 SAT=0 GAP=0
+t=46294 | moving=1 | imu=1 | NEW=2196 NO_NEW=5 ERR=0 SAT=0 GAP=0
+Temperatura: 24.58 C | Humedad: 87.96 %
+t=47294 | moving=1 | imu=1 | NEW=2246 NO_NEW=5 ERR=0 SAT=0 GAP=0
+t=48294 | moving=1 | imu=1 | NEW=2296 NO_NEW=5 ERR=0 SAT=0 GAP=0
+Temperatura: 24.59 C | Humedad: 87.93 %
+t=49294 | moving=1 | imu=1 | NEW=2346 NO_NEW=5 ERR=0 SAT=0 GAP=0
+t=50294 | moving=1 | imu=1 | NEW=2396 NO_NEW=5 ERR=0 SAT=0 GAP=0
+Temperatura: 24.62 C | Humedad: 88.19 %
+t=51294 | moving=1 | imu=1 | NEW=2446 NO_NEW=5 ERR=0 SAT=0 GAP=0
+t=52294 | moving=1 | imu=1 | NEW=2496 NO_NEW=5 ERR=0 SAT=0 GAP=0
+Temperatura: 24.62 C | Humedad: 88.00 %
+t=53294 | moving=1 | imu=0 | NEW=2545 NO_NEW=6 ERR=0 SAT=0 GAP=0
+t=54294 | moving=1 | imu=1 | NEW=2595 NO_NEW=6 ERR=0 SAT=0 GAP=0
+Temperatura: 24.65 C | Humedad: 88.01 %
+t=55294 | moving=1 | imu=1 | NEW=2645 NO_NEW=6 ERR=0 SAT=0 GAP=0
+t=56294 | moving=1 | imu=1 | NEW=2695 NO_NEW=6 ERR=0 SAT=0 GAP=0
+Temperatura: 24.65 C | Humedad: 88.04 %
+t=57294 | moving=1 | imu=1 | NEW=2745 NO_NEW=6 ERR=0 SAT=0 GAP=0
+t=58294 | moving=1 | imu=1 | NEW=2795 NO_NEW=6 ERR=0 SAT=0 GAP=0
+Temperatura: 24.65 C | Humedad: 87.96 %
+t=59294 | moving=1 | imu=1 | NEW=2845 NO_NEW=6 ERR=0 SAT=0 GAP=0
+t=60294 | moving=1 | imu=1 | NEW=2895 NO_NEW=6 ERR=0 SAT=0 GAP=0
+Temperatura: 24.68 C | Humedad: 87.96 %
+t=61294 | moving=1 | imu=1 | NEW=2945 NO_NEW=6 ERR=0 SAT=0 GAP=0
+t=62294 | moving=1 | imu=1 | NEW=2995 NO_NEW=6 ERR=0 SAT=0 GAP=0
+Temperatura: 24.66 C | Humedad: 87.96 %
+t=63294 | moving=1 | imu=1 | NEW=3045 NO_NEW=6 ERR=0 SAT=0 GAP=0
+t=64294 | moving=1 | imu=1 | NEW=3095 NO_NEW=6 ERR=0 SAT=0 GAP=0
+Temperatura: 24.70 C | Humedad: 88.00 %
+t=65294 | moving=1 | imu=1 | NEW=3144 NO_NEW=7 ERR=0 SAT=0 GAP=0
+t=66294 | moving=1 | imu=1 | NEW=3194 NO_NEW=7 ERR=0 SAT=0 GAP=0
+Temperatura: 24.68 C | Humedad: 88.02 %
+t=67294 | moving=1 | imu=1 | NEW=3244 NO_NEW=7 ERR=0 SAT=0 GAP=0
+t=67594 ms | moving=0 | a=9.980 m/s2 | g=0.056 deg/s
+t=68294 | moving=0 | imu=1 | NEW=3294 NO_NEW=7 ERR=0 SAT=0 GAP=0
+Temperatura: 24.69 C | Humedad: 88.04 %
+t=69294 | moving=0 | imu=1 | NEW=3344 NO_NEW=7 ERR=0 SAT=0 GAP=0
+t=70294 | moving=0 | imu=1 | NEW=3394 NO_NEW=7 ERR=0 SAT=0 GAP=0
+Temperatura: 24.69 C | Humedad: 88.02 %

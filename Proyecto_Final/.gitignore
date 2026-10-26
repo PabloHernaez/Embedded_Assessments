@@ -6,8 +6,11 @@ build-*/
 # Generated files
 compile_commands.json
 
-# VS Code local noise
-.vscode/.ropeproject/
+# Configuracion y herramientas personales
+/.vscode/
+/scripts/
+/docs/Zephyr_UPM_Playbook.md
+.local/
 
 # OS noise
 Thumbs.db

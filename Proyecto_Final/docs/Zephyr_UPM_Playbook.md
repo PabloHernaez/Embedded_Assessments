@@ -665,7 +665,7 @@ evita un problema de Windows + CMake.
 `${workspaceFolder}` se expande normalmente a:
 
 ```text
-C:\ZephyrUPM\workspace\mi_proyecto
+C:\ZephyrUPM\workspace\assesment_ldr_final\Embedded_Assessments\Proyecto_Final
 ```
 
 Si esa ruta se inserta dentro de un argumento CMake, las barras invertidas pueden interpretarse como secuencias de escape:
@@ -834,17 +834,17 @@ Ejemplo robusto:
 ```powershell
 west build -p always `
   -b nucleo_wl55jc `
-  C:/ZephyrUPM/workspace/mi_proyecto `
-  -d C:/ZephyrUPM/workspace/mi_proyecto/build `
+  C:/ZephyrUPM/workspace/assesment_ldr_final/Embedded_Assessments/Proyecto_Final `
+  -d C:/ZephyrUPM/workspace/assesment_ldr_final/Embedded_Assessments/Proyecto_Final/build `
   -- `
-  "-DDTC_OVERLAY_FILE=C:/ZephyrUPM/workspace/mi_proyecto/boards/nucleo_wl55jc.overlay" `
-  "-DCONF_FILE=C:/ZephyrUPM/workspace/mi_proyecto/confs/prj_nucleo_wl55jc.conf"
+  "-DDTC_OVERLAY_FILE=C:/ZephyrUPM/workspace/assesment_ldr_final/Embedded_Assessments/Proyecto_Final/boards/nucleo_wl55jc.overlay" `
+  "-DCONF_FILE=C:/ZephyrUPM/workspace/assesment_ldr_final/Embedded_Assessments/Proyecto_Final/confs/prj_nucleo_wl55jc.conf"
 ```
 
 Si PowerShell empieza a interpretar mal argumentos multiline, usar una sola línea:
 
 ```powershell
-west build -p always -b nucleo_wl55jc C:/ZephyrUPM/workspace/mi_proyecto -d C:/ZephyrUPM/workspace/mi_proyecto/build -- "-DDTC_OVERLAY_FILE=C:/ZephyrUPM/workspace/mi_proyecto/boards/nucleo_wl55jc.overlay" "-DCONF_FILE=C:/ZephyrUPM/workspace/mi_proyecto/confs/prj_nucleo_wl55jc.conf"
+west build -p always -b nucleo_wl55jc C:/ZephyrUPM/workspace/assesment_ldr_final/Embedded_Assessments/Proyecto_Final -d C:/ZephyrUPM/workspace/assesment_ldr_final/Embedded_Assessments/Proyecto_Final/build -- "-DDTC_OVERLAY_FILE=C:/ZephyrUPM/workspace/assesment_ldr_final/Embedded_Assessments/Proyecto_Final/boards/nucleo_wl55jc.overlay" "-DCONF_FILE=C:/ZephyrUPM/workspace/assesment_ldr_final/Embedded_Assessments/Proyecto_Final/confs/prj_nucleo_wl55jc.conf"
 ```
 
 ---
@@ -1351,7 +1351,7 @@ ZEPHYR_BASE
 1. Abrir la carpeta correcta:
 
 ```powershell
-code C:\ZephyrUPM\workspace\mi_proyecto
+code C:\ZephyrUPM\workspace\assesment_ldr_final\Embedded_Assessments\Proyecto_Final
 ```
 
 2. Verificar visualmente que la raíz del Explorer de VS Code es el proyecto.

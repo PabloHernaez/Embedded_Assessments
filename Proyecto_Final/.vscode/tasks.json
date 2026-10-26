@@ -1,6 +1,12 @@
 {
   "version": "2.0.0",
-
+  "options": {
+    "env": {
+      "ZEPHYR_BASE": "C:/ZephyrUPM/zephyrproject-4.4/zephyr",
+      "ZEPHYR_TOOLCHAIN_VARIANT": "zephyr",
+      "ZEPHYR_SDK_INSTALL_DIR": "C:/Users/davma/zephyr-sdk-1.0.1"
+    }
+  },
   "tasks": [
     {
       "label": "West Build (auto)",
@@ -8,69 +14,66 @@
       "command": "C:/ZephyrUPM/zephyrproject-4.4/.venv/Scripts/west.exe",
       "args": [
         "build",
-        "-p", "auto",
-        "-b", "nucleo_wl55jc",
+        "-p",
+        "auto",
+        "-b",
+        "nucleo_wl55jc",
         "${workspaceFolder}",
-        "-d", "${workspaceFolder}/build",
+        "-d",
+        "${workspaceFolder}/build",
         "--",
         "-DDTC_OVERLAY_FILE=boards/nucleo_wl55jc.overlay",
         "-DCONF_FILE=confs/prj_nucleo_wl55jc.conf"
       ],
       "options": {
-        "cwd": "C:/ZephyrUPM/zephyrproject-4.4/zephyr",
-        "env": {
-          "ZEPHYR_BASE": "C:/ZephyrUPM/zephyrproject-4.4/zephyr",
-          "ZEPHYR_TOOLCHAIN_VARIANT": "zephyr",
-          "ZEPHYR_SDK_INSTALL_DIR": "C:/Users/davma/zephyr-sdk-1.0.1"
-        }
+        "cwd": "C:/ZephyrUPM/zephyrproject-4.4/zephyr"
       },
       "group": {
         "kind": "build",
         "isDefault": true
       },
-      "problemMatcher": ["$gcc"],
+      "problemMatcher": [
+        "$gcc"
+      ],
       "presentation": {
         "reveal": "always",
         "panel": "shared",
         "clear": true
       }
     },
-
     {
       "label": "West Build (pristine)",
       "type": "process",
       "command": "C:/ZephyrUPM/zephyrproject-4.4/.venv/Scripts/west.exe",
       "args": [
         "build",
-        "-p", "always",
-        "-b", "nucleo_wl55jc",
+        "-p",
+        "always",
+        "-b",
+        "nucleo_wl55jc",
         "${workspaceFolder}",
-        "-d", "${workspaceFolder}/build",
+        "-d",
+        "${workspaceFolder}/build",
         "--",
         "-DDTC_OVERLAY_FILE=boards/nucleo_wl55jc.overlay",
         "-DCONF_FILE=confs/prj_nucleo_wl55jc.conf"
       ],
       "options": {
-        "cwd": "C:/ZephyrUPM/zephyrproject-4.4/zephyr",
-        "env": {
-          "ZEPHYR_BASE": "C:/ZephyrUPM/zephyrproject-4.4/zephyr",
-          "ZEPHYR_TOOLCHAIN_VARIANT": "zephyr",
-          "ZEPHYR_SDK_INSTALL_DIR": "C:/Users/davma/zephyr-sdk-1.0.1"
-        }
+        "cwd": "C:/ZephyrUPM/zephyrproject-4.4/zephyr"
       },
-      "problemMatcher": ["$gcc"],
+      "problemMatcher": [
+        "$gcc"
+      ],
       "presentation": {
         "reveal": "always",
         "panel": "shared",
         "clear": true
       }
     },
-
     {
       "label": "Flash (CubeProgrammer, UR+HWrst)",
       "type": "process",
-      "command":
-        "C:/Program Files/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin/STM32_Programmer_CLI.exe",
+      "command": "C:/Program Files/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin/STM32_Programmer_CLI.exe",
       "args": [
         "--connect",
         "port=swd",
@@ -80,7 +83,9 @@
         "${workspaceFolder}/build/zephyr/zephyr.hex",
         "--start"
       ],
-      "dependsOn": ["West Build (auto)"],
+      "dependsOn": [
+        "West Build (auto)"
+      ],
       "dependsOrder": "sequence",
       "problemMatcher": [],
       "presentation": {
@@ -88,7 +93,6 @@
         "panel": "shared"
       }
     },
-
     {
       "label": "List COM Ports",
       "type": "process",
@@ -102,7 +106,6 @@
       ],
       "problemMatcher": []
     },
-
     {
       "label": "Serial Monitor",
       "type": "process",
@@ -120,7 +123,6 @@
         "clear": true
       }
     },
-
     {
       "label": "Clean Build",
       "type": "process",
@@ -134,7 +136,6 @@
       ],
       "problemMatcher": []
     },
-
     {
       "label": "Clean Zephyr Cache",
       "type": "process",
@@ -148,7 +149,6 @@
       ],
       "problemMatcher": []
     },
-
     {
       "label": "Zephyr: Debug Server",
       "type": "process",
@@ -159,14 +159,11 @@
         "${workspaceFolder}/build"
       ],
       "options": {
-        "cwd": "C:/ZephyrUPM/zephyrproject-4.4/zephyr",
-        "env": {
-          "ZEPHYR_BASE": "C:/ZephyrUPM/zephyrproject-4.4/zephyr",
-          "ZEPHYR_TOOLCHAIN_VARIANT": "zephyr",
-          "ZEPHYR_SDK_INSTALL_DIR": "C:/Users/davma/zephyr-sdk-1.0.1"
-        }
+        "cwd": "C:/ZephyrUPM/zephyrproject-4.4/zephyr"
       },
-      "dependsOn": ["West Build (auto)"],
+      "dependsOn": [
+        "West Build (auto)"
+      ],
       "dependsOrder": "sequence",
       "isBackground": true,
       "problemMatcher": {
@@ -187,7 +184,6 @@
         "clear": true
       }
     },
-
     {
       "label": "Zephyr: Stop Debug Server",
       "type": "process",
@@ -204,7 +200,6 @@
       }
     }
   ],
-
   "inputs": [
     {
       "id": "serialPort",

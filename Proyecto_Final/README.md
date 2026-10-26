@@ -1,79 +1,50 @@
-# UPM Zephyr Project Template
+# Drone tracker - base compartida D1
 
-Plantilla reutilizable para proyectos de **Embedded Platforms and Communications for IoT**.
+Base del proyecto final para NUCLEO-WL55JC. Compila un main minimo de parpadeo,
+valida la configuracion de produccion y publica los tipos y las seis APIs
+que permiten avanzar en paralelo a David y Pablo.
 
-## Entorno esperado
+## Abrir y compilar
 
-- Zephyr 4.4.2
-- Zephyr SDK 1.0.1
-- Python 3.12
-- Board `nucleo_wl55jc`
-- Visual Studio Code
-- STM32CubeProgrammer
-- PuTTY/plink (opcional para monitor serie)
+Abrir `../Proyecto_Final.code-workspace` con VS Code, o directamente esta
+carpeta. `${workspaceFolder}` debe apuntar a `Proyecto_Final`; el repositorio
+Git es la carpeta superior `Embedded_Assessments`.
 
-## Crear un proyecto nuevo
+Adaptar las rutas locales de Zephyr, SDK y herramientas en `.vscode/` y
+`scripts/` antes de compilar en otro equipo. Mantener las versiones y la
+revision registradas en [la guia de D1](docs/README_DESARROLLO.md).
 
-Copia esta carpeta a:
+- `Ctrl+Shift+B` / `West Build (auto)`: compilar la base.
+- `West Build (pristine)`: generar una compilacion limpia.
+- `Flash (CubeProgrammer, UR+HWrst)`: programar la placa.
+- `Debug Zephyr - NUCLEO-WL55JC`: depurar con GDB/OpenOCD.
 
-```text
-C:\ZephyrUPM\workspace\NOMBRE_PROYECTO
-```
+La UART del ST-LINK queda reservada para la aplicacion; produccion desactiva
+consola, printk, banner, shell y logs.
 
-Abre **la raíz del proyecto** en VS Code:
+## Trabajo paralelo
 
-```powershell
-code C:\ZephyrUPM\workspace\NOMBRE_PROYECTO
-```
+| Bloque | Responsable | Punto de integracion |
+| --- | --- | --- |
+| Drivers, estimacion, estadisticas y adquisicion | David | `include/acquisition_api.h` |
+| GPS y parser NMEA | Pablo | `include/gps_api.h` |
+| Formatos SIMU y humano | Pablo | `include/simu_frame.h`, `include/human_report.h` |
+| Aplicacion, UART, modos, estado y RGB | Pablo | Tipos de `include/model.h` |
 
-`${workspaceFolder}` apuntará automáticamente a esa carpeta.
+Los contratos se declaran en `include/`; sus implementaciones corresponden a
+D2-D4 y P1-P4. Las carpetas de `src/` contienen indicaciones de responsabilidad,
+sin servicios ficticios ni datos simulados en produccion.
 
-## Build
+Las fuentes se incorporan al CMake raiz cuando exista una implementacion
+utilizable. Pablo mantiene `main`, CMake, configuracion y overlay tras D1;
+los cambios de contratos compartidos se coordinan entre ambos.
 
-```text
-Ctrl + Shift + B
-```
+## Estado y documentacion
 
-Ejecuta `West Build (auto)`.
+La base permite iniciar P1 (GPS) y P2 (formatos y salida). Quedan pendientes
+la revision de contratos por Pablo y las comprobaciones en su equipo/placa.
+Los avances de sensores D2 se conservan aparte de esta entrega.
 
-Para una compilación completamente limpia:
-
-```text
-Tasks: Run Task → West Build (pristine)
-```
-
-## Flash
-
-```text
-Tasks: Run Task → Flash (CubeProgrammer, UR+HWrst)
-```
-
-## Puerto serie
-
-```text
-Tasks: Run Task → List COM Ports
-```
-
-Después:
-
-```text
-Tasks: Run Task → Serial Monitor
-```
-
-## Archivos clave
-
-```text
-src/main.c                         lógica de aplicación
-boards/nucleo_wl55jc.overlay      descripción/adaptación de hardware
-confs/prj_nucleo_wl55jc.conf      configuración Kconfig de Zephyr
-CMakeLists.txt                     fuentes de la aplicación
-.vscode/settings.json              entorno VS Code
-.vscode/tasks.json                 build / flash / serial / debug
-```
-
-Consulta `docs/Zephyr_UPM_Playbook.md` para el procedimiento completo.
-
-## Desarrollo del proyecto final
-
-Consultar [la guía de desarrollo](docs/README_DESARROLLO.md)
-para el estado de la base, el entorno y los contratos compartidos.
+- [Guia de D1, comandos y pendientes](docs/README_DESARROLLO.md).
+- [Playbook general Zephyr en Windows](docs/Zephyr_UPM_Playbook.md).
+- [Organizacion de pruebas](tests/README.md).

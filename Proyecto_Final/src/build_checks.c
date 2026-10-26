@@ -1,8 +1,6 @@
 #include <zephyr/devicetree.h>
 #include <zephyr/sys/util.h>
 
-#if defined(CONFIG_TRACKER_PRODUCTION)
-
 BUILD_ASSERT(
     !IS_ENABLED(CONFIG_CONSOLE) &&
     !IS_ENABLED(CONFIG_UART_CONSOLE) &&
@@ -19,5 +17,3 @@ BUILD_ASSERT(
     !DT_HAS_CHOSEN(zephyr_shell_uart),
     "Produccion requiere retirar las asignaciones de consola del Devicetree"
 );
-
-#endif

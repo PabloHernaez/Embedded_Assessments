@@ -13,3 +13,21 @@ compile_commands.json
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Registro local de auditoria (no versionado)
+docs/AUDITORIA.md
+
+# Local environments, caches and temporary files
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.log
+*.tmp
+*.bak
+
+# Generated firmware artifacts
+*.elf
+*.hex
+*.bin
+*.map

@@ -1,13 +1,18 @@
-# Pruebas por bloque
+# Ensayos
 
-Cada autor incorpora aqui sus ensayos, con sus resultados e instrucciones.
-Los formateadores y parsers puros se pueden probar sin sensores reales.
-Los ensayos en placa usan CMake, configuracion y main propios y enlazan las
-fuentes reales del bloque. Los dobles de prueba se limitan a esta carpeta.
+Mantenemos aquí las pruebas de los bloques del firmware, separadas del main
+de producción. Por ahora tenemos el ensayo de placa en `board/sensors` para
+MPU6050, calibración inicial del giroscopio y Si7021.
 
-La configuracion de produccion y src/build_checks.c mantienen sus restricciones;
-una consola temporal de ensayo debe declararse en su propia configuracion.
-Las compilaciones generadas se guardan en build o build-* y se excluyen de Git.
+El ensayo tiene su propio CMake, configuración y main. Comparte los drivers
+y la calibración con el proyecto, aplica primero la configuración común y
+habilita después la consola de diagnóstico en LPUART1. En producción
+conservamos las restricciones de `src/build_checks.c`.
 
-D1 compila el main minimo y todos los headers publicos. Las validaciones de
-sensores, GPS, formatos y aplicacion se agregan en D2-D4 y P1-P4.
+Compilamos con `West Build (sensores)`, programamos con `Flash (Sensores)` y
+leemos la salida a 115200 8N1. Los resultados generados quedan en
+`build-sensors`, fuera de Git.
+
+Seguimos pendientes de la captura física, las pruebas de error y la validación
+del LDR. Las pruebas de GPS, formatos y aplicación se incorporarán con sus
+bloques correspondientes. Los dobles de prueba quedan dentro de `tests/`.

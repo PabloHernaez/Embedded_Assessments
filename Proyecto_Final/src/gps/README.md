@@ -1,5 +1,5 @@
-# GPS y parser NMEA
+# GPS y NMEA
 
-Pablo (P1). Implementar el parser y el servicio GPS usando include/model.h e include/gps_api.h. El GPS conserva su hilo y estado privados.
+Reservamos esta carpeta para el parser NMEA y el servicio GPS. Compartimos los datos mediante `include/model.h` y `include/gps_api.h`.
 
-D1 reserva esta carpeta. Anadir las fuentes al CMake raiz al disponer de una implementacion utilizable; las pruebas viven en tests/.
+Este bloque corresponde a Pablo en P1. La implementación y la validación de recepción real siguen pendientes.

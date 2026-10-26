@@ -1,5 +1,5 @@
-# Estimacion y movimiento
+# Estimación y movimiento
 
-David (D3). Orientacion, velocidad, posicion y movimiento a partir de medidas reales. Publicacion mediante el servicio de adquisicion.
+Reservamos esta carpeta para orientación, velocidad, posición y movimiento. La estimación se publicará a través del servicio de adquisición.
 
-D1 reserva esta carpeta. Anadir las fuentes al CMake raiz al disponer de una implementacion utilizable; las pruebas viven en tests/.
+Este bloque corresponde a David en D3. Por ahora tenemos la calibración inicial del giroscopio en `../algorithms`; el estimador completo sigue pendiente.

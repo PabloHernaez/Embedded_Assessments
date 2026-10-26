@@ -1,5 +1,5 @@
 # Drivers de sensores
 
-David (D2). Implementaciones privadas de IMU, luz y ambiente. Sus detalles no forman parte de los headers publicos.
+Aquí mantenemos los drivers privados de MPU6050 (`imu`), Si7021 (`environment`) y LDR KY-018 (`light`). Los datos publicados y las APIs compartidas permanecen en `include/`.
 
-D1 reserva esta carpeta. Anadir las fuentes al CMake raiz al disponer de una implementacion utilizable; las pruebas viven en tests/.
+Este bloque corresponde a David en D2. En `tests/board/sensors` tenemos el ensayo de IMU y ambiente; la validación final del LDR sigue pendiente.

@@ -1,5 +1,5 @@
-# Estadisticas
+# Estadísticas
 
-David (D4). Acumulacion y ventanas de medidas; publicar StatsResult mediante los contratos existentes, sin exponer acumuladores.
+Reservamos esta carpeta para la acumulación y las ventanas de medidas. El resultado compartido es `StatsResult`, definido en `include/model.h`.
 
-D1 reserva esta carpeta. Anadir las fuentes al CMake raiz al disponer de una implementacion utilizable; las pruebas viven en tests/.
+Este bloque corresponde a David en D4. La implementación de acumuladores y su integración con adquisición siguen pendientes.

@@ -1,5 +1,5 @@
-# Servicio de adquisicion
+# Adquisición
 
-David (D4). Integrar drivers, calculo y estadisticas e implementar include/acquisition_api.h. Mantener privados los locks y contextos del servicio.
+Reservamos esta carpeta para el servicio de adquisición: lecturas, cálculo, estadísticas y publicación de snapshots mediante `include/acquisition_api.h`.
 
-D1 reserva esta carpeta. Anadir las fuentes al CMake raiz al disponer de una implementacion utilizable; las pruebas viven en tests/.
+Este bloque corresponde a David en D4. La integración del servicio y sus contextos privados sigue pendiente.

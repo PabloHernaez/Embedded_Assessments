@@ -1,5 +1,5 @@
 # Formatos de salida
 
-Pablo (P2). Implementar include/simu_frame.h e include/human_report.h como funciones puras. El transporte UART pertenece a la aplicacion.
+Reservamos esta carpeta para los reportes SIMU y humano. Los contratos están en `include/simu_frame.h` e `include/human_report.h`; mantenemos el transporte UART en la aplicación.
 
-D1 reserva esta carpeta. Anadir las fuentes al CMake raiz al disponer de una implementacion utilizable; las pruebas viven en tests/.
+Este bloque corresponde a Pablo en P2. Los formateadores puros y sus pruebas siguen pendientes.

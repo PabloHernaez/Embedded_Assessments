@@ -1,5 +1,5 @@
-# Aplicacion e integracion
+# Aplicación
 
-Pablo (P2-P3). Modos, tracker_state, output/UART privada, board_ui, salud y proteccion. main orquesta las llamadas; los contratos compartidos se coordinan con David.
+Reservamos esta carpeta para modos, estado, salida/UART, interfaz RGB, salud y protección. Mantenemos los tipos compartidos en `include/model.h`.
 
-D1 reserva esta carpeta. Anadir las fuentes al CMake raiz al disponer de una implementacion utilizable; las pruebas viven en tests/.
+Este bloque corresponde a Pablo en P2/P3. El main actual conserva el parpadeo provisional; la orquestación de la aplicación sigue pendiente.

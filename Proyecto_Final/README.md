@@ -33,8 +33,20 @@ Compartimos la configuración y el overlay de placa entre perfiles; el ensayo
 aplica sus ajustes propios después. Mantenemos las restricciones de consola
 en producción mediante `src/build_checks.c`.
 
-Las rutas de herramientas de `.vscode/` y `scripts/` corresponden al entorno
-local de David. Las ajustamos a cada equipo conservando las versiones fijadas.
+Cada uno configura su instalación de Zephyr, SDK y herramientas en su equipo.
+Los ajustes de `.vscode/`, los scripts personales y las notas locales de
+Windows quedan fuera de Git. Compartimos el firmware, CMake y la configuración
+de placa, sin imponer rutas ni preferencias del editor.
+
+Con el entorno de Zephyr ya activo, compilamos desde esta carpeta con:
+
+```sh
+west build -p auto -b nucleo_wl55jc . -d build -- -DCONF_FILE=confs/prj_nucleo_wl55jc.conf -DDTC_OVERLAY_FILE=boards/nucleo_wl55jc.overlay
+west build -p auto -b nucleo_wl55jc tests/board/sensors -d build-sensors
+```
+
+Los nombres de tareas de la tabla corresponden a los ajustes locales de
+Windows; no son un requisito para compilar por terminal en Ubuntu.
 
 ## Reparto del trabajo
 
@@ -52,5 +64,4 @@ Pablo mantiene `main`, CMake, configuración y overlay tras la base D1.
 ## Documentación
 
 - [Desarrollo y pendientes](docs/README_DESARROLLO.md).
-- [Entorno Zephyr en Windows](docs/Zephyr_UPM_Playbook.md).
 - [Ensayos](tests/README.md).

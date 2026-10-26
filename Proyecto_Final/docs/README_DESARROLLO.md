@@ -21,50 +21,32 @@ siguen pendientes. Conservamos las APIs y los tipos acordados en D1.
 | Python / west | 3.12.10 / 1.5.0 |
 | CMake / Ninja / DTC | 4.4.3 / 1.13.2 / 1.6.1 |
 
-En el entorno local de David usamos `C:/ZephyrUPM/zephyrproject-4.4/zephyr`
-y `C:/Users/davma/zephyr-sdk-1.0.1`. En cada equipo ajustamos esas rutas en
-`.vscode/` y `scripts/`, manteniendo las versiones registradas. Nos queda
-aclarar la referencia docente a 4.4.99 frente a esta base 4.4.2.
+Cada uno configura Zephyr, SDK, Python y west en su equipo, conservando las
+versiones registradas. Mantenemos las rutas y preferencias personales fuera
+de Git: `.vscode/`, `scripts/` y las notas locales de Windows.
 
-Trabajamos en
-`C:/ZephyrUPM/workspace/assesment_ldr_final/Embedded_Assessments/Proyecto_Final`
-con [Proyecto_Final.code-workspace](../../Proyecto_Final.code-workspace).
-`${workspaceFolder}` apunta al proyecto y Git a la carpeta superior.
-Conservamos el repositorio de la ubicación anterior como respaldo.
+Compartimos el firmware, CMake, los contratos y la configuración de placa.
+El workspace de VS Code es opcional; también trabajamos por terminal.
+Nos queda aclarar la referencia docente a 4.4.99 frente a esta base 4.4.2.
 
-## Compilación, programación y depuración
+## Compilación
 
-| Perfil | Compilar | Programar | Directorio |
-| --- | --- | --- | --- |
-| Producción | `West Build (auto)` o `West Build (pristine)` | `Flash (CubeProgrammer, UR+HWrst)` | `build` |
-| Ensayo | `West Build (sensores)` | `Flash (Sensores)` | `build-sensors` |
+Con el entorno de Zephyr ya activo, desde `Proyecto_Final` usamos los mismos
+comandos en Windows y Ubuntu:
 
-Las tareas están en [.vscode/tasks.json](../.vscode/tasks.json). Compartimos
-el entorno en `options.env` y ejecutamos west desde el checkout de Zephyr.
-Usamos `confs/prj_nucleo_wl55jc.conf` y `boards/nucleo_wl55jc.overlay` en los
-dos perfiles. El CMake del ensayo aplica después su `prj.conf` y `app.overlay`.
-
-Para las compilaciones limpias desde PowerShell, empezamos en `Proyecto_Final`:
-
-```powershell
-$projectDir = (Resolve-Path .).Path.Replace('\', '/')
-$zephyrDir = 'C:/ZephyrUPM/zephyrproject-4.4'
-$env:ZEPHYR_BASE = "$zephyrDir/zephyr"
-$env:ZEPHYR_TOOLCHAIN_VARIANT = 'zephyr'
-$env:ZEPHYR_SDK_INSTALL_DIR = 'C:/Users/davma/zephyr-sdk-1.0.1'
-Set-Location $env:ZEPHYR_BASE
-& "$zephyrDir/.venv/Scripts/west.exe" build -p always -b nucleo_wl55jc/stm32wl55xx $projectDir -d "$projectDir/build" -- '-DCONF_FILE=confs/prj_nucleo_wl55jc.conf' '-DDTC_OVERLAY_FILE=boards/nucleo_wl55jc.overlay'
-& "$zephyrDir/.venv/Scripts/west.exe" build -p always -b nucleo_wl55jc/stm32wl55xx "$projectDir/tests/board/sensors" -d "$projectDir/build-sensors"
+```sh
+west build -p auto -b nucleo_wl55jc . -d build -- -DCONF_FILE=confs/prj_nucleo_wl55jc.conf -DDTC_OVERLAY_FILE=boards/nucleo_wl55jc.overlay
+west build -p auto -b nucleo_wl55jc tests/board/sensors -d build-sensors
 ```
 
-Con `List COM Ports` identificamos el puerto real y con `Serial Monitor`
-abrimos la salida del ensayo a 115200 8N1. En producción reservamos esa UART
-para la aplicación y mantenemos desactivada la consola de Zephyr.
+Usamos `-p always` para regenerar el build desde cero. Cada equipo conserva
+sus propios directorios `build` y `build-sensors`. La programación, el puerto
+serie y la depuración se configuran localmente con las herramientas de cada uno.
 
-Centralizamos las rutas ARM/GDB en `.vscode/settings.json`. El perfil de
-Cortex-Debug usa el ELF de producción y el servidor externo en `localhost:3333`.
-Tenemos comprobada la lectura de los ELF con GDB; la sesión completa con
-ST-LINK, breakpoints y cierre de OpenOCD sigue pendiente en placa.
+Antes de actualizar un clon con preferencias propias, guardamos una copia
+de `.vscode/` y de los scripts personales. Tras el cambio dejan de estar
+versionados; conservamos nuestras copias locales y no resolvemos posibles
+conflictos del pull descartando esos ajustes.
 
 ## Configuración y contratos comunes
 
@@ -137,11 +119,7 @@ ahorro de escrituras del init necesitamos una traza I2C o instrumentación
 temporal. La inyección de errores y la conservación de salidas tienen sus
 pruebas específicas pendientes.
 
-La captura desde PowerShell, con el puerto real, queda en un archivo local:
-
-```powershell
-& 'C:/Program Files/PuTTY/plink.exe' -serial COM5 -sercfg '115200,8,n,1,N' | Tee-Object -FilePath "$env:TEMP/drone-sensors-capture.txt"
-```
+Guardamos la captura del monitor en un archivo local junto con los datos del montaje.
 
 Al terminar volvemos a producción con `Flash (CubeProgrammer, UR+HWrst)`.
 

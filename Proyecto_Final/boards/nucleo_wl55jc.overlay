@@ -1,0 +1,75 @@
+#include <zephyr/dt-bindings/gpio/gpio.h>
+#include <zephyr/dt-bindings/i2c/i2c.h>
+#include <zephyr/dt-bindings/adc/adc.h>
+
+/ {
+    chosen {
+        /delete-property/ zephyr,console;
+        /delete-property/ zephyr,shell-uart;
+    };
+
+    aliases {
+        led0 = &green_led_2;
+        rgb-red = &rgb_red;
+        rgb-green = &rgb_green;
+        rgb-blue = &rgb_blue;
+    };
+
+    rgb_leds: rgb-leds {
+        compatible = "gpio-leds";
+
+        rgb_red: red {
+            gpios = <&gpiob 5 GPIO_ACTIVE_LOW>;
+        };
+
+        rgb_green: green {
+            gpios = <&gpiob 8 GPIO_ACTIVE_LOW>;
+        };
+
+        rgb_blue: blue {
+            gpios = <&gpiob 10 GPIO_ACTIVE_LOW>;
+        };
+    };
+
+    zephyr,user {
+        io-channels = <&adc1 5>;
+    };
+};
+
+&i2c2 {
+    status = "okay";
+    clock-frequency = <I2C_BITRATE_STANDARD>;
+
+    scl-gpios = <&gpioa 12 (GPIO_OPEN_DRAIN | GPIO_ACTIVE_HIGH)>;
+    sda-gpios = <&gpioa 11 (GPIO_OPEN_DRAIN | GPIO_ACTIVE_HIGH)>;
+};
+
+&usart1 {
+    status = "okay";
+    current-speed = <9600>;
+    pinctrl-0 = <&usart1_rx_pb7>;
+    pinctrl-names = "default";
+};
+
+&usart1_rx_pb7 {
+    bias-pull-up;
+};
+
+&lpuart1 {
+    status = "okay";
+    current-speed = <115200>;
+};
+
+&adc1 {
+    status = "okay";
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    channel@5 {
+        reg = <5>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME_MAX>;
+        zephyr,resolution = <12>;
+    };
+};

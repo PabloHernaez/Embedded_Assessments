@@ -1,0 +1,7 @@
+{
+  "commanded_at": "2026-11-02T23:51:01.4742773+01:00",
+  "command": 6,
+  "meaning": "Diagnostico unico: reset Si7021 0xFE",
+  "address": "0x200006F8",
+  "hex_sha256": "0DF097191EC30B1D05C0691306CF8A0087A65C9BA6989DD8E34731A6BDDBF4CA"
+}

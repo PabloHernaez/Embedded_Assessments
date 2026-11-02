@@ -1,0 +1,10 @@
+# 2026-11-02T22:25:19.029243+01:00 label=respuesta port=COM5
+t_ms=3115 raw=2975
+t_ms=3616 raw=2974
+t_ms=4118 raw=2991
+t_ms=4620 raw=2989
+t_ms=5121 raw=2986
+t_ms=5623 raw=2982
+t_ms=6125 raw=2981
+t_ms=6627 raw=2983
+t_ms=7128 raw=2985

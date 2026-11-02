@@ -1,0 +1,23 @@
+# 2026-11-02T22:41:59.165583+01:00 label=fin_sesion port=COM5 command=e
+SESSION end t_ms=257893
+D4 t_ms=258496 progress=12912 dp=53 dt_ms=1048 cal=0 moving=0 imu_ok=1 imu_age=6 sat=0 nav_ok=1
+IMU a=0.67434,-0.01612,9.90477 gyro=-0.00336,-0.01344,0.02748
+NAV q=0.984498,0.004574,-0.017078,0.174501 rel=0.984490,0.011135,0.017144,0.174245 v=32.07483,5.40656,27.87331 p=1734.99487,272.41571,3648.06250
+SLOW light_ok=1 light_age=228 light_pct=99.8729 clipped=0 env_ok=1 env_age=1645 temp_c=24.2359 rh_pct=91.5571 stats_ready=0
+STACK acquisition_ret=0 acquisition_free=1584 main_ret=0 main_free=2088
+D4 t_ms=259542 progress=12964 dp=52 dt_ms=1046 cal=0 moving=0 imu_ok=1 imu_age=12 sat=0 nav_ok=1
+IMU a=0.66122,-0.01731,9.89885 gyro=-0.03389,-0.02870,0.01221
+NAV q=0.984463,0.004544,-0.017002,0.174710 rel=0.984452,0.011113,0.017219,0.174455 v=32.40873,5.47567,27.97788 p=1768.52332,278.07449,3677.10547
+SLOW light_ok=1 light_age=1274 light_pct=99.8729 clipped=0 env_ok=1 env_age=671 temp_c=24.2574 rh_pct=91.5418 stats_ready=0
+STACK acquisition_ret=0 acquisition_free=1584 main_ret=0 main_free=2088
+D4 t_ms=260587 progress=13016 dp=52 dt_ms=1045 cal=0 moving=0 imu_ok=1 imu_age=17 sat=0 nav_ok=1
+IMU a=0.67434,-0.00538,9.90240 gyro=0.02718,0.01710,0.02748
+NAV q=0.984428,0.004540,-0.016881,0.174915 rel=0.984414,0.011115,0.017339,0.174659 v=32.74507,5.54688,28.08745 p=1802.39978,283.80545,3706.25830
+SLOW light_ok=1 light_age=319 light_pct=99.6441 clipped=0 env_ok=1 env_age=1716 temp_c=24.2574 rh_pct=91.5418 stats_ready=0
+STACK acquisition_ret=0 acquisition_free=1584 main_ret=0 main_free=2088
+D4 t_ms=261633 progress=13069 dp=53 dt_ms=1046 cal=0 moving=0 imu_ok=1 imu_age=3 sat=0 nav_ok=1
+IMU a=0.67792,-0.02328,9.89885 gyro=0.02718,0.00183,0.07328
+NAV q=0.984394,0.004537,-0.016805,0.175116 rel=0.984377,0.011119,0.017413,0.174860 v=33.08961,5.61613,28.19722 p=1837.28833,289.72079,3736.08813
+SLOW light_ok=1 light_age=1365 light_pct=99.6441 clipped=0 env_ok=1 env_age=742 temp_c=24.2359 rh_pct=91.5189 stats_ready=0
+STACK acquisition_ret=0 acquisition_free=1584 main_ret=0 main_free=2088
+D4 t_ms=262679 progress=13121 dp=52 dt_ms=1046 cal=0 moving=0 imu_ok=1 imu_age=9 sat=0 nav_ok=1

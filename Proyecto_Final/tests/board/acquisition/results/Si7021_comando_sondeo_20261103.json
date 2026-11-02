@@ -1,0 +1,7 @@
+{
+  "commanded_at": "2026-11-03T00:06:03.6932432+01:00",
+  "command": 8,
+  "meaning": "Direccionamiento sin datos a Si7021 0x40",
+  "address": "0x200006F8",
+  "hex_sha256": "088B6060B8D70CCD9AB00AADD7AF13A54FECE77C9A1F87F79378DDACB79891FF"
+}

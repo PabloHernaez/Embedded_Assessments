@@ -1,0 +1,63 @@
+# 2026-11-02T22:40:40.716972+01:00 label=luz_oscuridad port=COM5 command=-
+D4 t_ms=179976 progress=8986 dp=52 dt_ms=1046 cal=0 moving=0 imu_ok=1 imu_age=6 sat=0 nav_ok=1
+IMU a=0.73279,-0.01970,9.89885 gyro=-0.01863,0.00183,0.04275
+NAV q=0.986459,0.005573,-0.023619,0.162205 rel=0.986677,0.011706,0.010682,0.161917 v=9.97744,1.53490,19.57541 p=124.35291,8.91799,1782.19617
+SLOW light_ok=1 light_age=1708 light_pct=0.0000 clipped=1 env_ok=1 env_age=1905 temp_c=24.0751 rh_pct=91.9462 stats_ready=1
+STACK acquisition_ret=0 acquisition_free=1584 main_ret=0 main_free=2088
+WINDOW begin_ms=150005 end_ms=180005
+STAT metric=light_pct n=15 mean=17.658024 min=0.000000 max=34.290798
+STAT metric=temp_c n=14 mean=24.068176 min=24.053619 max=24.085800
+STAT metric=rh_pct n=14 mean=92.059509 min=91.946167 max=92.220825
+STAT metric=accel_mps2 n=1497 mean=9.918225 min=8.715606 max=11.058218
+STAT metric=gyro_dps n=1497 mean=0.286043 min=0.004895 max=48.382015
+D4 t_ms=181055 progress=9040 dp=54 dt_ms=1079 cal=0 moving=0 imu_ok=1 imu_age=5 sat=0 nav_ok=1
+IMU a=0.72325,-0.00299,9.88227 gyro=-0.00336,0.00183,0.02748
+NAV q=0.986430,0.005561,-0.023539,0.162390 rel=0.986646,0.011701,0.010760,0.162103 v=10.23555,1.57931,19.68988 p=135.26555,10.59944,1803.39905
+SLOW light_ok=1 light_age=787 light_pct=0.0000 clipped=1 env_ok=1 env_age=964 temp_c=24.0643 rh_pct=91.9462 stats_ready=1
+STACK acquisition_ret=0 acquisition_free=1584 main_ret=0 main_free=2088
+D4 t_ms=182100 progress=9092 dp=52 dt_ms=1045 cal=0 moving=0 imu_ok=1 imu_age=10 sat=0 nav_ok=1
+IMU a=0.72086,0.00297,9.89293 gyro=-0.00336,0.06290,-0.03359
+NAV q=0.986406,0.005630,-0.023384,0.162555 rel=0.986617,0.011776,0.010914,0.162265 v=10.48514,1.62676,19.80396 p=146.03728,12.26592,1823.93481
+SLOW light_ok=1 light_age=1832 light_pct=0.0000 clipped=1 env_ok=1 env_age=2009 temp_c=24.0643 rh_pct=91.9462 stats_ready=1
+STACK acquisition_ret=0 acquisition_free=1584 main_ret=0 main_free=2088
+D4 t_ms=183145 progress=9144 dp=52 dt_ms=1045 cal=0 moving=0 imu_ok=1 imu_age=15 sat=0 nav_ok=1
+IMU a=0.73398,0.00774,9.89056 gyro=-0.00336,0.00183,0.01221
+NAV q=0.986388,0.005652,-0.023310,0.162679 rel=0.986595,0.011801,0.010988,0.162388 v=10.73874,1.67213,19.92026 p=157.07034,13.98093,1844.58911
+SLOW light_ok=1 light_age=877 light_pct=0.0000 clipped=1 env_ok=1 env_age=1034 temp_c=24.0751 rh_pct=91.9309 stats_ready=1
+STACK acquisition_ret=0 acquisition_free=1584 main_ret=0 main_free=2088
+D4 t_ms=184191 progress=9197 dp=53 dt_ms=1046 cal=0 moving=0 imu_ok=1 imu_age=1 sat=0 nav_ok=1
+IMU a=0.74114,-0.00299,9.92253 gyro=-0.01863,0.00183,-0.00305
+NAV q=0.986359,0.005622,-0.023220,0.162867 rel=0.986563,0.011779,0.011077,0.162577 v=11.00067,1.71871,20.04058 p=168.58870,15.77720,1865.76697
+SLOW light_ok=1 light_age=1923 light_pct=0.0000 clipped=1 env_ok=1 env_age=60 temp_c=24.0536 rh_pct=91.9156 stats_ready=1
+STACK acquisition_ret=0 acquisition_free=1584 main_ret=0 main_free=2088
+D4 t_ms=185236 progress=9249 dp=52 dt_ms=1045 cal=0 moving=0 imu_ok=1 imu_age=6 sat=0 nav_ok=1
+IMU a=0.72444,0.00297,9.90003 gyro=0.01191,0.01710,0.01221
+NAV q=0.986345,0.005614,-0.023159,0.162961 rel=0.986547,0.011774,0.011137,0.162672 v=11.26032,1.76341,20.15078 p=180.16164,17.58673,1886.66577
+SLOW light_ok=1 light_age=968 light_pct=0.0000 clipped=1 env_ok=1 env_age=1105 temp_c=24.0536 rh_pct=91.9156 stats_ready=1
+STACK acquisition_ret=0 acquisition_free=1584 main_ret=0 main_free=2088
+D4 t_ms=186281 progress=9301 dp=52 dt_ms=1045 cal=0 moving=0 imu_ok=1 imu_age=11 sat=0 nav_ok=1
+IMU a=0.71013,0.00774,9.89056 gyro=0.01191,0.00183,0.01221
+NAV q=0.986326,0.005633,-0.023136,0.163079 rel=0.986527,0.011797,0.011159,0.162789 v=11.51831,1.80934,20.26498 p=192.00525,19.44423,1907.68311
+SLOW light_ok=1 light_age=13 light_pct=0.0000 clipped=1 env_ok=1 env_age=130 temp_c=24.0643 rh_pct=91.9156 stats_ready=1
+STACK acquisition_ret=0 acquisition_free=1584 main_ret=0 main_free=2088
+D4 t_ms=187326 progress=9353 dp=52 dt_ms=1045 cal=0 moving=0 imu_ok=1 imu_age=16 sat=0 nav_ok=1
+IMU a=0.71967,-0.00657,9.89411 gyro=-0.00336,-0.01344,0.01221
+NAV q=0.986300,0.005616,-0.023063,0.163246 rel=0.986499,0.011785,0.011231,0.162957 v=11.77532,1.85530,20.37747 p=204.11415,21.34895,1928.81470
+SLOW light_ok=1 light_age=1058 light_pct=0.0000 clipped=1 env_ok=1 env_age=1175 temp_c=24.0643 rh_pct=91.9156 stats_ready=1
+STACK acquisition_ret=0 acquisition_free=1584 main_ret=0 main_free=2088
+D4 t_ms=188372 progress=9406 dp=53 dt_ms=1046 cal=0 moving=0 imu_ok=1 imu_age=2 sat=0 nav_ok=1
+IMU a=0.72086,-0.00180,9.92253 gyro=-0.01863,-0.01344,0.02748
+NAV q=0.986272,0.005659,-0.023047,0.163414 rel=0.986471,0.011834,0.011246,0.163123 v=12.04173,1.90055,20.48970 p=216.73441,23.33892,1950.47314
+SLOW light_ok=1 light_age=104 light_pct=0.0000 clipped=1 env_ok=1 env_age=201 temp_c=24.0429 rh_pct=91.9156 stats_ready=1
+STACK acquisition_ret=0 acquisition_free=1584 main_ret=0 main_free=2088
+D4 t_ms=189417 progress=9458 dp=52 dt_ms=1045 cal=0 moving=0 imu_ok=1 imu_age=7 sat=0 nav_ok=1
+IMU a=0.71371,-0.00061,9.88464 gyro=-0.01863,0.04763,0.02748
+NAV q=0.986240,0.005680,-0.022968,0.163619 rel=0.986436,0.011862,0.011324,0.163328 v=12.30203,1.94774,20.60129 p=229.39061,25.33995,1971.83972
+SLOW light_ok=1 light_age=1149 light_pct=0.0000 clipped=1 env_ok=1 env_age=1246 temp_c=24.0429 rh_pct=91.9156 stats_ready=1
+STACK acquisition_ret=0 acquisition_free=1584 main_ret=0 main_free=2088
+D4 t_ms=190462 progress=9510 dp=52 dt_ms=1045 cal=0 moving=0 imu_ok=1 imu_age=12 sat=0 nav_ok=1
+IMU a=0.72683,0.00536,9.85622 gyro=0.04244,0.01710,0.02748
+NAV q=0.986212,0.005692,-0.022895,0.163796 rel=0.986405,0.011881,0.011396,0.163503 v=12.56432,1.99430,20.71211 p=242.31830,27.38882,1993.32178
+SLOW light_ok=1 light_age=194 light_pct=0.0000 clipped=1 env_ok=1 env_age=271 temp_c=24.0751 rh_pct=91.8775 stats_ready=1
+STACK acquisition_ret=0 acquisition_free=1584 main_ret=0 main_free=2088
+D4 t_ms=191507 progress=9562 dp=52 dt_ms=1045 cal=0 moving=0 imu_ok=1 imu_age=17 sat=0 nav_ok=1

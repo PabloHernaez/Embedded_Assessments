@@ -1,0 +1,22 @@
+# 2026-11-02T22:27:52.381860+01:00 label=oscuridad port=COM5
+t_ms=156675 raw=4060
+t_ms=157177 raw=4061
+t_ms=157679 raw=4061
+t_ms=158181 raw=4060
+t_ms=158683 raw=4060
+t_ms=159185 raw=4060
+t_ms=159687 raw=4060
+t_ms=160189 raw=4059
+t_ms=160690 raw=4059
+t_ms=161192 raw=4061
+t_ms=161694 raw=4060
+t_ms=162196 raw=4061
+t_ms=162698 raw=4062
+t_ms=163200 raw=4061
+t_ms=163702 raw=4061
+t_ms=164204 raw=4063
+t_ms=164706 raw=4066
+t_ms=165208 raw=4064
+t_ms=165709 raw=4063
+t_ms=166211 raw=4065
+t_ms=166713 raw=4065

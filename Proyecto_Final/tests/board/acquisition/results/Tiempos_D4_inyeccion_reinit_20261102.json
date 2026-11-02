@@ -1,0 +1,38 @@
+{
+  "injected_at": "2026-11-02T23:17:37+01:00",
+  "method": "SWD HOTPLUG -w8 de un byte; el hilo ejecuta el camino existente imu_configuration_init",
+  "configured_address": "0x20000400",
+  "configured_before": 1,
+  "injected_value": 0,
+  "configured_after": 1,
+  "reference_block_address": "0x200004a4",
+  "reference_block_size": 44,
+  "before_sha256": "FDED681E2A47D33431146B706CAA13893D68B2AFCDE6E8161A261A6BC1B0B63F",
+  "after_sha256": "FDED681E2A47D33431146B706CAA13893D68B2AFCDE6E8161A261A6BC1B0B63F",
+  "all_44_bytes_unchanged": true,
+  "bias_dps_before": [
+    -2.828244686126709,
+    -0.636488676071167,
+    -0.37007641792297363
+  ],
+  "bias_dps_after": [
+    -2.828244686126709,
+    -0.636488676071167,
+    -0.37007641792297363
+  ],
+  "q0_before": [
+    0.999294102191925,
+    0.0019483037758618593,
+    -0.03751735761761665,
+    7.314683898584917e-05
+  ],
+  "q0_after": [
+    0.999294102191925,
+    0.0019483037758618593,
+    -0.03751735761761665,
+    7.314683898584917e-05
+  ],
+  "pre_capture": "Tiempos_D4_retoma_imu_20261102_231624_802577.json",
+  "post_capture": "Tiempos_D4_reinit_controlado_20261102_231753_564225.json",
+  "note": "Direcciones verificadas en el ELF de esta imagen; no reutilizarlas con otro build."
+}

@@ -1,0 +1,7 @@
+{
+  "commanded_at": "2026-11-02T23:54:23.2056157+01:00",
+  "command": 4,
+  "meaning": "SCL retenido fisicamente 5 s por PC2 open-drain",
+  "address": "0x200006F8",
+  "hex_sha256": "C388C80CD5FD81D8D605EF8D7C5D4A2FCEF3199AD660C56706A6CC723A104200"
+}

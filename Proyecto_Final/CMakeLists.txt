@@ -14,6 +14,11 @@ target_sources(app PRIVATE
     src/algorithms/gyro_calibration.c
     src/algorithms/motion.c
     src/algorithms/estimator.c
+    src/algorithms/statistics.c
+    src/acquisition/acquisition.c
+    src/acquisition/acquisition_imu.c
+    src/acquisition/acquisition_light.c
+    src/acquisition/acquisition_environment.c
 )
 
 target_link_libraries(app PRIVATE m)

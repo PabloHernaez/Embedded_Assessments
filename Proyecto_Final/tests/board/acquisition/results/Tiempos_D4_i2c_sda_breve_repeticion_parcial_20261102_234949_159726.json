@@ -1,0 +1,283 @@
+{
+  "captured_at": "2026-11-02T23:49:49.159726+01:00",
+  "label": "i2c_sda_breve_repeticion_parcial",
+  "stlink_serial": "0020001E4741500220383733",
+  "hex_sha256": "D4011BEC20816C06A2238AB89E30C46F148D52FC607B823F7E79D7304BECECAF",
+  "elf_sha256": "01C7683D7B933B039A7FAF8CCD1587BFEB2DB91400FCFFD0875108CB3768CBD6",
+  "layout": {
+    "timing": 536871088,
+    "timing_size": 64,
+    "published": 536870912,
+    "published_size": 176,
+    "imu_valid": 536870936,
+    "calibration_pending": 536870953,
+    "light_valid": 536870968,
+    "environment_valid": 536871000,
+    "nav_valid": 536871072,
+    "moving": 536871076,
+    "progress": 536871080,
+    "stats": 536871664,
+    "stats_size": 224,
+    "stats_active": 536871664,
+    "stats_ready": 536871784,
+    "window_begin_ms": 536871792,
+    "window_end_ms": 536871800,
+    "imu_configured_address": 536871952,
+    "i2c_test": 536872696,
+    "i2c_test_size": 2368,
+    "imu_context": 536871952,
+    "imu_context_size": 256,
+    "bias_dps": 536872116,
+    "initial_q": 536872144,
+    "last_init_ticks": 536871968,
+    "q": 536871016,
+    "relative_q": 536871032,
+    "velocity_mps": 536871048,
+    "position_m": 536871060,
+    "imu_last_good_ms": 536870944,
+    "light_last_good_ms": 536870976,
+    "environment_last_good_ms": 536871008
+  },
+  "timing": {
+    "expired_periods": 3969,
+    "missed_periods": 0,
+    "clock_hz": 48000000,
+    "counter_pair_cycles": 67,
+    "startup_cycles": 11883964,
+    "normal_count": 1566,
+    "normal_max_cycles": 145746,
+    "normal_max_at_ms": 51910,
+    "normal_ge_10_ms": 0,
+    "normal_ge_20_ms": 0,
+    "maintenance_count": 2403,
+    "maintenance_max_cycles": 154001,
+    "maintenance_max_at_ms": 2251,
+    "maintenance_ge_20_ms": 0,
+    "counter_pair_us_ceil": 2,
+    "startup_us_ceil": 247583,
+    "normal_max_us_ceil": 3037,
+    "maintenance_max_us_ceil": 3209
+  },
+  "state_sequential_read": {
+    "imu_valid": true,
+    "calibration_pending": false,
+    "light_valid": true,
+    "environment_valid": false,
+    "nav_valid": true,
+    "moving": false,
+    "progress": 3976,
+    "stats_active": true,
+    "stats_ready": true,
+    "window_begin_ms": 30000,
+    "window_end_ms": 60000,
+    "bias_dps": [
+      -2.8490073680877686,
+      -0.6190838813781738,
+      -0.36320605874061584
+    ],
+    "initial_q": [
+      0.9989549517631531,
+      0.003197279293090105,
+      -0.045593492686748505,
+      0.00014592762454412878
+    ],
+    "q": [
+      0.9986903667449951,
+      0.006701911333948374,
+      -0.04998215287923813,
+      0.008630176074802876
+    ],
+    "relative_q": [
+      0.999948263168335,
+      0.003888001199811697,
+      -0.004369521513581276,
+      0.00832966435700655
+    ],
+    "velocity_mps": [
+      -3.6880555152893066,
+      -1.5729643106460571,
+      7.490357398986816
+    ],
+    "position_m": [
+      -89.04753875732422,
+      -33.92068862915039,
+      267.5373840332031
+    ],
+    "imu_last_good_ms": 79769,
+    "light_last_good_ms": 78267,
+    "environment_last_good_ms": 75050,
+    "last_init_ticks": 1003
+  },
+  "i2c_control": {
+    "command": 0,
+    "phase": 3,
+    "last_command": 3,
+    "gpio_init_result": 0,
+    "injected_ms": 75216,
+    "released_ms": 75276,
+    "inject_result": 0,
+    "event_count": 15,
+    "dropped": 0,
+    "new_count": 190,
+    "no_new_count": 1,
+    "error_count": 1,
+    "update_max_cycles": 89883,
+    "hold_cycles": 2884508,
+    "cycle": 3991,
+    "reserved": 0,
+    "update_max_us_ceil": 1873,
+    "hold_us_ceil": 60094
+  },
+  "i2c_events": [
+    {
+      "t_ms": 75216,
+      "cycle": 3748,
+      "kind": 2,
+      "name": "HOLD_BEGIN",
+      "result": 0,
+      "elapsed_cycles": 0,
+      "us_ceil": 0,
+      "detail": 3
+    },
+    {
+      "t_ms": 75227,
+      "cycle": 3749,
+      "kind": 4,
+      "name": "READ",
+      "result": -5,
+      "elapsed_cycles": 3710,
+      "us_ceil": 78,
+      "detail": 0
+    },
+    {
+      "t_ms": 75228,
+      "cycle": 3749,
+      "kind": 7,
+      "name": "RECOVER",
+      "result": -16,
+      "elapsed_cycles": 14172,
+      "us_ceil": 296,
+      "detail": 0
+    },
+    {
+      "t_ms": 75228,
+      "cycle": 3749,
+      "kind": 10,
+      "name": "STATE",
+      "result": 17,
+      "elapsed_cycles": 20317,
+      "us_ceil": 424,
+      "detail": 0
+    },
+    {
+      "t_ms": 75276,
+      "cycle": 3751,
+      "kind": 3,
+      "name": "HOLD_END",
+      "result": 0,
+      "elapsed_cycles": 2884508,
+      "us_ceil": 60094,
+      "detail": 1
+    },
+    {
+      "t_ms": 76248,
+      "cycle": 3800,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52991,
+      "us_ceil": 1104,
+      "detail": 1
+    },
+    {
+      "t_ms": 76248,
+      "cycle": 3800,
+      "kind": 10,
+      "name": "STATE",
+      "result": 1,
+      "elapsed_cycles": 54096,
+      "us_ceil": 1127,
+      "detail": 0
+    },
+    {
+      "t_ms": 76269,
+      "cycle": 3801,
+      "kind": 4,
+      "name": "READ",
+      "result": 1,
+      "elapsed_cycles": 76639,
+      "us_ceil": 1597,
+      "detail": 0
+    },
+    {
+      "t_ms": 76269,
+      "cycle": 3801,
+      "kind": 10,
+      "name": "STATE",
+      "result": 7,
+      "elapsed_cycles": 88774,
+      "us_ceil": 1850,
+      "detail": 0
+    },
+    {
+      "t_ms": 77009,
+      "cycle": 3838,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 10368,
+      "us_ceil": 216,
+      "detail": 0
+    },
+    {
+      "t_ms": 77069,
+      "cycle": 3841,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": -5,
+      "elapsed_cycles": 6675,
+      "us_ceil": 140,
+      "detail": 0
+    },
+    {
+      "t_ms": 78250,
+      "cycle": 3900,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 53007,
+      "us_ceil": 1105,
+      "detail": 1
+    },
+    {
+      "t_ms": 79009,
+      "cycle": 3938,
+      "kind": 4,
+      "name": "READ",
+      "result": 0,
+      "elapsed_cycles": 76074,
+      "us_ceil": 1585,
+      "detail": 0
+    },
+    {
+      "t_ms": 79029,
+      "cycle": 3939,
+      "kind": 4,
+      "name": "READ",
+      "result": 1,
+      "elapsed_cycles": 76628,
+      "us_ceil": 1597,
+      "detail": 0
+    },
+    {
+      "t_ms": 79029,
+      "cycle": 3939,
+      "kind": 11,
+      "name": "ENV_INIT",
+      "result": -5,
+      "elapsed_cycles": 6729,
+      "us_ceil": 141,
+      "detail": 0
+    }
+  ]
+}

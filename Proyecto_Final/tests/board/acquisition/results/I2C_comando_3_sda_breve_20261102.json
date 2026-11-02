@@ -1,0 +1,7 @@
+{
+  "commanded_at": "2026-11-02T23:47:08.0662661+01:00",
+  "command": 3,
+  "meaning": "SDA retenido fisicamente 60 ms por PC2 open-drain",
+  "address": "0x200006F8",
+  "hex_sha256": "40D076491DA2E1B342F1AF56C10CEF65F7415584D67A298C8AF80D8FC8877A3C"
+}

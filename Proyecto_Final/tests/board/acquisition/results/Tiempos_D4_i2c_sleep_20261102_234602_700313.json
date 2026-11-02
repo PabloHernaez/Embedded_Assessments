@@ -1,0 +1,513 @@
+{
+  "captured_at": "2026-11-02T23:46:02.700313+01:00",
+  "label": "i2c_sleep",
+  "stlink_serial": "0020001E4741500220383733",
+  "hex_sha256": "40D076491DA2E1B342F1AF56C10CEF65F7415584D67A298C8AF80D8FC8877A3C",
+  "elf_sha256": "9F4358E1C2CBC157818969B6CE14E80FF0AF55E6AA92C7614F4796A5EBA1AB74",
+  "layout": {
+    "timing": 536871088,
+    "timing_size": 64,
+    "published": 536870912,
+    "published_size": 176,
+    "imu_valid": 536870936,
+    "calibration_pending": 536870953,
+    "light_valid": 536870968,
+    "environment_valid": 536871000,
+    "nav_valid": 536871072,
+    "moving": 536871076,
+    "progress": 536871080,
+    "stats": 536871664,
+    "stats_size": 224,
+    "stats_active": 536871664,
+    "stats_ready": 536871784,
+    "window_begin_ms": 536871792,
+    "window_end_ms": 536871800,
+    "imu_configured_address": 536871952,
+    "i2c_test": 536872696,
+    "i2c_test_size": 2368,
+    "imu_context": 536871952,
+    "imu_context_size": 256,
+    "bias_dps": 536872116,
+    "initial_q": 536872144,
+    "last_init_ticks": 536871968,
+    "q": 536871016,
+    "relative_q": 536871032,
+    "velocity_mps": 536871048,
+    "position_m": 536871060,
+    "imu_last_good_ms": 536870944,
+    "light_last_good_ms": 536870976,
+    "environment_last_good_ms": 536871008
+  },
+  "timing": {
+    "expired_periods": 2336,
+    "missed_periods": 6,
+    "clock_hz": 48000000,
+    "counter_pair_cycles": 67,
+    "startup_cycles": 11883910,
+    "normal_count": 2327,
+    "normal_max_cycles": 156667,
+    "normal_max_at_ms": 38771,
+    "normal_ge_10_ms": 0,
+    "normal_ge_20_ms": 0,
+    "maintenance_count": 2,
+    "maintenance_max_cycles": 7089102,
+    "maintenance_max_at_ms": 26655,
+    "maintenance_ge_20_ms": 1,
+    "counter_pair_us_ceil": 2,
+    "startup_us_ceil": 247582,
+    "normal_max_us_ceil": 3264,
+    "maintenance_max_us_ceil": 147690
+  },
+  "state_sequential_read": {
+    "imu_valid": true,
+    "calibration_pending": false,
+    "light_valid": true,
+    "environment_valid": true,
+    "nav_valid": true,
+    "moving": false,
+    "progress": 2335,
+    "stats_active": true,
+    "stats_ready": true,
+    "window_begin_ms": 0,
+    "window_end_ms": 30000,
+    "bias_dps": [
+      -2.840305805206299,
+      -0.6416794061660767,
+      -0.3319084048271179
+    ],
+    "initial_q": [
+      0.9989802241325378,
+      0.0033265515230596066,
+      -0.04502695053815842,
+      0.00014993736112955958
+    ],
+    "q": [
+      0.9992358684539795,
+      0.0020982862915843725,
+      -0.03845873847603798,
+      -0.006645138841122389
+    ],
+    "relative_q": [
+      0.9999545812606812,
+      -0.0015328399604186416,
+      0.006550604943186045,
+      -0.006754729896783829
+    ],
+    "velocity_mps": [
+      2.4565768241882324,
+      0.15694114565849304,
+      4.4284586906433105
+    ],
+    "position_m": [
+      31.696918487548828,
+      0.9530091285705566,
+      92.84062957763672
+    ],
+    "imu_last_good_ms": 47069,
+    "light_last_good_ms": 46267,
+    "environment_last_good_ms": 46910,
+    "last_init_ticks": 265078
+  },
+  "i2c_control": {
+    "command": 0,
+    "phase": 3,
+    "last_command": 1,
+    "gpio_init_result": 0,
+    "injected_ms": 25808,
+    "released_ms": 0,
+    "inject_result": 0,
+    "event_count": 38,
+    "dropped": 0,
+    "new_count": 706,
+    "no_new_count": 37,
+    "error_count": 0,
+    "update_max_cycles": 7075096,
+    "hold_cycles": 0,
+    "cycle": 2347,
+    "reserved": 0,
+    "update_max_us_ceil": 147398,
+    "hold_us_ceil": 0
+  },
+  "i2c_events": [
+    {
+      "t_ms": 25808,
+      "cycle": 1278,
+      "kind": 1,
+      "name": "INJECT",
+      "result": 0,
+      "elapsed_cycles": 14564,
+      "us_ceil": 304,
+      "detail": 73
+    },
+    {
+      "t_ms": 25808,
+      "cycle": 1278,
+      "kind": 4,
+      "name": "READ",
+      "result": 0,
+      "elapsed_cycles": 15496,
+      "us_ceil": 323,
+      "detail": 1
+    },
+    {
+      "t_ms": 25808,
+      "cycle": 1278,
+      "kind": 10,
+      "name": "STATE",
+      "result": 7,
+      "elapsed_cycles": 16671,
+      "us_ceil": 348,
+      "detail": 0
+    },
+    {
+      "t_ms": 25829,
+      "cycle": 1279,
+      "kind": 4,
+      "name": "READ",
+      "result": 1,
+      "elapsed_cycles": 76197,
+      "us_ceil": 1588,
+      "detail": 0
+    },
+    {
+      "t_ms": 25849,
+      "cycle": 1280,
+      "kind": 4,
+      "name": "READ",
+      "result": 0,
+      "elapsed_cycles": 75845,
+      "us_ceil": 1581,
+      "detail": 0
+    },
+    {
+      "t_ms": 26490,
+      "cycle": 1312,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52976,
+      "us_ceil": 1104,
+      "detail": 0
+    },
+    {
+      "t_ms": 26655,
+      "cycle": 1313,
+      "kind": 6,
+      "name": "INIT",
+      "result": 0,
+      "elapsed_cycles": 7073835,
+      "us_ceil": 147372,
+      "detail": 0
+    },
+    {
+      "t_ms": 26655,
+      "cycle": 1313,
+      "kind": 10,
+      "name": "STATE",
+      "result": 1,
+      "elapsed_cycles": 7075096,
+      "us_ceil": 147398,
+      "detail": 0
+    },
+    {
+      "t_ms": 26655,
+      "cycle": 1313,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 10584,
+      "us_ceil": 221,
+      "detail": 0
+    },
+    {
+      "t_ms": 26657,
+      "cycle": 1314,
+      "kind": 4,
+      "name": "READ",
+      "result": 1,
+      "elapsed_cycles": 76620,
+      "us_ceil": 1597,
+      "detail": 0
+    },
+    {
+      "t_ms": 26657,
+      "cycle": 1314,
+      "kind": 10,
+      "name": "STATE",
+      "result": 7,
+      "elapsed_cycles": 88686,
+      "us_ceil": 1848,
+      "detail": 0
+    },
+    {
+      "t_ms": 26669,
+      "cycle": 1315,
+      "kind": 4,
+      "name": "READ",
+      "result": 0,
+      "elapsed_cycles": 75618,
+      "us_ceil": 1576,
+      "detail": 0
+    },
+    {
+      "t_ms": 26689,
+      "cycle": 1316,
+      "kind": 4,
+      "name": "READ",
+      "result": 1,
+      "elapsed_cycles": 76190,
+      "us_ceil": 1588,
+      "detail": 0
+    },
+    {
+      "t_ms": 26710,
+      "cycle": 1317,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 43071,
+      "us_ceil": 898,
+      "detail": 0
+    },
+    {
+      "t_ms": 28669,
+      "cycle": 1415,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 10377,
+      "us_ceil": 217,
+      "detail": 0
+    },
+    {
+      "t_ms": 28671,
+      "cycle": 1415,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52096,
+      "us_ceil": 1086,
+      "detail": 1
+    },
+    {
+      "t_ms": 28730,
+      "cycle": 1418,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 43071,
+      "us_ceil": 898,
+      "detail": 0
+    },
+    {
+      "t_ms": 30689,
+      "cycle": 1516,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 10377,
+      "us_ceil": 217,
+      "detail": 0
+    },
+    {
+      "t_ms": 30691,
+      "cycle": 1516,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52097,
+      "us_ceil": 1086,
+      "detail": 1
+    },
+    {
+      "t_ms": 30750,
+      "cycle": 1519,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 43071,
+      "us_ceil": 898,
+      "detail": 0
+    },
+    {
+      "t_ms": 32709,
+      "cycle": 1617,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 10377,
+      "us_ceil": 217,
+      "detail": 0
+    },
+    {
+      "t_ms": 32711,
+      "cycle": 1617,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52094,
+      "us_ceil": 1086,
+      "detail": 1
+    },
+    {
+      "t_ms": 32770,
+      "cycle": 1620,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 43071,
+      "us_ceil": 898,
+      "detail": 0
+    },
+    {
+      "t_ms": 34729,
+      "cycle": 1718,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 10377,
+      "us_ceil": 217,
+      "detail": 0
+    },
+    {
+      "t_ms": 34731,
+      "cycle": 1718,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52096,
+      "us_ceil": 1086,
+      "detail": 1
+    },
+    {
+      "t_ms": 34790,
+      "cycle": 1721,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 43071,
+      "us_ceil": 898,
+      "detail": 0
+    },
+    {
+      "t_ms": 36749,
+      "cycle": 1819,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 10377,
+      "us_ceil": 217,
+      "detail": 0
+    },
+    {
+      "t_ms": 36751,
+      "cycle": 1819,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52096,
+      "us_ceil": 1086,
+      "detail": 1
+    },
+    {
+      "t_ms": 36810,
+      "cycle": 1822,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 43291,
+      "us_ceil": 902,
+      "detail": 0
+    },
+    {
+      "t_ms": 37929,
+      "cycle": 1878,
+      "kind": 4,
+      "name": "READ",
+      "result": 0,
+      "elapsed_cycles": 76053,
+      "us_ceil": 1585,
+      "detail": 0
+    },
+    {
+      "t_ms": 37949,
+      "cycle": 1879,
+      "kind": 4,
+      "name": "READ",
+      "result": 1,
+      "elapsed_cycles": 76620,
+      "us_ceil": 1597,
+      "detail": 0
+    },
+    {
+      "t_ms": 37969,
+      "cycle": 1880,
+      "kind": 4,
+      "name": "READ",
+      "result": 0,
+      "elapsed_cycles": 76053,
+      "us_ceil": 1585,
+      "detail": 0
+    },
+    {
+      "t_ms": 37989,
+      "cycle": 1881,
+      "kind": 4,
+      "name": "READ",
+      "result": 1,
+      "elapsed_cycles": 76620,
+      "us_ceil": 1597,
+      "detail": 0
+    },
+    {
+      "t_ms": 38769,
+      "cycle": 1920,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 10586,
+      "us_ceil": 221,
+      "detail": 0
+    },
+    {
+      "t_ms": 38771,
+      "cycle": 1920,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52096,
+      "us_ceil": 1086,
+      "detail": 1
+    },
+    {
+      "t_ms": 38830,
+      "cycle": 1923,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 43719,
+      "us_ceil": 911,
+      "detail": 0
+    },
+    {
+      "t_ms": 40789,
+      "cycle": 2021,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 10586,
+      "us_ceil": 221,
+      "detail": 0
+    },
+    {
+      "t_ms": 40791,
+      "cycle": 2021,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52534,
+      "us_ceil": 1095,
+      "detail": 1
+    }
+  ]
+}

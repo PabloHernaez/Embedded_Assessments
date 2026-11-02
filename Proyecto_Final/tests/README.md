@@ -1,8 +1,8 @@
 # Ensayos
 
 Las pruebas de placa se ejecutan en una aplicacion separada del main de
-produccion. Los modulos puros tambien disponen de pruebas de host con CMake
-y CTest, sin hardware ni dependencias de Zephyr.
+produccion. Los modulos puros y la adquisicion IMU tambien disponen de pruebas
+de host con CMake y CTest, sin hardware ni una instalacion de Zephyr.
 
 ## Placa: MPU6050, calibracion, movimiento y Si7021
 
@@ -35,6 +35,44 @@ Monitor. Tambien puede construirse por terminal desde el entorno Zephyr:
 Las rutas del ejemplo son relativas a la raiz del repositorio; las rutas
 personales y las tareas locales no se incorporan a Git.
 
+## Placa: lectura bruta del LDR
+
+tests/board/light usa el driver real light.c con el ADC comun de produccion.
+Entrega una conversion cada 500 ms por la consola del ensayo. No enlaza
+adquisicion ni calcula promedios o porcentajes en el microcontrolador.
+
+    west build -p auto -b nucleo_wl55jc tests/board/light -d build-light
+
+capturar_ldr.py guarda tomas breves por condicion y muestra su rango/media
+en el PC. El [procedimiento](board/light/README.md) distingue las referencias
+provisionales sin pull-down de 47 kohm de la calibracion del montaje definitivo.
+
+## Placa: servicio integrado de adquisicion D4
+
+board/acquisition enlaza el servicio real con un main observador de snapshots.
+Muestra medidas/calidad/edades, navegacion, progreso, margen observado de pila
+y las cinco metricas al cerrar cada ventana de 30 s. Las ordenes b/e ejercitan
+begin/end sin reiniciar sensores. El [procedimiento](board/acquisition/README.md)
+describe las fases fisicas, la captura y el alcance de las comprobaciones.
+El [registro del 02/11/2026](board/acquisition/results/Ensayo_D4_20261102.md)
+incluye el fallo de aplazamiento de ENV detectado con IMU ausente, su ajuste
+minimo y la repeticion en placa, ademas de sesiones, luz y retomas individuales.
+
+El perfil D4_TIMING_ONLY del mismo ensayo usa configuracion de produccion,
+sin consola ni barrido de pilas. leer_tiempos.py captura por SWD los contadores
+privados y el estado del servicio. El [registro temporal](board/acquisition/results/Tiempos_Adquisicion_D4_20261102.md)
+contrasta el presupuesto nominal de 10 ms, la ausencia/retoma y una
+reinicializacion completa provocada mediante un indicador de RAM.
+
+El perfil D4_I2C_TEST añade un fixture GPIO y observacion de llamadas solo
+en el ensayo. Su [registro I2C](board/acquisition/results/I2C_D4_20261102.md)
+incluye reset/SLEEP reales, tres errores simulados con bus libre y SDA/SCL
+retenidas durante 60 ms/5 s. SCL ejercita el timeout de 5 ms y ambos sensores
+retoman; SDA breve reprodujo una falta de retoma del Si7021. El
+[diagnostico y ajuste del 03/11](board/acquisition/results/Si7021_Diagnostico_20261103.md)
+la corrige revalidando configuracion antes de F5, con regresion host y
+repeticion en placa sobre el modulo real.
+
 ## Capturas de movimiento: 26/10/2026
 
 Los archivos originales se conservan en board/sensors/results/.
@@ -58,7 +96,7 @@ Estas capturas respaldan el ciclo nominal reposo-movimiento-reposo. No
 registran el comienzo de cada condicion candidata, por lo que no miden
 directamente los 300 ms y 2 s de confirmacion.
 
-## Host: movimiento y orientacion
+## Host: movimiento, orientacion y adquisicion IMU/ambiente
 
 Desde Proyecto_Final:
 
@@ -73,6 +111,58 @@ test_motion.c comprueba tiempos de confirmacion, cancelacion, histeresis,
 condiciones OR/AND, limites estrictos de giro, NO_NEW omitido por el
 llamador e interrupcion explicita de continuidad. Las comprobaciones
 siguen activas con NDEBUG.
+
+test_acquisition_imu.c compila el modulo real de adquisicion IMU con los
+algoritmos reales de calibracion, movimiento y estimacion, simulando solo
+el driver y el reloj. Comprueba la transicion en la muestra 100, la media de aceleracion de
+las muestras aceptadas, la resta del sesgo, NO_NEW, reinicios por movimiento,
+error y saturacion, rechazo de inclinacion y conservacion de sesgo/q0 tras
+calibrar. Tambien comprueba movimiento tras calibrar, uso del giro corregido,
+confirmaciones de 300 ms y 2 s, NO_NEW, error, saturacion y los limites de
+continuidad de 50 ms exactos y 50 ms mas un tick. Las cabeceras de fakes solo
+se incluyen en este ejecutable host.
+
+Los casos de navegacion verifican primera muestra con dt=0, compensacion de
+gravedad, integracion Euler de v/p con dt reales de 20, 40 y 50 ms, avance
+con moving=false, NO_NEW y retoma sin integrar huecos ni borrar v/p. Se
+comprueban rechazo atomico del candidato, retoma tras rechazo y giro relativo
+de 90 grados desde una postura inicial inclinada, conservando q0 ante fallos.
+Las lecturas de estos casos son sinteticas; no son valores de calibracion
+nuevos para el montaje.
+
+test_acquisition_environment.c compila el modulo ambiental real y estadisticas,
+simulando driver y reloj. Verifica la cadencia, configuracion diferida, espera
+desde el final de F5 con ceil(40 ms) + 1 tick, recogida unica, retencion del par
+ante fallos, reconfiguracion en el siguiente vencimiento y cancelacion tras
+un error de lectura IMU. Una sesion estadistica iniciada durante la conversion
+rechaza el par anterior, conservando las fechas de la captura completa.
+Tambien reproduce las revisiones IMU fallidas cada 1 s: sin conversion pendiente
+no aplazan ENV, que puede iniciar y recoger en las siguientes vueltas permitidas.
+
+test_acquisition_statistics.c incluye el coordinador real para activar sus
+pasos privados, y compila IMU/ambiente/calibracion/movimiento/estimador/estadisticas
+reales. Su cabecera fakes_coordinator conserva la entrada del hilo sin
+arrancarlo y simula mutex, timer y reloj; luz queda fuera de este ensayo.
+No se añaden accesos de prueba al firmware de produccion.
+
+Comprueba acumulacion postcalibracion, magnitudes con gravedad/sin sesgo,
+NO_NEW, getters repetidos, errores, saturacion y entradas no finitas. Una
+serie conocida verifica media/min/max/count; dos NEW iguales cuentan dos
+veces. Tambien verifica cierre sin muestras, ventana vacia, limite exacto
+por sample_ticks y salida/entrada de sesion durante una lectura simulada.
+El driver registra si se le llama con el mutex tomado. Este ensayo verifica
+el flujo determinista, sin sustituir pruebas de planificacion/tiempos en placa.
+Incluye cancelacion de ENV por fallo tardio de comprobacion IMU, bloqueo de
+la comprobacion opcional tras error ambiental y ausencia de acumulacion al revisar.
+Tambien verifica los contadores temporales, limites exactos de 10/20 ms,
+categorias nominal/mantenimiento, desborde uint32 y vencimientos multiples.
+
+test_acquisition_recovery.c usa el modulo IMU y los algoritmos reales con el
+driver simulado. Comprueba errores a 20/40/60 ms, revision a 80 ms y NEW a
+100 ms, revision fallida espaciada 1 s, configuracion perdida, init fallido
+sin rafagas, bus retenido y observacion GPIO fallida. Conserva trayectoria y
+sesgo a traves de los casos. Verifica comprobacion periodica tras NO_NEW y
+respeto de bus_allowed. No prueba fisicamente los pulsos GPIO ni el reset MPU.
 
 ## Orientacion incremental
 
@@ -92,8 +182,8 @@ y valid pasa a false. Se admiten dt entre 0 y 50 ms inclusive.
 
 Los algoritmos son C puro. El llamador omite NO_NEW, rompe continuidad ante
 error/saturacion/hueco y entrega dt=0 en la primera utilizable posterior.
-El ensayo consume ahora el estimador, pero el getter y servicio de D4 y los
-formateadores de P2 siguen pendientes.
+El ensayo y el servicio de D4 consumen ahora el mismo estimador. El servicio
+publica NavigationView completo; los formateadores de P2 siguen pendientes.
 
 test_estimator.c cubre reposo, giros positivos/negativos en los tres ejes,
 composicion de giros en ejes del sensor, norma unitaria, intervalos de 0,

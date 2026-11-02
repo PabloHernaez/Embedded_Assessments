@@ -1,0 +1,473 @@
+{
+  "captured_at": "2026-11-02T23:49:37.366592+01:00",
+  "label": "i2c_sda_largo_final",
+  "stlink_serial": "0020001E4741500220383733",
+  "hex_sha256": "D4011BEC20816C06A2238AB89E30C46F148D52FC607B823F7E79D7304BECECAF",
+  "elf_sha256": "01C7683D7B933B039A7FAF8CCD1587BFEB2DB91400FCFFD0875108CB3768CBD6",
+  "layout": {
+    "timing": 536871088,
+    "timing_size": 64,
+    "published": 536870912,
+    "published_size": 176,
+    "imu_valid": 536870936,
+    "calibration_pending": 536870953,
+    "light_valid": 536870968,
+    "environment_valid": 536871000,
+    "nav_valid": 536871072,
+    "moving": 536871076,
+    "progress": 536871080,
+    "stats": 536871664,
+    "stats_size": 224,
+    "stats_active": 536871664,
+    "stats_ready": 536871784,
+    "window_begin_ms": 536871792,
+    "window_end_ms": 536871800,
+    "imu_configured_address": 536871952,
+    "i2c_test": 536872696,
+    "i2c_test_size": 2368,
+    "imu_context": 536871952,
+    "imu_context_size": 256,
+    "bias_dps": 536872116,
+    "initial_q": 536872144,
+    "last_init_ticks": 536871968,
+    "q": 536871016,
+    "relative_q": 536871032,
+    "velocity_mps": 536871048,
+    "position_m": 536871060,
+    "imu_last_good_ms": 536870944,
+    "light_last_good_ms": 536870976,
+    "environment_last_good_ms": 536871008
+  },
+  "timing": {
+    "expired_periods": 3379,
+    "missed_periods": 0,
+    "clock_hz": 48000000,
+    "counter_pair_cycles": 67,
+    "startup_cycles": 11883964,
+    "normal_count": 1157,
+    "normal_max_cycles": 145746,
+    "normal_max_at_ms": 51910,
+    "normal_ge_10_ms": 0,
+    "normal_ge_20_ms": 0,
+    "maintenance_count": 2222,
+    "maintenance_max_cycles": 154001,
+    "maintenance_max_at_ms": 2251,
+    "maintenance_ge_20_ms": 0,
+    "counter_pair_us_ceil": 2,
+    "startup_us_ceil": 247583,
+    "normal_max_us_ceil": 3037,
+    "maintenance_max_us_ceil": 3209
+  },
+  "state_sequential_read": {
+    "imu_valid": true,
+    "calibration_pending": false,
+    "light_valid": true,
+    "environment_valid": true,
+    "nav_valid": true,
+    "moving": false,
+    "progress": 3384,
+    "stats_active": true,
+    "stats_ready": true,
+    "window_begin_ms": 30000,
+    "window_end_ms": 60000,
+    "bias_dps": [
+      -2.8490073680877686,
+      -0.6190838813781738,
+      -0.36320605874061584
+    ],
+    "initial_q": [
+      0.9989549517631531,
+      0.003197279293090105,
+      -0.045593492686748505,
+      0.00014592762454412878
+    ],
+    "q": [
+      0.9987323880195618,
+      0.0058828722685575485,
+      -0.049450360238552094,
+      0.007331424858421087
+    ],
+    "relative_q": [
+      0.9999631643295288,
+      0.0030105472542345524,
+      -0.003840403398498893,
+      0.007067906204611063
+    ],
+    "velocity_mps": [
+      -2.692333221435547,
+      -1.0321247577667236,
+      6.359899997711182
+    ],
+    "position_m": [
+      -54.7756462097168,
+      -20.036361694335938,
+      192.90426635742188
+    ],
+    "imu_last_good_ms": 67929,
+    "light_last_good_ms": 66267,
+    "environment_last_good_ms": 66970,
+    "last_init_ticks": 1003
+  },
+  "i2c_control": {
+    "command": 0,
+    "phase": 3,
+    "last_command": 4,
+    "gpio_init_result": 0,
+    "injected_ms": 38745,
+    "released_ms": 43745,
+    "inject_result": 0,
+    "event_count": 34,
+    "dropped": 0,
+    "new_count": 494,
+    "no_new_count": 0,
+    "error_count": 1,
+    "update_max_cycles": 90462,
+    "hold_cycles": 240004519,
+    "cycle": 3395,
+    "reserved": 0,
+    "update_max_us_ceil": 1885,
+    "hold_us_ceil": 5000095
+  },
+  "i2c_events": [
+    {
+      "t_ms": 38745,
+      "cycle": 1924,
+      "kind": 2,
+      "name": "HOLD_BEGIN",
+      "result": 0,
+      "elapsed_cycles": 0,
+      "us_ceil": 0,
+      "detail": 4
+    },
+    {
+      "t_ms": 38747,
+      "cycle": 1925,
+      "kind": 4,
+      "name": "READ",
+      "result": -5,
+      "elapsed_cycles": 3708,
+      "us_ceil": 78,
+      "detail": 0
+    },
+    {
+      "t_ms": 38748,
+      "cycle": 1925,
+      "kind": 7,
+      "name": "RECOVER",
+      "result": -16,
+      "elapsed_cycles": 14164,
+      "us_ceil": 296,
+      "detail": 0
+    },
+    {
+      "t_ms": 38748,
+      "cycle": 1925,
+      "kind": 10,
+      "name": "STATE",
+      "result": 17,
+      "elapsed_cycles": 20310,
+      "us_ceil": 424,
+      "detail": 0
+    },
+    {
+      "t_ms": 39767,
+      "cycle": 1976,
+      "kind": 5,
+      "name": "CHECK",
+      "result": -5,
+      "elapsed_cycles": 3359,
+      "us_ceil": 70,
+      "detail": 0
+    },
+    {
+      "t_ms": 39768,
+      "cycle": 1976,
+      "kind": 7,
+      "name": "RECOVER",
+      "result": -16,
+      "elapsed_cycles": 14168,
+      "us_ceil": 296,
+      "detail": 0
+    },
+    {
+      "t_ms": 40667,
+      "cycle": 2021,
+      "kind": 11,
+      "name": "ENV_INIT",
+      "result": -5,
+      "elapsed_cycles": 3378,
+      "us_ceil": 71,
+      "detail": 0
+    },
+    {
+      "t_ms": 40787,
+      "cycle": 2027,
+      "kind": 5,
+      "name": "CHECK",
+      "result": -5,
+      "elapsed_cycles": 3359,
+      "us_ceil": 70,
+      "detail": 0
+    },
+    {
+      "t_ms": 40788,
+      "cycle": 2027,
+      "kind": 7,
+      "name": "RECOVER",
+      "result": -16,
+      "elapsed_cycles": 14158,
+      "us_ceil": 295,
+      "detail": 0
+    },
+    {
+      "t_ms": 41807,
+      "cycle": 2078,
+      "kind": 5,
+      "name": "CHECK",
+      "result": -5,
+      "elapsed_cycles": 3359,
+      "us_ceil": 70,
+      "detail": 0
+    },
+    {
+      "t_ms": 41808,
+      "cycle": 2078,
+      "kind": 7,
+      "name": "RECOVER",
+      "result": -16,
+      "elapsed_cycles": 14168,
+      "us_ceil": 296,
+      "detail": 0
+    },
+    {
+      "t_ms": 42687,
+      "cycle": 2122,
+      "kind": 11,
+      "name": "ENV_INIT",
+      "result": -5,
+      "elapsed_cycles": 3378,
+      "us_ceil": 71,
+      "detail": 0
+    },
+    {
+      "t_ms": 42827,
+      "cycle": 2129,
+      "kind": 5,
+      "name": "CHECK",
+      "result": -5,
+      "elapsed_cycles": 3359,
+      "us_ceil": 70,
+      "detail": 0
+    },
+    {
+      "t_ms": 42828,
+      "cycle": 2129,
+      "kind": 7,
+      "name": "RECOVER",
+      "result": -16,
+      "elapsed_cycles": 14158,
+      "us_ceil": 295,
+      "detail": 0
+    },
+    {
+      "t_ms": 43745,
+      "cycle": 2174,
+      "kind": 3,
+      "name": "HOLD_END",
+      "result": 0,
+      "elapsed_cycles": 240004519,
+      "us_ceil": 5000095,
+      "detail": 1
+    },
+    {
+      "t_ms": 43848,
+      "cycle": 2180,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52990,
+      "us_ceil": 1104,
+      "detail": 1
+    },
+    {
+      "t_ms": 43848,
+      "cycle": 2180,
+      "kind": 10,
+      "name": "STATE",
+      "result": 1,
+      "elapsed_cycles": 54091,
+      "us_ceil": 1127,
+      "detail": 0
+    },
+    {
+      "t_ms": 43869,
+      "cycle": 2181,
+      "kind": 4,
+      "name": "READ",
+      "result": 1,
+      "elapsed_cycles": 76638,
+      "us_ceil": 1597,
+      "detail": 0
+    },
+    {
+      "t_ms": 43869,
+      "cycle": 2181,
+      "kind": 10,
+      "name": "STATE",
+      "result": 7,
+      "elapsed_cycles": 88744,
+      "us_ceil": 1849,
+      "detail": 0
+    },
+    {
+      "t_ms": 44690,
+      "cycle": 2222,
+      "kind": 11,
+      "name": "ENV_INIT",
+      "result": 0,
+      "elapsed_cycles": 20431,
+      "us_ceil": 426,
+      "detail": 0
+    },
+    {
+      "t_ms": 44690,
+      "cycle": 2222,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 10364,
+      "us_ceil": 216,
+      "detail": 0
+    },
+    {
+      "t_ms": 44750,
+      "cycle": 2225,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 43738,
+      "us_ceil": 912,
+      "detail": 0
+    },
+    {
+      "t_ms": 45850,
+      "cycle": 2280,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 53007,
+      "us_ceil": 1105,
+      "detail": 1
+    },
+    {
+      "t_ms": 46709,
+      "cycle": 2323,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 10594,
+      "us_ceil": 221,
+      "detail": 0
+    },
+    {
+      "t_ms": 46770,
+      "cycle": 2326,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 43739,
+      "us_ceil": 912,
+      "detail": 0
+    },
+    {
+      "t_ms": 47870,
+      "cycle": 2381,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 53006,
+      "us_ceil": 1105,
+      "detail": 1
+    },
+    {
+      "t_ms": 48729,
+      "cycle": 2424,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 10594,
+      "us_ceil": 221,
+      "detail": 0
+    },
+    {
+      "t_ms": 48790,
+      "cycle": 2427,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 43738,
+      "us_ceil": 912,
+      "detail": 0
+    },
+    {
+      "t_ms": 49890,
+      "cycle": 2482,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 53032,
+      "us_ceil": 1105,
+      "detail": 1
+    },
+    {
+      "t_ms": 50749,
+      "cycle": 2525,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 10594,
+      "us_ceil": 221,
+      "detail": 0
+    },
+    {
+      "t_ms": 50810,
+      "cycle": 2528,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 43738,
+      "us_ceil": 912,
+      "detail": 0
+    },
+    {
+      "t_ms": 51910,
+      "cycle": 2583,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52999,
+      "us_ceil": 1105,
+      "detail": 1
+    },
+    {
+      "t_ms": 52769,
+      "cycle": 2626,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 10594,
+      "us_ceil": 221,
+      "detail": 0
+    },
+    {
+      "t_ms": 52830,
+      "cycle": 2629,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 43735,
+      "us_ceil": 912,
+      "detail": 0
+    }
+  ]
+}

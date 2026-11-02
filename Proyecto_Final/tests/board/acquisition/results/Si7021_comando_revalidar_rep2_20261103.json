@@ -1,0 +1,7 @@
+{
+  "commanded_at": "2026-11-03T00:17:33.8495430+01:00",
+  "command": 3,
+  "meaning": "Repeticion 2 SDA 60ms con revalidacion ENV",
+  "address": "0x200006F8",
+  "hex_sha256": "51167A296C4FF2905680FBA02CA2FF698E1277D651B04E8248EC6A0F9FA49CDC"
+}

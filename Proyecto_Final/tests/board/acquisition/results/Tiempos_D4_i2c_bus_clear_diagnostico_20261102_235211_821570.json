@@ -1,0 +1,353 @@
+{
+  "captured_at": "2026-11-02T23:52:11.821570+01:00",
+  "label": "i2c_bus_clear_diagnostico",
+  "stlink_serial": "0020001E4741500220383733",
+  "hex_sha256": "C388C80CD5FD81D8D605EF8D7C5D4A2FCEF3199AD660C56706A6CC723A104200",
+  "elf_sha256": "8AFF3B1D064374A224B5A60681B062AD3F08F3E5A229B33F976564971D4627FB",
+  "layout": {
+    "timing": 536871088,
+    "timing_size": 64,
+    "published": 536870912,
+    "published_size": 176,
+    "imu_valid": 536870936,
+    "calibration_pending": 536870953,
+    "light_valid": 536870968,
+    "environment_valid": 536871000,
+    "nav_valid": 536871072,
+    "moving": 536871076,
+    "progress": 536871080,
+    "stats": 536871664,
+    "stats_size": 224,
+    "stats_active": 536871664,
+    "stats_ready": 536871784,
+    "window_begin_ms": 536871792,
+    "window_end_ms": 536871800,
+    "imu_configured_address": 536871952,
+    "i2c_test": 536872696,
+    "i2c_test_size": 2368,
+    "imu_context": 536871952,
+    "imu_context_size": 256,
+    "bias_dps": 536872116,
+    "initial_q": 536872144,
+    "last_init_ticks": 536871968,
+    "q": 536871016,
+    "relative_q": 536871032,
+    "velocity_mps": 536871048,
+    "position_m": 536871060,
+    "imu_last_good_ms": 536870944,
+    "light_last_good_ms": 536870976,
+    "environment_last_good_ms": 536871008
+  },
+  "timing": {
+    "expired_periods": 1196,
+    "missed_periods": 0,
+    "clock_hz": 48000000,
+    "counter_pair_cycles": 67,
+    "startup_cycles": 4824234,
+    "normal_count": 0,
+    "normal_max_cycles": 0,
+    "normal_max_at_ms": 0,
+    "normal_ge_10_ms": 0,
+    "normal_ge_20_ms": 0,
+    "maintenance_count": 1196,
+    "maintenance_max_cycles": 154928,
+    "maintenance_max_at_ms": 3103,
+    "maintenance_ge_20_ms": 0,
+    "counter_pair_us_ceil": 2,
+    "startup_us_ceil": 100505,
+    "normal_max_us_ceil": 0,
+    "maintenance_max_us_ceil": 3228
+  },
+  "state_sequential_read": {
+    "imu_valid": true,
+    "calibration_pending": false,
+    "light_valid": true,
+    "environment_valid": false,
+    "nav_valid": true,
+    "moving": false,
+    "progress": 1201,
+    "stats_active": true,
+    "stats_ready": false,
+    "window_begin_ms": 0,
+    "window_end_ms": 0,
+    "bias_dps": [
+      -2.8642749786376953,
+      -0.619083821773529,
+      -0.34854957461357117
+    ],
+    "initial_q": [
+      0.9989741444587708,
+      0.003473067656159401,
+      -0.04515116661787033,
+      0.00015697408525738865
+    ],
+    "q": [
+      0.9989412426948547,
+      0.0030806686263531446,
+      -0.0458962544798851,
+      0.0007055928581394255
+    ],
+    "relative_q": [
+      0.9999995827674866,
+      -0.0003672283492051065,
+      -0.0007438391912728548,
+      0.0005683662020601332
+    ],
+    "velocity_mps": [
+      -0.19763530790805817,
+      0.07530561834573746,
+      2.3159255981445312
+    ],
+    "position_m": [
+      -1.555416464805603,
+      0.41831284761428833,
+      24.33272933959961
+    ],
+    "imu_last_good_ms": 24122,
+    "light_last_good_ms": 24120,
+    "environment_last_good_ms": -1,
+    "last_init_ticks": 1003
+  },
+  "i2c_control": {
+    "command": 0,
+    "phase": 3,
+    "last_command": 7,
+    "gpio_init_result": 0,
+    "injected_ms": 3441,
+    "released_ms": 0,
+    "inject_result": 0,
+    "event_count": 22,
+    "dropped": 0,
+    "new_count": 748,
+    "no_new_count": 2,
+    "error_count": 0,
+    "update_max_cycles": 90390,
+    "hold_cycles": 0,
+    "cycle": 1213,
+    "reserved": 0,
+    "update_max_us_ceil": 1884,
+    "hold_us_ceil": 0
+  },
+  "i2c_events": [
+    {
+      "t_ms": 3441,
+      "cycle": 167,
+      "kind": 7,
+      "name": "RECOVER",
+      "result": 0,
+      "elapsed_cycles": 12606,
+      "us_ceil": 263,
+      "detail": 0
+    },
+    {
+      "t_ms": 3441,
+      "cycle": 167,
+      "kind": 1,
+      "name": "INJECT",
+      "result": 0,
+      "elapsed_cycles": 13698,
+      "us_ceil": 286,
+      "detail": 255
+    },
+    {
+      "t_ms": 3441,
+      "cycle": 167,
+      "kind": 4,
+      "name": "READ",
+      "result": 0,
+      "elapsed_cycles": 14660,
+      "us_ceil": 306,
+      "detail": 1
+    },
+    {
+      "t_ms": 3441,
+      "cycle": 167,
+      "kind": 10,
+      "name": "STATE",
+      "result": 7,
+      "elapsed_cycles": 15841,
+      "us_ceil": 331,
+      "detail": 0
+    },
+    {
+      "t_ms": 3462,
+      "cycle": 168,
+      "kind": 4,
+      "name": "READ",
+      "result": 1,
+      "elapsed_cycles": 76199,
+      "us_ceil": 1588,
+      "detail": 0
+    },
+    {
+      "t_ms": 4122,
+      "cycle": 201,
+      "kind": 11,
+      "name": "ENV_INIT",
+      "result": -5,
+      "elapsed_cycles": 6730,
+      "us_ceil": 141,
+      "detail": 0
+    },
+    {
+      "t_ms": 5123,
+      "cycle": 251,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52999,
+      "us_ceil": 1105,
+      "detail": 1
+    },
+    {
+      "t_ms": 6142,
+      "cycle": 302,
+      "kind": 11,
+      "name": "ENV_INIT",
+      "result": -5,
+      "elapsed_cycles": 6721,
+      "us_ceil": 141,
+      "detail": 0
+    },
+    {
+      "t_ms": 6582,
+      "cycle": 324,
+      "kind": 4,
+      "name": "READ",
+      "result": 0,
+      "elapsed_cycles": 76088,
+      "us_ceil": 1586,
+      "detail": 0
+    },
+    {
+      "t_ms": 6602,
+      "cycle": 325,
+      "kind": 4,
+      "name": "READ",
+      "result": 1,
+      "elapsed_cycles": 76618,
+      "us_ceil": 1597,
+      "detail": 0
+    },
+    {
+      "t_ms": 7143,
+      "cycle": 352,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52986,
+      "us_ceil": 1104,
+      "detail": 1
+    },
+    {
+      "t_ms": 8162,
+      "cycle": 403,
+      "kind": 11,
+      "name": "ENV_INIT",
+      "result": -5,
+      "elapsed_cycles": 6503,
+      "us_ceil": 136,
+      "detail": 0
+    },
+    {
+      "t_ms": 9163,
+      "cycle": 453,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52310,
+      "us_ceil": 1090,
+      "detail": 1
+    },
+    {
+      "t_ms": 10182,
+      "cycle": 504,
+      "kind": 11,
+      "name": "ENV_INIT",
+      "result": -5,
+      "elapsed_cycles": 6503,
+      "us_ceil": 136,
+      "detail": 0
+    },
+    {
+      "t_ms": 11183,
+      "cycle": 554,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52077,
+      "us_ceil": 1085,
+      "detail": 1
+    },
+    {
+      "t_ms": 12202,
+      "cycle": 605,
+      "kind": 11,
+      "name": "ENV_INIT",
+      "result": -5,
+      "elapsed_cycles": 6503,
+      "us_ceil": 136,
+      "detail": 0
+    },
+    {
+      "t_ms": 13203,
+      "cycle": 655,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52077,
+      "us_ceil": 1085,
+      "detail": 1
+    },
+    {
+      "t_ms": 14222,
+      "cycle": 706,
+      "kind": 11,
+      "name": "ENV_INIT",
+      "result": -5,
+      "elapsed_cycles": 6503,
+      "us_ceil": 136,
+      "detail": 0
+    },
+    {
+      "t_ms": 15223,
+      "cycle": 756,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52077,
+      "us_ceil": 1085,
+      "detail": 1
+    },
+    {
+      "t_ms": 16242,
+      "cycle": 807,
+      "kind": 11,
+      "name": "ENV_INIT",
+      "result": -5,
+      "elapsed_cycles": 6504,
+      "us_ceil": 136,
+      "detail": 0
+    },
+    {
+      "t_ms": 17243,
+      "cycle": 857,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 52076,
+      "us_ceil": 1085,
+      "detail": 1
+    },
+    {
+      "t_ms": 18262,
+      "cycle": 908,
+      "kind": 11,
+      "name": "ENV_INIT",
+      "result": -5,
+      "elapsed_cycles": 6503,
+      "us_ceil": 136,
+      "detail": 0
+    }
+  ]
+}

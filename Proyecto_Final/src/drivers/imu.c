@@ -6,6 +6,7 @@
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/i2c.h>
+#include <zephyr/drivers/gpio.h>
 #include <zephyr/kernel.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/sys/byteorder.h>
@@ -59,6 +60,11 @@ enum {
 
 static const struct device *const imu_bus =
     DEVICE_DT_GET(DT_NODELABEL(i2c2));
+
+static const struct gpio_dt_spec imu_scl =
+    GPIO_DT_SPEC_GET(DT_NODELABEL(i2c2), scl_gpios);
+static const struct gpio_dt_spec imu_sda =
+    GPIO_DT_SPEC_GET(DT_NODELABEL(i2c2), sda_gpios);
 
 typedef struct {
     uint8_t reg;
@@ -291,4 +297,46 @@ int imu_check_configuration(bool *matches)
     *matches = result;
 
     return 0;
+}
+
+/**
+ * Comprueba niveles de SCL/SDA sin generar nuevas transferencias.
+ * Entradas: blocked válido y escribible; el hilo es el único usuario del bus.
+ * Retorno: 0 en éxito; -ENODEV o error GPIO negativo si no puede observarlo.
+ * Modifica: solo *blocked en éxito; conserva la salida si falla una lectura.
+ *           Usa los GPIO ya declarados en el devicetree, sin reconfigurarlos.
+ */
+int imu_bus_is_blocked(bool *blocked)
+{
+    if (!gpio_is_ready_dt(&imu_scl) || !gpio_is_ready_dt(&imu_sda)) {
+        return -ENODEV;
+    }
+
+    int scl = gpio_pin_get_dt(&imu_scl);
+    if (scl < 0) {
+        return scl;
+    }
+
+    int sda = gpio_pin_get_dt(&imu_sda);
+    if (sda < 0) {
+        return sda;
+    }
+
+    *blocked = (scl == 0 || sda == 0);
+    return 0;
+}
+
+/**
+ * Delega un único intento de recuperación física en el controlador Zephyr.
+ * Entradas: ninguna explícita; bus observado bloqueado y uso desde su único hilo.
+ * Retorno: 0 o error negativo de Zephyr; -ENODEV si el controlador no está listo.
+ * Modifica: líneas/pinctrl mediante i2c_recover_bus. No reinicia el MPU ni los
+ *           contextos de cálculo; el servicio espacia intentos y valida la retoma.
+ */
+int imu_recover_bus(void)
+{
+    if (!device_is_ready(imu_bus)) {
+        return -ENODEV;
+    }
+    return i2c_recover_bus(imu_bus);
 }

@@ -1,0 +1,213 @@
+Ensayo MPU6050 + Si7021
+imu_init: 0
+environment_init: 0
+Calibrando: mantener el MPU quieto y nivelado.
+Calibrando: 1/100 (imu=1)
+Calibrando: 51/100 (imu=1)
+Sesgo gyro: -2.840 -0.640 -0.364 deg/s
+ACC inicial media: 0.6676 0.0280 9.8757 m/s2 | norma=9.8982
+ACC: 0.6684 0.0316 9.8692 m/s2 | norma=9.8919
+GYRO corregido: 0.0310 -0.0015 0.0128 deg/s | norma=0.0336
+t=2274 | moving=0 | imu=1 | NEW=1 NO_NEW=0 ERR=0 SAT=0 GAP=0
+NAV=1 dt=0.0 min=0.0 max=0.0 ms NAV_ERR=0
+q=0.9994 0.0014 -0.0337 0.0000
+v=0.000 0.000 0.000 m/s | p=0.000 0.000 0.000 m
+Temperatura: 23.90 C | Humedad: 97.13 %
+ACC: 0.6493 0.0304 9.8645 m/s2 | norma=9.8859
+GYRO corregido: 0.0463 -0.0321 -0.0177 deg/s | norma=0.0590
+t=3274 | moving=0 | imu=1 | NEW=51 NO_NEW=0 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=12.7 max=27.3 ms NAV_ERR=0
+q=0.9994 0.0015 -0.0339 0.0001
+v=-0.003 -0.000 0.094 m/s | p=-0.001 -0.000 0.047 m
+ACC: 0.6684 0.0161 9.8610 m/s2 | norma=9.8836
+GYRO corregido: -0.0301 -0.0321 0.0281 deg/s | norma=0.0522
+t=4274 | moving=0 | imu=1 | NEW=101 NO_NEW=0 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=12.2 max=27.8 ms NAV_ERR=0
+q=0.9994 0.0015 -0.0339 0.0002
+v=-0.007 -0.002 0.182 m/s | p=-0.006 -0.002 0.184 m
+Temperatura: 23.90 C | Humedad: 97.10 %
+ACC: 0.6875 0.0364 9.8728 m/s2 | norma=9.8968
+GYRO corregido: 0.0310 -0.0321 0.0434 deg/s | norma=0.0622
+t=5274 | moving=0 | imu=1 | NEW=150 NO_NEW=1 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=12.2 max=32.1 ms NAV_ERR=0
+q=0.9994 0.0015 -0.0339 0.0003
+v=-0.010 -0.005 0.271 m/s | p=-0.014 -0.006 0.409 m
+ACC: 0.5515 0.0412 9.9000 m/s2 | norma=9.9155
+GYRO corregido: 1.0844 0.2885 18.7304 deg/s | norma=18.7640
+t=6274 | moving=0 | imu=1 | NEW=199 NO_NEW=2 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=12.2 max=32.2 ms NAV_ERR=0
+q=0.9985 0.0025 -0.0335 0.0426
+v=-0.016 -0.001 0.362 m/s | p=-0.026 -0.013 0.725 m
+Temperatura: 23.90 C | Humedad: 97.08 %
+t=6454 ms | moving=1 | a=9.884 m/s2 | g=14.895 deg/s
+ACC: 0.6087 0.2822 9.8669 m/s2 | norma=9.8897
+GYRO corregido: 0.5959 0.1053 10.8678 deg/s | norma=10.8846
+t=7274 | moving=1 | imu=1 | NEW=248 NO_NEW=3 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=12.2 max=32.2 ms NAV_ERR=0
+q=0.9881 0.0051 -0.0318 0.1502
+v=-0.015 0.032 0.455 m/s | p=-0.041 -0.004 1.133 m
+ACC: 0.6970 0.0793 9.9071 m/s2 | norma=9.9319
+GYRO corregido: 0.9012 0.2580 14.7915 deg/s | norma=14.8211
+t=8274 | moving=1 | imu=1 | NEW=297 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=12.2 max=32.2 ms NAV_ERR=0
+q=0.9654 0.0075 -0.0294 0.2589
+v=0.013 0.078 0.545 m/s | p=-0.041 0.047 1.632 m
+Temperatura: 23.92 C | Humedad: 97.07 %
+ACC: 0.6815 0.0710 9.8432 m/s2 | norma=9.8670
+GYRO corregido: 0.6264 0.1664 10.8220 deg/s | norma=10.8414
+t=9274 | moving=1 | imu=1 | NEW=347 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=12.2 max=32.2 ms NAV_ERR=0
+q=0.9267 0.0102 -0.0263 0.3748
+v=0.054 0.157 0.640 m/s | p=-0.011 0.163 2.224 m
+ACC: 0.4608 -0.1486 9.9178 m/s2 | norma=9.9296
+GYRO corregido: 1.4661 0.3649 25.6922 deg/s | norma=25.7366
+t=10274 | moving=1 | imu=1 | NEW=397 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=12.2 max=32.2 ms NAV_ERR=0
+q=0.8497 0.0136 -0.0216 0.5267
+v=0.076 0.286 0.733 m/s | p=0.053 0.383 2.910 m
+Temperatura: 23.94 C | Humedad: 97.08 %
+ACC: 1.2087 0.4074 9.8562 m/s2 | norma=9.9384
+GYRO corregido: 1.2524 0.3038 21.1121 deg/s | norma=21.1514
+t=11274 | moving=1 | imu=1 | NEW=447 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=12.2 max=32.2 ms NAV_ERR=0
+q=0.7570 0.0163 -0.0171 0.6530
+v=0.080 0.490 0.823 m/s | p=0.139 0.760 3.686 m
+ACC: 0.6910 0.0101 9.8906 m/s2 | norma=9.9147
+GYRO corregido: -0.0759 -0.0321 -0.7200 deg/s | norma=0.7247
+t=12274 | moving=1 | imu=1 | NEW=497 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=12.2 max=32.2 ms NAV_ERR=0
+q=0.7052 0.0179 -0.0150 0.7087
+v=0.083 0.681 0.907 m/s | p=0.227 1.343 4.550 m
+Temperatura: 23.96 C | Humedad: 97.16 %
+ACC: 0.6648 0.0268 9.8669 m/s2 | norma=9.8893
+GYRO corregido: -0.0148 0.0595 -0.0788 deg/s | norma=0.0999
+t=13274 | moving=1 | imu=1 | NEW=547 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=12.2 max=32.2 ms NAV_ERR=0
+q=0.7023 0.0178 -0.0149 0.7115
+v=0.057 0.897 0.998 m/s | p=0.296 2.130 5.502 m
+ACC: 0.6958 0.0638 9.8598 m/s2 | norma=9.8845
+GYRO corregido: 0.0310 0.0137 -0.0482 deg/s | norma=0.0590
+t=14274 | moving=1 | imu=1 | NEW=597 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=12.2 max=32.2 ms NAV_ERR=0
+q=0.7022 0.0176 -0.0147 0.7116
+v=0.036 1.116 1.085 m/s | p=0.343 3.134 6.543 m
+t=14434 ms | moving=0 | a=9.881 m/s2 | g=0.050 deg/s
+Temperatura: 23.95 C | Humedad: 97.16 %
+ACC: 0.6684 0.0805 9.8716 m/s2 | norma=9.8945
+GYRO corregido: -0.0148 -0.0321 -0.0177 deg/s | norma=0.0395
+t=15274 | moving=0 | imu=1 | NEW=646 NO_NEW=5 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=12.2 max=40.0 ms NAV_ERR=0
+q=0.7021 0.0177 -0.0147 0.7117
+v=0.014 1.333 1.172 m/s | p=0.369 4.356 7.670 m
+ACC: 0.6517 0.0483 9.8704 m/s2 | norma=9.8920
+GYRO corregido: 0.0310 0.0137 0.0128 deg/s | norma=0.0362
+t=16274 | moving=0 | imu=1 | NEW=695 NO_NEW=6 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=12.2 max=40.0 ms NAV_ERR=0
+q=0.7020 0.0178 -0.0147 0.7118
+v=-0.003 1.545 1.260 m/s | p=0.374 5.793 8.886 m
+Temperatura: 23.96 C | Humedad: 97.15 %
+ACC: 0.6779 0.0698 9.8858 m/s2 | norma=9.9093
+GYRO corregido: -0.0148 0.0290 0.0128 deg/s | norma=0.0350
+t=17274 | moving=0 | imu=1 | NEW=744 NO_NEW=7 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=12.2 max=40.0 ms NAV_ERR=0
+q=0.7018 0.0178 -0.0148 0.7120
+v=-0.024 1.759 1.348 m/s | p=0.361 7.441 10.189 m
+ACC: 0.6899 0.0662 9.8704 m/s2 | norma=9.8947
+GYRO corregido: 0.0310 0.0748 0.0128 deg/s | norma=0.0820
+t=18274 | moving=0 | imu=1 | NEW=793 NO_NEW=8 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=12.2 max=40.0 ms NAV_ERR=0
+q=0.7017 0.0178 -0.0147 0.7121
+v=-0.044 1.972 1.435 m/s | p=0.328 9.304 11.581 m
+Temperatura: 23.95 C | Humedad: 97.14 %
+ACC: 0.4835 -0.0626 9.8929 m/s2 | norma=9.9049
+GYRO corregido: -0.7324 -0.1847 -11.6971 deg/s | norma=11.7215
+t=19274 | moving=0 | imu=1 | NEW=842 NO_NEW=9 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=12.2 max=40.0 ms NAV_ERR=0
+q=0.7262 0.0175 -0.0164 0.6870
+v=-0.059 2.166 1.524 m/s | p=0.277 11.374 13.059 m
+t=19554 ms | moving=1 | a=9.886 m/s2 | g=20.371 deg/s
+ACC: 0.6600 0.0710 9.8953 m/s2 | norma=9.9175
+GYRO corregido: -1.0988 -0.3527 -19.6208 deg/s | norma=19.6547
+t=20274 | moving=1 | imu=1 | NEW=892 NO_NEW=9 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=11.7 max=40.0 ms NAV_ERR=0
+q=0.8434 0.0146 -0.0225 0.5366
+v=-0.057 2.330 1.616 m/s | p=0.222 13.620 14.628 m
+Temperatura: 23.98 C | Humedad: 97.11 %
+ACC: 0.6219 0.0304 9.8953 m/s2 | norma=9.9149
+GYRO corregido: -1.1751 -0.3069 -20.8727 deg/s | norma=20.9080
+t=21274 | moving=1 | imu=1 | NEW=942 NO_NEW=9 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=11.7 max=40.0 ms NAV_ERR=0
+q=0.9147 0.0117 -0.0267 0.4032
+v=-0.027 2.433 1.709 m/s | p=0.184 16.004 16.290 m
+ACC: 0.6016 0.0781 9.8823 m/s2 | norma=9.9009
+GYRO corregido: -1.1293 -0.3221 -19.9261 deg/s | norma=19.9607
+t=22274 | moving=1 | imu=1 | NEW=992 NO_NEW=9 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=11.7 max=40.0 ms NAV_ERR=0
+q=0.9753 0.0078 -0.0313 0.2184
+v=-0.016 2.487 1.796 m/s | p=0.162 18.466 18.042 m
+Temperatura: 23.99 C | Humedad: 97.14 %
+ACC: 0.6791 0.0698 9.8242 m/s2 | norma=9.8479
+GYRO corregido: -1.1140 -0.2458 -18.0024 deg/s | norma=18.0386
+t=23274 | moving=1 | imu=1 | NEW=1042 NO_NEW=9 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=11.7 max=40.0 ms NAV_ERR=0
+q=0.9992 0.0034 -0.0347 0.0174
+v=-0.034 2.517 1.879 m/s | p=0.135 20.970 19.879 m
+ACC: 0.6720 0.0602 9.8645 m/s2 | norma=9.8876
+GYRO corregido: 0.0005 -0.0015 -0.0330 deg/s | norma=0.0330
+t=24274 | moving=1 | imu=1 | NEW=1092 NO_NEW=9 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=11.7 max=40.0 ms NAV_ERR=0
+q=0.9987 0.0022 -0.0355 -0.0364
+v=-0.054 2.475 1.970 m/s | p=0.089 23.466 21.804 m
+Temperatura: 23.99 C | Humedad: 97.14 %
+ACC: 0.7077 0.0471 9.8740 m/s2 | norma=9.8994
+GYRO corregido: 0.0005 -0.0168 -0.0330 deg/s | norma=0.0370
+t=25274 | moving=1 | imu=1 | NEW=1142 NO_NEW=9 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=11.7 max=40.0 ms NAV_ERR=0
+q=0.9989 0.0024 -0.0354 -0.0293
+v=-0.088 2.438 2.057 m/s | p=0.018 25.924 23.817 m
+ACC: 0.6541 0.0197 9.8917 m/s2 | norma=9.9134
+GYRO corregido: 0.0005 0.0137 0.0128 deg/s | norma=0.0188
+t=26274 | moving=1 | imu=1 | NEW=1191 NO_NEW=10 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=11.7 max=40.0 ms NAV_ERR=0
+q=0.9989 0.0025 -0.0355 -0.0291
+v=-0.125 2.402 2.143 m/s | p=-0.087 28.345 25.915 m
+Temperatura: 23.98 C | Humedad: 97.08 %
+t=26654 ms | moving=0 | a=9.883 m/s2 | g=0.003 deg/s
+ACC: 0.6565 0.0256 9.9060 m/s2 | norma=9.9277
+GYRO corregido: 0.0005 -0.0168 0.0128 deg/s | norma=0.0211
+t=27274 | moving=0 | imu=1 | NEW=1240 NO_NEW=11 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=11.7 max=40.0 ms NAV_ERR=0
+q=0.9989 0.0025 -0.0356 -0.0290
+v=-0.164 2.361 2.232 m/s | p=-0.231 30.727 28.102 m
+ACC: 0.6624 0.0364 9.8704 m/s2 | norma=9.8927
+GYRO corregido: 0.0157 0.0290 0.0128 deg/s | norma=0.0354
+t=28274 | moving=0 | imu=1 | NEW=1289 NO_NEW=12 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=11.7 max=40.0 ms NAV_ERR=0
+q=0.9989 0.0025 -0.0358 -0.0288
+v=-0.209 2.324 2.320 m/s | p=-0.417 33.070 30.377 m
+Temperatura: 23.98 C | Humedad: 97.07 %
+ACC: 0.6493 0.0125 9.9071 m/s2 | norma=9.9284
+GYRO corregido: 0.0005 -0.0168 0.0128 deg/s | norma=0.0211
+t=29274 | moving=0 | imu=1 | NEW=1338 NO_NEW=13 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=11.7 max=40.0 ms NAV_ERR=0
+q=0.9989 0.0025 -0.0360 -0.0287
+v=-0.257 2.280 2.408 m/s | p=-0.649 35.372 32.740 m
+ACC: 0.6624 0.0244 9.8692 m/s2 | norma=9.8915
+GYRO corregido: 0.0310 -0.0015 0.0128 deg/s | norma=0.0336
+t=30274 | moving=0 | imu=1 | NEW=1387 NO_NEW=14 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=11.7 max=40.0 ms NAV_ERR=0
+q=0.9989 0.0025 -0.0361 -0.0285
+v=-0.310 2.236 2.494 m/s | p=-0.931 37.630 35.190 m
+Temperatura: 23.98 C | Humedad: 97.04 %
+ACC: 0.6541 0.0233 9.8929 m/s2 | norma=9.9146
+GYRO corregido: 0.0157 -0.0015 0.0281 deg/s | norma=0.0322
+t=31274 | moving=0 | imu=1 | NEW=1437 NO_NEW=14 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=11.7 max=40.0 ms NAV_ERR=0
+q=0.9989 0.0025 -0.0362 -0.0284
+v=-0.365 2.192 2.580 m/s | p=-1.267 39.845 37.725 m
+ACC: 0.6541 0.0280 9.8728 m/s2 | norma=9.8945
+GYRO corregido: 0.0157 -0.0168 0.0281 deg/s | norma=0.0363
+t=32274 | moving=0 | imu=1 | NEW=1487 NO_NEW=14 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=11.7 max=40.0 ms NAV_ERR=0
+q=0.9989 0.0025 -0.0363 -0.0282
+v=-0.416 2.152 2.668 m/s | p=-1.657 42.017 40.350 m

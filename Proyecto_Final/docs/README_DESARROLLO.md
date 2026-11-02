@@ -2,14 +2,20 @@
 
 ## Estado del proyecto
 
-Partimos de D1, ya integrado en `master`, con la configuración de placa y los
-contratos públicos compartidos. Tenemos los drivers de IMU, luz y ambiente,
-y la calibración inicial del giroscopio. El ensayo independiente de sensores
-usa MPU6050 y Si7021; aún no incluye el LDR.
+D1 esta integrado en `master`. Tenemos los drivers de IMU, luz y ambiente,
+la calibracion inicial del gyro y algoritmos de movimiento y navegacion.
+El ensayo independiente usa MPU6050 y Si7021, integra q/v/p y contrasta la
+orientacion relativa inicial; todavia no incluye el LDR.
 
-Seguimos con el main mínimo de producción. La adquisición integrada, GPS,
-formatos, supervisión y estimación de orientación, velocidad y posición
-siguen pendientes. Conservamos las APIs y los tipos acordados en D1.
+Produccion conserva su main minimo. La adquisicion integrada de D4, GPS,
+formatos y supervision siguen pendientes. Se conservan las firmas de las
+seis operaciones publicas de aplicacion. `NavigationView` anade `relative_q`
+para entregar a P2 la orientacion que comienza en identidad, separada de la
+orientacion usada para compensar gravedad.
+
+El [registro de D3](D3_ESTIMACION.md) conserva calibracion, capturas,
+deriva medida y limites. El ensayo de 600 s no acredita trayectoria precisa.
+D2 y D3 no se declaran cerrados por este incremento.
 
 ## Entorno de trabajo
 
@@ -106,29 +112,49 @@ Conservamos esos cambios al integrar los avances de D2.
 Para las ramas nuevas partimos de `origin/master`. Mantenemos cada bloque en
 su carpeta y enlazamos las fuentes reales en el CMake correspondiente.
 
-## Captura breve en placa (pendiente)
+## Navegacion, referencia SR4 y capturas
 
-Tenemos pendiente la captura de inicio y unos 20–30 segundos de lecturas del
-ensayo. Usamos alimentación de 3.3 V, masa común e I2C2 en PA12/PA11.
-Programamos con `Flash (Sensores)`, abrimos el puerto identificado y mantenemos
-el MPU quieto y nivelado durante la calibración. Registramos montaje, puerto,
-fecha y firmware junto con las lecturas y los posibles errores de bus/CRC.
+`nav.q` transforma del sensor al marco local con Z arriba, usado para
+compensar gravedad e integrar velocidad/posicion. `nav.relative_q` transforma
+del sensor actual a sus ejes iniciales y debe alimentar ROLL/PITCH/YAW.
+Ambos son cuaterniones Hamilton [w,x,y,z]. La referencia inicial permanece
+privada en adquisicion; un cambio de modo o fallo rutinario no la recaptura.
+La seleccion del campo queda documentada en simu_frame.h y human_report.h;
+la conversion y emision real por P2 y el snapshot de D4 siguen pendientes.
 
-La captura serie muestra el comportamiento observado; para comprobar el
-ahorro de escrituras del init necesitamos una traza I2C o instrumentación
-temporal. La inyección de errores y la conservación de salidas tienen sus
-pruebas específicas pendientes.
+La calibracion usa 100 muestras consecutivas aceptadas. El limite inicial de
+giro sin corregir es 5 grados/s; el reposo posterior mantiene 3 grados/s.
+El ensayo aplica una correccion preliminar de acelerometro medida en seis
+posturas y prepara la inclinacion con el promedio de las mismas muestras.
+Sus constantes y limitaciones estan en el registro D3.
 
-Guardamos la captura del monitor en un archivo local junto con los datos del montaje.
+Las capturas de 2026-11-02 estan en `tests/board/sensors/results/`. Hay un
+ensayo de deriva de 600 s, uno dinamico de 30 s y dos comprobaciones de 10 s
+para la referencia SR4. La deriva final de 600 s es |v|=284,24 m/s y
+|p|=55 567,65 m, sin errores de lectura o numericos durante navegacion.
 
-Al terminar volvemos a producción con `Flash (CubeProgrammer, UR+HWrst)`.
+Desde Proyecto_Final, con pyserial disponible y el monitor habitual cerrado:
+
+```sh
+python tests/board/sensors/capturar_deriva.py --port COM5 --seconds 600 --output-dir tests/board/sensors/results
+```
+
+Indicar el puerto del equipo; en Linux puede ser /dev/ttyACM0. Pulsar RESET
+cuando lo pida el capturador y mantener la postura requerida por el ensayo.
+El script guarda el arranque, cuenta desde el primer reporte posterior a la
+calibracion y conserva el ultimo reporte completo. Sus avisos de progreso
+pertenecen al PC; el archivo conserva la salida recibida del firmware.
+Una captura interrumpida o con otro arranque se conserva como parcial.
+
+La evidencia nominal no sustituye la inyeccion de fallos ni una traza I2C
+para medir transferencias. Los ELF exactos de cada captura no se archivaron.
 
 ## Pendientes
 
-- Validación física de sensores, fallos/recuperación I2C y sesgo del giroscopio.
+- Completar fallos/recuperacion I2C; el retorno negativo -15 informado sigue sin causa identificada.
 - Calibración final del LDR y diagnóstico eléctrico; el ensayo actual no lee luz.
 - Adquisición, GPS, formatos, snapshots y supervisión integrados.
-- Estimación de orientación, velocidad y posición, con su deriva documentada.
+- Integracion de D4 y P2 usando relative_q; validacion de Euler/trama SIMU y demo integrada.
 - Revisión conjunta de contratos y reproducción del build en el segundo equipo.
 - Sesión completa de Cortex-Debug con placa y aclaración de la versión docente.
 - Simplificaciones diferidas de la auditoría: init del Si7021, configuración,

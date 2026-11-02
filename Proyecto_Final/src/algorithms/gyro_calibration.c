@@ -8,6 +8,20 @@ void gyro_calibration_init(GyroCalibration *ctx)
     *ctx = (GyroCalibration){0};
 }
 
+/**
+ *  Función toma de muestra de calibración
+ *      *ctx        -> es el registro de calibración
+ *      gyro_dps    -> es la toma actual del giroscopio
+ *      accel_norm  -> es la magn. del vector aceleración
+ *      gyro_norm   -> es la magn. del vector giro
+ *
+ *  1. Si ya está lista la calibración, brinca el cálculo
+ *  2. Confirma que esté estacionario con la magn. del vect acel/giro
+ *  3. Si no está estacionario, devuelve falso, entonces falla la calibración
+ *  4. Le suma al valor acumulado la lectura obtenida y aumenta la cuenta
+ *  5. Si la cuenta llegó a TRACKER_GYRO_CALIBRATION_SAMPLES (100), entonces
+ *      saca el promedio, marca que está listo y chao.
+ */
 bool gyro_calibration_update(
     GyroCalibration *ctx,
     const Vec3f *gyro_dps,
@@ -22,8 +36,9 @@ bool gyro_calibration_update(
 
     bool stationary =
         gyro_dps != NULL &&
-        fabsf(accel_norm - TRACKER_GRAVITY_MPS2) < TRACKER_REST_ACCEL_DELTA_MPS2 &&
-        gyro_norm < TRACKER_REST_GYRO_MAX_DPS;
+        fabsf(accel_norm - TRACKER_GRAVITY_MPS2) <
+            TRACKER_REST_ACCEL_DELTA_MPS2 &&
+        gyro_norm < TRACKER_GYRO_CALIBRATION_MAX_DPS;
 
     if (!stationary) {
         ctx->sum_dps = (Vec3f){0};

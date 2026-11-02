@@ -1,0 +1,327 @@
+Ensayo MPU6050 + Si7021
+imu_init: 0
+environment_init: 0
+Calibrando: mantener el MPU quieto y nivelado.
+Calibrando: 0/100 (imu=1)
+Calibrando: 50/100 (imu=1)
+Sesgo gyro: -2.859 -0.576 -0.288 deg/s
+t=2294 | moving=0 | imu=1 | NEW=1 NO_NEW=0 ERR=0 SAT=0 GAP=0
+NAV=1 dt=0.0 min=0.0 max=0.0 ms NAV_ERR=0
+q=1.0000 0.0000 0.0000 0.0000
+v=0.000 0.000 0.000 m/s | p=0.000 0.000 0.000 m
+Temperatura: 24.46 C | Humedad: 95.78 %
+t=3294 | moving=0 | imu=1 | NEW=51 NO_NEW=0 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=20.0 ms NAV_ERR=0
+q=1.0000 0.0001 -0.0000 -0.0000
+v=0.835 0.024 0.054 m/s | p=0.409 0.013 0.026 m
+t=4294 | moving=0 | imu=1 | NEW=101 NO_NEW=0 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=20.0 ms NAV_ERR=0
+q=1.0000 0.0001 -0.0000 -0.0001
+v=1.671 0.047 0.111 m/s | p=1.654 0.048 0.107 m
+Temperatura: 24.47 C | Humedad: 95.76 %
+t=5294 | moving=0 | imu=1 | NEW=150 NO_NEW=1 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0002 -0.0000 -0.0000
+v=2.503 0.069 0.163 m/s | p=3.732 0.105 0.243 m
+t=6294 | moving=0 | imu=1 | NEW=200 NO_NEW=1 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0005 -0.0000 0.0051
+v=3.336 0.086 0.216 m/s | p=6.642 0.182 0.431 m
+Temperatura: 24.46 C | Humedad: 95.79 %
+
+Ensayo MPU6050 + Si7021
+imu_init: 0
+environment_init: 0
+Calibrando: mantener el MPU quieto y nivelado.
+Calibrando: 0/100 (imu=1)
+Calibrando: 49/100 (imu=1)
+Calibrando: 99/100 (imu=1)
+Sesgo gyro: -2.857 -0.587 -0.284 deg/s
+t=2314 | moving=0 | imu=1 | NEW=1 NO_NEW=0 ERR=0 SAT=0 GAP=0
+NAV=1 dt=0.0 min=0.0 max=0.0 ms NAV_ERR=0
+q=1.0000 0.0000 0.0000 0.0000
+v=0.000 0.000 0.000 m/s | p=0.000 0.000 0.000 m
+Temperatura: 24.46 C | Humedad: 95.78 %
+t=3314 | moving=0 | imu=1 | NEW=51 NO_NEW=0 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=20.0 ms NAV_ERR=0
+q=1.0000 0.0000 0.0000 -0.0000
+v=0.836 0.023 0.056 m/s | p=0.410 0.011 0.028 m
+t=4314 | moving=0 | imu=1 | NEW=101 NO_NEW=0 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=20.0 ms NAV_ERR=0
+q=1.0000 0.0001 0.0001 -0.0000
+v=1.673 0.047 0.112 m/s | p=1.656 0.046 0.111 m
+Temperatura: 24.47 C | Humedad: 95.79 %
+t=5314 | moving=0 | imu=1 | NEW=150 NO_NEW=1 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0002 0.0001 -0.0001
+v=2.512 0.069 0.166 m/s | p=3.741 0.103 0.250 m
+t=6314 | moving=0 | imu=1 | NEW=200 NO_NEW=1 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0002 0.0002 -0.0001
+v=3.349 0.089 0.222 m/s | p=6.663 0.182 0.445 m
+Temperatura: 24.46 C | Humedad: 95.81 %
+t=7314 | moving=0 | imu=1 | NEW=250 NO_NEW=1 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0003 0.0002 -0.0001
+v=4.189 0.108 0.274 m/s | p=10.424 0.280 0.693 m
+t=8314 | moving=0 | imu=1 | NEW=300 NO_NEW=1 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0003 0.0003 -0.0002
+v=5.032 0.126 0.324 m/s | p=15.025 0.397 0.992 m
+Temperatura: 24.45 C | Humedad: 95.81 %
+t=9314 | moving=0 | imu=1 | NEW=350 NO_NEW=1 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0003 0.0003 -0.0003
+v=5.877 0.148 0.378 m/s | p=20.471 0.535 1.343 m
+t=10314 | moving=0 | imu=1 | NEW=400 NO_NEW=1 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0004 0.0004 -0.0002
+v=6.719 0.168 0.431 m/s | p=26.760 0.692 1.747 m
+Temperatura: 24.46 C | Humedad: 95.81 %
+t=11314 | moving=0 | imu=1 | NEW=450 NO_NEW=1 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0004 0.0005 -0.0003
+v=7.563 0.184 0.488 m/s | p=33.893 0.868 2.206 m
+t=12314 | moving=0 | imu=1 | NEW=500 NO_NEW=1 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0005 0.0007 -0.0004
+v=8.410 0.203 0.538 m/s | p=41.870 1.062 2.718 m
+Temperatura: 24.49 C | Humedad: 95.81 %
+t=13314 | moving=0 | imu=1 | NEW=550 NO_NEW=1 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0005 0.0007 -0.0005
+v=9.262 0.218 0.589 m/s | p=50.698 1.272 3.280 m
+t=14314 | moving=0 | imu=1 | NEW=600 NO_NEW=1 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0006 0.0008 -0.0005
+v=10.111 0.232 0.645 m/s | p=60.376 1.496 3.896 m
+Temperatura: 24.46 C | Humedad: 95.81 %
+t=15314 | moving=0 | imu=1 | NEW=650 NO_NEW=1 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0007 0.0010 -0.0006
+v=10.963 0.245 0.696 m/s | p=70.904 1.735 4.565 m
+t=16314 | moving=0 | imu=1 | NEW=700 NO_NEW=1 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0007 0.0010 -0.0007
+v=11.820 0.256 0.749 m/s | p=82.286 1.986 5.287 m
+Temperatura: 24.48 C | Humedad: 95.81 %
+t=17314 | moving=0 | imu=1 | NEW=749 NO_NEW=2 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0008 0.0011 -0.0007
+v=12.677 0.264 0.801 m/s | p=94.526 2.246 6.061 m
+t=18314 | moving=0 | imu=1 | NEW=799 NO_NEW=2 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0009 0.0011 -0.0007
+v=13.533 0.271 0.852 m/s | p=107.622 2.512 6.887 m
+Temperatura: 24.46 C | Humedad: 95.80 %
+t=19314 | moving=0 | imu=1 | NEW=849 NO_NEW=2 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0010 0.0012 -0.0007
+v=14.393 0.278 0.907 m/s | p=121.576 2.786 7.767 m
+t=20314 | moving=0 | imu=1 | NEW=899 NO_NEW=2 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0010 0.0012 -0.0008
+v=15.254 0.284 0.962 m/s | p=136.392 3.067 8.701 m
+Temperatura: 24.49 C | Humedad: 95.82 %
+t=21314 | moving=0 | imu=1 | NEW=949 NO_NEW=2 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0011 0.0012 -0.0008
+v=16.114 0.288 1.015 m/s | p=152.066 3.352 9.689 m
+t=22314 | moving=0 | imu=1 | NEW=999 NO_NEW=2 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0011 0.0013 -0.0009
+v=16.975 0.292 1.068 m/s | p=168.601 3.642 10.731 m
+Temperatura: 24.47 C | Humedad: 95.81 %
+t=23314 | moving=0 | imu=1 | NEW=1049 NO_NEW=2 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0012 0.0015 -0.0009
+v=17.838 0.290 1.120 m/s | p=185.999 3.933 11.824 m
+t=24314 | moving=0 | imu=1 | NEW=1099 NO_NEW=2 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0012 0.0016 -0.0010
+v=18.705 0.290 1.172 m/s | p=204.261 4.224 12.970 m
+Temperatura: 24.46 C | Humedad: 95.81 %
+t=25314 | moving=0 | imu=1 | NEW=1149 NO_NEW=2 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0013 0.0016 -0.0010
+v=19.575 0.289 1.221 m/s | p=223.392 4.514 14.166 m
+t=26314 | moving=0 | imu=1 | NEW=1199 NO_NEW=2 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0013 0.0017 -0.0010
+v=20.444 0.287 1.273 m/s | p=243.393 4.803 15.412 m
+Temperatura: 24.47 C | Humedad: 95.82 %
+t=27314 | moving=0 | imu=1 | NEW=1249 NO_NEW=2 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0015 0.0018 -0.0011
+v=21.314 0.284 1.330 m/s | p=264.264 5.089 16.713 m
+t=28314 | moving=0 | imu=1 | NEW=1298 NO_NEW=3 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0016 0.0019 -0.0011
+v=22.189 0.275 1.383 m/s | p=286.006 5.369 18.069 m
+Temperatura: 24.46 C | Humedad: 95.81 %
+t=29314 | moving=0 | imu=1 | NEW=1348 NO_NEW=3 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0016 0.0019 -0.0011
+v=23.060 0.265 1.434 m/s | p=308.622 5.639 19.477 m
+t=30314 | moving=0 | imu=1 | NEW=1398 NO_NEW=3 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0017 0.0020 -0.0012
+v=23.934 0.254 1.485 m/s | p=332.110 5.899 20.935 m
+Temperatura: 24.48 C | Humedad: 95.81 %
+t=31314 | moving=0 | imu=1 | NEW=1448 NO_NEW=3 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0018 0.0020 -0.0012
+v=24.808 0.243 1.541 m/s | p=356.472 6.147 22.448 m
+t=32314 | moving=0 | imu=1 | NEW=1498 NO_NEW=3 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0018 0.0020 -0.0013
+v=25.686 0.231 1.590 m/s | p=381.710 6.385 24.013 m
+Temperatura: 24.47 C | Humedad: 95.83 %
+t=33314 | moving=0 | imu=1 | NEW=1548 NO_NEW=3 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0019 0.0021 -0.0013
+v=26.564 0.218 1.646 m/s | p=407.826 6.609 25.630 m
+t=34314 | moving=0 | imu=1 | NEW=1598 NO_NEW=3 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0019 0.0021 -0.0013
+v=27.439 0.204 1.700 m/s | p=434.819 6.820 27.302 m
+Temperatura: 24.47 C | Humedad: 95.81 %
+t=35314 | moving=0 | imu=1 | NEW=1648 NO_NEW=3 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0020 0.0022 -0.0014
+v=28.319 0.188 1.751 m/s | p=462.689 7.017 29.028 m
+t=36314 | moving=0 | imu=1 | NEW=1698 NO_NEW=3 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0021 0.0023 -0.0013
+v=29.198 0.170 1.805 m/s | p=491.440 7.196 30.806 m
+Temperatura: 24.48 C | Humedad: 95.84 %
+t=37314 | moving=0 | imu=1 | NEW=1748 NO_NEW=3 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0021 0.0023 -0.0013
+v=30.080 0.149 1.858 m/s | p=521.069 7.356 32.636 m
+t=38314 | moving=0 | imu=1 | NEW=1798 NO_NEW=3 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0022 0.0023 -0.0013
+v=30.962 0.127 1.910 m/s | p=551.581 7.494 34.519 m
+Temperatura: 24.49 C | Humedad: 95.84 %
+t=39314 | moving=0 | imu=1 | NEW=1847 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0023 0.0024 -0.0013
+v=31.845 0.105 1.956 m/s | p=582.975 7.610 36.452 m
+t=40314 | moving=0 | imu=1 | NEW=1897 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0023 0.0023 -0.0013
+v=32.728 0.082 2.009 m/s | p=615.253 7.704 38.435 m
+Temperatura: 24.48 C | Humedad: 95.84 %
+t=41314 | moving=0 | imu=1 | NEW=1947 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0024 0.0024 -0.0014
+v=33.610 0.061 2.056 m/s | p=648.414 7.777 40.467 m
+t=42314 | moving=0 | imu=1 | NEW=1997 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0024 0.0024 -0.0014
+v=34.495 0.037 2.103 m/s | p=682.458 7.825 42.546 m
+Temperatura: 24.49 C | Humedad: 95.83 %
+t=43314 | moving=0 | imu=1 | NEW=2047 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0025 0.0024 -0.0014
+v=35.380 0.012 2.159 m/s | p=717.386 7.850 44.676 m
+t=44314 | moving=0 | imu=1 | NEW=2097 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0025 0.0025 -0.0013
+v=36.265 -0.016 2.210 m/s | p=753.200 7.848 46.859 m
+Temperatura: 24.47 C | Humedad: 95.85 %
+t=45314 | moving=0 | imu=1 | NEW=2147 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0026 0.0025 -0.0014
+v=37.149 -0.042 2.261 m/s | p=789.898 7.820 49.094 m
+t=46314 | moving=0 | imu=1 | NEW=2197 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0026 0.0025 -0.0014
+v=38.033 -0.073 2.310 m/s | p=827.480 7.762 51.379 m
+Temperatura: 24.48 C | Humedad: 95.84 %
+t=47314 | moving=0 | imu=1 | NEW=2247 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0026 0.0026 -0.0013
+v=38.921 -0.103 2.361 m/s | p=865.947 7.674 53.714 m
+t=48314 | moving=0 | imu=1 | NEW=2297 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0027 0.0027 -0.0013
+v=39.811 -0.135 2.412 m/s | p=905.304 7.555 56.100 m
+Temperatura: 24.47 C | Humedad: 95.84 %
+t=49314 | moving=0 | imu=1 | NEW=2347 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0027 0.0027 -0.0013
+v=40.699 -0.166 2.462 m/s | p=945.550 7.405 58.537 m
+t=50314 | moving=0 | imu=1 | NEW=2397 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0027 0.0028 -0.0014
+v=41.590 -0.198 2.515 m/s | p=986.687 7.224 61.026 m
+Temperatura: 24.48 C | Humedad: 95.84 %
+t=51314 | moving=0 | imu=1 | NEW=2445 NO_NEW=6 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0028 0.0029 -0.0014
+v=42.480 -0.229 2.563 m/s | p=1028.713 7.011 63.564 m
+t=52314 | moving=0 | imu=1 | NEW=2495 NO_NEW=6 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0028 0.0030 -0.0014
+v=43.377 -0.265 2.617 m/s | p=1071.632 6.764 66.153 m
+Temperatura: 24.47 C | Humedad: 95.86 %
+t=53314 | moving=0 | imu=1 | NEW=2545 NO_NEW=6 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0028 0.0031 -0.0015
+v=44.275 -0.300 2.663 m/s | p=1115.448 6.482 68.792 m
+t=54314 | moving=0 | imu=1 | NEW=2595 NO_NEW=6 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0028 0.0032 -0.0015
+v=45.173 -0.332 2.711 m/s | p=1160.164 6.167 71.478 m
+Temperatura: 24.48 C | Humedad: 95.84 %
+t=55314 | moving=0 | imu=1 | NEW=2645 NO_NEW=6 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0029 0.0032 -0.0015
+v=46.073 -0.368 2.759 m/s | p=1205.777 5.818 74.213 m
+t=56314 | moving=0 | imu=1 | NEW=2695 NO_NEW=6 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0030 0.0034 -0.0016
+v=46.975 -0.403 2.812 m/s | p=1252.291 5.432 76.999 m
+Temperatura: 24.46 C | Humedad: 95.87 %
+t=57314 | moving=0 | imu=1 | NEW=2745 NO_NEW=6 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0030 0.0035 -0.0016
+v=47.878 -0.439 2.863 m/s | p=1299.707 5.012 79.836 m
+t=58314 | moving=0 | imu=1 | NEW=2795 NO_NEW=6 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0030 0.0036 -0.0016
+v=48.782 -0.479 2.911 m/s | p=1348.028 4.553 82.722 m
+Temperatura: 24.47 C | Humedad: 95.86 %
+t=59314 | moving=0 | imu=1 | NEW=2845 NO_NEW=6 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0030 0.0036 -0.0016
+v=49.688 -0.518 2.958 m/s | p=1397.254 4.054 85.656 m
+t=60314 | moving=0 | imu=1 | NEW=2895 NO_NEW=6 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0031 0.0038 -0.0016
+v=50.595 -0.557 3.006 m/s | p=1447.386 3.518 88.637 m
+Temperatura: 24.47 C | Humedad: 95.87 %
+t=61314 | moving=0 | imu=1 | NEW=2945 NO_NEW=6 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0031 0.0038 -0.0016
+v=51.502 -0.598 3.053 m/s | p=1498.424 2.942 91.666 m
+t=62314 | moving=0 | imu=1 | NEW=2995 NO_NEW=6 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0032 0.0040 -0.0016
+v=52.414 -0.637 3.103 m/s | p=1550.374 2.325 94.744 m
+Temperatura: 24.47 C | Humedad: 95.86 %
+t=63314 | moving=0 | imu=1 | NEW=3044 NO_NEW=7 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0032 0.0041 -0.0016
+v=53.327 -0.679 3.145 m/s | p=1603.235 1.667 97.868 m
+t=64314 | moving=0 | imu=1 | NEW=3094 NO_NEW=7 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0032 0.0043 -0.0017
+v=54.247 -0.720 3.195 m/s | p=1657.012 0.967 101.038 m
+Temperatura: 24.49 C | Humedad: 95.86 %
+t=65314 | moving=0 | imu=1 | NEW=3144 NO_NEW=7 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=20.0 max=40.0 ms NAV_ERR=0
+q=1.0000 0.0033 0.0044 -0.0017
+v=55.168 -0.763 3.239 m/s | p=1711.710 0.226 104.255 m

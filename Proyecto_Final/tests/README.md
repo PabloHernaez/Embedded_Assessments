@@ -11,10 +11,10 @@ Aplica primero la configuracion comun y despues su perfil de consola
 LPUART1 a 115200 8N1. Produccion conserva las restricciones de build_checks.c.
 
 El main coordina funciones privadas para inicializar, leer, calibrar,
-procesar movimiento, atender ambiente y mostrar el resumen. Un temporizador
+procesar movimiento y navegacion, atender ambiente y mostrar el resumen. Un temporizador
 periodico da una oportunidad de lectura de IMU cada 20 ms. NO_NEW no repite
 una medida. Tras calibrar se resta el sesgo antes de calcular el giro usado
-por movimiento. Errores, saturacion e intervalos mayores de 50 ms cancelan
+por movimiento y navegacion. Errores, saturacion e intervalos mayores de 50 ms cancelan
 la confirmacion pendiente conservando el estado de movimiento confirmado.
 
 Movimiento se confirma tras 300 ms con desviacion de aceleracion >0.8 m/s2
@@ -76,18 +76,24 @@ siguen activas con NDEBUG.
 
 ## Orientacion incremental
 
-estimator_init prepara NavigationView con cuaternion identidad, velocidad
-y posicion cero y valid=false. estimator_orientation_update actualiza solo
-el cuaternion sensor-local Hamilton, a partir del giro corregido y dt real.
-Convierte grados/s a radianes/s, avanza por Euler y normaliza un candidato.
-Solo confirma el resultado si es numericamente valido. Rechaza intervalos
-negativos, no finitos o mayores de 50 ms y conserva el cuaternion anterior.
+estimator_init prepara NavigationView con q y relative_q identidad, v/p
+cero y valid=false. estimator_set_initial_tilt prepara q usando la media
+de aceleracion corregida de las 100 muestras aceptadas para calibrar gyro.
+La referencia q0 se fija entonces una vez; relative_q empieza en identidad.
+El limite inicial gyro es 5 grados/s sin corregir, separado del de reposo
+posterior de 3 grados/s. Los umbrales no certifican inmovilidad fisica.
 
-El modulo es C puro. El llamador sigue siendo responsable de NO_NEW y de
-romper la referencia temporal ante error, saturacion o hueco excesivo.
-La integracion de velocidad/posicion y la publicacion de navegacion valida
-siguen pendientes. El ensayo de placa actual todavia prueba movimiento y
-ambiente; no consume esta funcion de orientacion.
+estimator_orientation_update integra el giro corregido en grados/s mediante
+Euler y normaliza el candidato Hamilton sensor -> local. estimator_update
+calcula q, relative_q=q0^-1*q, rota aceleracion, resta 9.80665 m/s2 en Z y
+avanza v/p con Euler explicito: la posicion usa la velocidad anterior.
+El candidato se confirma completo; ante rechazo se conservan esos valores
+y valid pasa a false. Se admiten dt entre 0 y 50 ms inclusive.
+
+Los algoritmos son C puro. El llamador omite NO_NEW, rompe continuidad ante
+error/saturacion/hueco y entrega dt=0 en la primera utilizable posterior.
+El ensayo consume ahora el estimador, pero el getter y servicio de D4 y los
+formateadores de P2 siguen pendientes.
 
 test_estimator.c cubre reposo, giros positivos/negativos en los tres ejes,
 composicion de giros en ejes del sensor, norma unitaria, intervalos de 0,
@@ -109,8 +115,43 @@ compilar las fuentes. Al importar los commits en el repositorio original
 el 27/10/2026, los builds completos de produccion y sensores terminaron
 con codigo 0 y generaron sus ELF/HEX. CTest tambien paso en Debug y Release
 desde esa ubicacion. No hicimos otro ensayo de placa durante la importacion.
+## Verificacion del incremento de navegacion y SR4: 02/11/2026
+
+En la copia preparada para este commit pasaron los dos ejecutables de CTest
+(movimiento y orientacion) en Debug y Release. Una comprobacion nativa
+temporal verifico identidad inicial, inclinacion, giro relativo de 90 grados,
+integracion v/p, referencia inmutable y rechazo atomico ante entradas no
+finitas, referencia degenerada e intervalo superior a 50 ms.
+
+Se comprobaron tambien 14 fuentes de aplicacion con GCC ARM, -Wall -Wextra
+-Werror y -fsyntax-only, usando las configuraciones generadas existentes de
+produccion y sensores. Esta comprobacion no es un nuevo enlace ELF/HEX.
+Las capturas de placa fueron realizadas por el usuario con sus builds; no
+se archivaron los ELF exactos para reconstruir cada imagen historica.
+La suite versionada sigue cubriendo movimiento y orientacion; la comprobacion
+adicional de navegacion fue temporal, junto con la evidencia real de placa.
+
+## Capturas D3 del 02/11/2026
+
+El [registro D3](../docs/D3_ESTIMACION.md) detalla procedimiento y limites.
+Los originales estan en board/sensors/results/ y el capturador de PC en
+board/sensors/capturar_deriva.py (requiere pyserial).
+
+| Captura | Duracion | Evidencia |
+| --- | --- | --- |
+| Ensayo_deriva_600s_20261102_165247_571741.txt | 600 s | 601 reportes, norma(v)=284,24 m/s y norma(p)=55 567,65 m al final. |
+| Ensayo_deriva_30s_20261102_172320_736933.txt | 30 s | Giro Z, pausa a yaw estimado 90,79 grados, regreso a -3,25 grados; sin patron angular independiente. |
+| Ensayo_deriva_10s_20261102_174455_612323.txt | 10 s | Orientacion relativa inicial identidad calculada para diagnostico. |
+| Ensayo_deriva_10s_20261102_181219_304185.txt | 10 s | relative_q calculado por el estimador y leido desde NavigationView. |
+
+Las cuatro capturas tienen ERR/SAT/GAP/NAV_ERR a cero durante navegacion.
+No prueban errores fisicos exactos, tiempos de confirmacion sin registrar
+condiciones candidatas ni rutas de fallo no ejecutadas. NAV=1 indica
+aceptacion numerica y no precision espacial. La publicacion de Euler
+relativo y la trama real se comprobaran con P2 y D4.
+
 ## Pendientes
 
 Quedan las pruebas de error/recuperacion en placa, la validacion y calibracion
-final del LDR y la integracion del estimador y los servicios definitivos.
+final del LDR y la integracion de adquisicion, formateadores y servicios definitivos.
 La aceptacion completa de D2 y D3 sigue abierta.

@@ -14,4 +14,7 @@
 // Gap máximo entre muestras utilizables
 #define TRACKER_IMU_MAX_GAP_MS 50U
 
+/* Limite inicial para el giro antes de descontar su sesgo. */
+#define TRACKER_GYRO_CALIBRATION_MAX_DPS 5.0f
+
 #endif

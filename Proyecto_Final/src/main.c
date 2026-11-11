@@ -29,3 +29,10 @@ int main(void)
 
     return 0;
 }
+
+
+
+
+/*
+west build -p auto -b nucleo_wl55jc   /home/pablo_bee_keeper/Escritorio/Embedded_Assessments/Proyecto_Final   -d /home/pablo_bee_keeper/Escritorio/Embedded_Assessments/Proyecto_Final/build --   -DZephyr-sdk_DIR=/home/pablo_bee_keeper/zephyr-sdk-1.0.1/cmake   -DUSER_CACHE_DIR=/home/pablo_bee_keeper/Escritorio/Embedded_Assessments/Proyecto_Final/.zephyr-cache -DDTC_OVERLAY_FILE=/home/pablo_bee_keeper/Escritorio/Embedded_Assessments/Proyecto_Final/boards/nucleo_wl55jc.overlay -DCONF_FILE=/home/pablo_bee_keeper/Escritorio/Embedded_Assessments/Proyecto_Final/confs/prj_nucleo_wl55jc.conf   -DUSE_CCACHE=0
+*/

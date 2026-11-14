@@ -42,24 +42,26 @@ int main(void)
     while (1) {
 
 
-            ret = gps_get_data(&gps_data);
+    if (gps_has_fix()){
+        ret = gps_get_data(&gps_data);
 
-            if (ret == 0) {
+        if (ret == 0) {
 
-                printk("\n--- DATOS GPS ---\n");
+            printk("\n--- DATOS GPS ---\n");
 
-                printk("Latitud: %f\n", gps_data.latitude);
-                printk("Longitud: %f\n", gps_data.longitude);
-                printk("Altitud: %f\n", gps_data.altitude);
+            printk("Latitud: %f\n", gps_data.latitude);
+            printk("Longitud: %f\n", gps_data.longitude);
+            printk("Altitud: %f\n", gps_data.altitude);
 
-                printk("Satellites: %d\n", gps_data.satellites);
-                printk("Fix quality: %d\n", gps_data.fix_quality);
+            printk("Satellites: %d\n", gps_data.satellites);
+            printk("Fix quality: %d\n", gps_data.fix_quality);
 
-                printk("Valid: %d\n", gps_data.valid);
+            printk("Valid: %d\n", gps_data.valid);
 
-            } else {
-                printk("ERROR: No se pudieron obtener los datos\n");
-            }
+        } else {
+            printk("ERROR: No se pudieron obtener los datos\n");
+        }
+    }
 
 
         k_msleep(1000);

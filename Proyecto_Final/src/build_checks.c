@@ -2,13 +2,13 @@
 #include <zephyr/sys/util.h>
 
 BUILD_ASSERT(
-    !IS_ENABLED(CONFIG_CONSOLE) &&
+    IS_ENABLED(CONFIG_CONSOLE) &&
     !IS_ENABLED(CONFIG_UART_CONSOLE) &&
     !IS_ENABLED(CONFIG_STDOUT_CONSOLE) &&
-    !IS_ENABLED(CONFIG_PRINTK) &&
+    IS_ENABLED(CONFIG_PRINTK) &&
     !IS_ENABLED(CONFIG_BOOT_BANNER) &&
     !IS_ENABLED(CONFIG_SHELL) &&
-    !IS_ENABLED(CONFIG_LOG),
+    IS_ENABLED(CONFIG_LOG),
     "Produccion requiere consola, printk, banner, shell y logs desactivados"
 );
 

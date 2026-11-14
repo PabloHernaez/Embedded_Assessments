@@ -1,7 +1,8 @@
 #include "acquisition_api.h"
-#include "gps_api.h"
+#include "drivers/gps.h"
 #include "simu_frame.h"
 #include "human_report.h"
+#include <zephyr/logging/log.h>
 
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
@@ -11,7 +12,7 @@ static const struct gpio_dt_spec led =
 
 int main(void)
 {
-    int ret;
+    /*int ret;
 
     if (!gpio_is_ready_dt(&led)) {
         return 0;
@@ -25,11 +26,47 @@ int main(void)
     while (1) {
         gpio_pin_toggle_dt(&led);
         k_msleep(500);
+    }*/
+    
+    GPS_Struct gps_data;
+
+    int ret;
+
+    if (gps_init() != 0 ) {
+        printk("\n--- Error al inicializar el GPS ---\n");
+        return -1;
+    }
+
+    printk("\n--- INICIAMOS RECABADO GPS ---\n");
+
+    while (1) {
+
+
+            ret = gps_get_data(&gps_data);
+
+            if (ret == 0) {
+
+                printk("\n--- DATOS GPS ---\n");
+
+                printk("Latitud: %f\n", gps_data.latitude);
+                printk("Longitud: %f\n", gps_data.longitude);
+                printk("Altitud: %f\n", gps_data.altitude);
+
+                printk("Satellites: %d\n", gps_data.satellites);
+                printk("Fix quality: %d\n", gps_data.fix_quality);
+
+                printk("Valid: %d\n", gps_data.valid);
+
+            } else {
+                printk("ERROR: No se pudieron obtener los datos\n");
+            }
+
+
+        k_msleep(1000);
     }
 
     return 0;
 }
-
 
 
 

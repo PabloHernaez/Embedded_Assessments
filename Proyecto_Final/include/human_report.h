@@ -14,6 +14,9 @@
  *  uptime_ms -> Tiempo desde arranque
  *  reset_cause -> causa de reinicio obtenida por la aplicación
  *  simu_replaced_fields -> contador de campos sustituidos en SIMU
+ *
+ * ROLL/PITCH/YAW se obtienen de acquisition->nav.relative_q.
+ * acquisition->nav.q conserva la orientacion de navegacion.
  */
 typedef struct {
     const AcquisitionSnapshot *acquisition;

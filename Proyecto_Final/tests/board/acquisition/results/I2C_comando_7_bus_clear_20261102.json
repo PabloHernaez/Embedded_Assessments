@@ -1,0 +1,7 @@
+{
+  "commanded_at": "2026-11-02T23:51:51.1284807+01:00",
+  "command": 7,
+  "meaning": "Un bus clear diagnostico con SDA liberada, ENV no responde",
+  "address": "0x200006F8",
+  "hex_sha256": "C388C80CD5FD81D8D605EF8D7C5D4A2FCEF3199AD660C56706A6CC723A104200"
+}

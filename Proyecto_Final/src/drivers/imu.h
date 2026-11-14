@@ -51,4 +51,23 @@ int imu_read(ImuReading *out);
  */
 int imu_check_configuration(bool *matches);
 
+/**
+ * Observa las líneas del bus después de una transferencia fallida.
+ * Entradas: blocked apunta a un bool escribible; uso desde el hilo del driver.
+ * Retorno: 0 si se pudieron leer ambas líneas; error negativo si falla GPIO.
+ * Modifica: en éxito escribe *blocked=true si SCL o SDA están bajas. En fallo
+ *           conserva *blocked. Solo lee niveles; no cambia pinctrl ni envía I2C.
+ */
+int imu_bus_is_blocked(bool *blocked);
+
+/**
+ * Ejecuta un intento físico de recuperación del bus I2C compartido.
+ * Entradas: ninguna explícita; requiere evidencia de bloqueo y control exclusivo.
+ * Retorno: resultado de i2c_recover_bus (0 o error negativo).
+ * Modifica: el controlador Zephyr conmuta las líneas y restaura su pinctrl.
+ *           El llamador debe descartar la conversión ambiental pendiente y
+ *           comprobar después la configuración. No modifica los datos del llamador.
+ */
+int imu_recover_bus(void);
+
 #endif

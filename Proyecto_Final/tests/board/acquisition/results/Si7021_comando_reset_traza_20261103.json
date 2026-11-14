@@ -1,0 +1,7 @@
+{
+  "commanded_at": "2026-11-03T00:04:22.8970641+01:00",
+  "command": 6,
+  "meaning": "Reset Si7021 con traza de NACK y bytes pendientes",
+  "address": "0x200006F8",
+  "hex_sha256": "70E965ED6561E21ABC9566D768CA046FA5B87A243187E3D9AE2DB5BD4871BD4C"
+}

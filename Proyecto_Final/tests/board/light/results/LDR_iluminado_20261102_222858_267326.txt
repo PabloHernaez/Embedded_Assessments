@@ -1,0 +1,22 @@
+# 2026-11-02T22:28:58.267326+01:00 label=iluminado port=COM5
+t_ms=222420 raw=128
+t_ms=222922 raw=133
+t_ms=223424 raw=142
+t_ms=223926 raw=137
+t_ms=224428 raw=131
+t_ms=224929 raw=115
+t_ms=225431 raw=118
+t_ms=225933 raw=119
+t_ms=226435 raw=119
+t_ms=226937 raw=118
+t_ms=227438 raw=124
+t_ms=227940 raw=126
+t_ms=228442 raw=123
+t_ms=228944 raw=118
+t_ms=229446 raw=109
+t_ms=229947 raw=121
+t_ms=230449 raw=147
+t_ms=230951 raw=145
+t_ms=231453 raw=136
+t_ms=231955 raw=139
+t_ms=232456 raw=143

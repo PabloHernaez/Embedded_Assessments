@@ -1,0 +1,7 @@
+{
+  "commanded_at": "2026-11-03T00:16:20.8616268+01:00",
+  "command": 3,
+  "meaning": "SDA 60ms con revalidacion ENV solo en wrapper de ensayo",
+  "address": "0x200006F8",
+  "hex_sha256": "51167A296C4FF2905680FBA02CA2FF698E1277D651B04E8248EC6A0F9FA49CDC"
+}

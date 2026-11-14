@@ -1,0 +1,6 @@
+/ {
+    zephyr,user {
+        /* D8/PC2: salida solo de ensayo, drenador abierto, inicialmente libre. */
+        fault-gpios = <&gpioc 2 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+    };
+};

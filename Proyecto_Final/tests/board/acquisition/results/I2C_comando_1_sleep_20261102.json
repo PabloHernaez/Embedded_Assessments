@@ -1,0 +1,7 @@
+{
+  "commanded_at": "2026-11-02T23:45:41.4870362+01:00",
+  "command": 1,
+  "meaning": "SLEEP PWR_MGMT_1=0x49",
+  "address": "0x200006F8",
+  "hex_sha256": "40D076491DA2E1B342F1AF56C10CEF65F7415584D67A298C8AF80D8FC8877A3C"
+}

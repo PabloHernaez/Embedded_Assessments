@@ -1,0 +1,7 @@
+{
+  "commanded_at": "2026-11-03T00:19:46.3570810+01:00",
+  "command": 3,
+  "meaning": "SDA 60ms con correccion real, sin wrapper ambiental",
+  "address": "0x200006F8",
+  "hex_sha256": "765FB06F5CBF3DCBE1F9A4E543649090CCEFA9442CC46F90CD13D91B3425ABBA"
+}

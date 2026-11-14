@@ -1,0 +1,90 @@
+Ensayo MPU6050 + Si7021
+imu_init: 0
+environment_init: 0
+Calibrando: mantener el MPU quieto y nivelado.
+Calibrando: 1/100 (imu=1)
+Calibrando: 51/100 (imu=1)
+Sesgo gyro: -2.836 -0.637 -0.367 deg/s
+ACC inicial media: 0.6581 -0.0676 9.8841 m/s2 | norma=9.9063
+q_SR4=1.0000 0.0000 -0.0000 -0.0000
+ACC: 0.6457 -0.0603 9.8740 m/s2 | norma=9.8953
+GYRO corregido: -0.0191 0.0266 0.0002 deg/s | norma=0.0327
+t=2274 | moving=0 | imu=1 | NEW=1 NO_NEW=0 ERR=0 SAT=0 GAP=0
+NAV=1 dt=0.0 min=0.0 max=0.0 ms NAV_ERR=0
+q=0.9994 -0.0034 -0.0332 -0.0001
+v=0.000 0.000 0.000 m/s | p=0.000 0.000 0.000 m
+Temperatura: 23.73 C | Humedad: 93.58 %
+q_SR4=1.0000 -0.0000 -0.0001 0.0001
+ACC: 0.6588 -0.0829 9.8988 m/s2 | norma=9.9211
+GYRO corregido: 0.0115 -0.0345 0.0002 deg/s | norma=0.0364
+t=3274 | moving=0 | imu=1 | NEW=51 NO_NEW=0 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=9.2 max=30.8 ms NAV_ERR=0
+q=0.9994 -0.0034 -0.0333 0.0000
+v=-0.002 -0.001 0.104 m/s | p=-0.002 -0.001 0.051 m
+q_SR4=1.0000 -0.0000 -0.0002 0.0002
+ACC: 0.6708 -0.0591 9.8610 m/s2 | norma=9.8839
+GYRO corregido: -0.0038 -0.0345 0.0307 deg/s | norma=0.0463
+t=4274 | moving=0 | imu=1 | NEW=101 NO_NEW=0 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=8.9 max=31.1 ms NAV_ERR=0
+q=0.9994 -0.0034 -0.0334 0.0001
+v=-0.005 -0.005 0.203 m/s | p=-0.005 -0.004 0.204 m
+Temperatura: 23.73 C | Humedad: 93.61 %
+q_SR4=1.0000 0.0001 -0.0003 0.0004
+ACC: 0.6529 -0.0758 9.8704 m/s2 | norma=9.8923
+GYRO corregido: 0.0267 -0.0192 0.0154 deg/s | norma=0.0364
+t=5274 | moving=0 | imu=1 | NEW=149 NO_NEW=2 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=8.7 max=40.0 ms NAV_ERR=0
+q=0.9994 -0.0034 -0.0335 0.0003
+v=-0.007 -0.009 0.304 m/s | p=-0.010 -0.010 0.457 m
+q_SR4=1.0000 0.0001 -0.0004 0.0005
+ACC: 0.6481 -0.0674 9.8953 m/s2 | norma=9.9167
+GYRO corregido: -0.0191 -0.0192 0.0154 deg/s | norma=0.0312
+t=6274 | moving=0 | imu=1 | NEW=198 NO_NEW=3 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=8.7 max=40.0 ms NAV_ERR=0
+q=0.9994 -0.0034 -0.0336 0.0004
+v=-0.014 -0.012 0.407 m/s | p=-0.020 -0.021 0.812 m
+Temperatura: 23.72 C | Humedad: 93.66 %
+q_SR4=1.0000 0.0001 -0.0005 0.0006
+ACC: 0.6732 -0.0794 9.8929 m/s2 | norma=9.9161
+GYRO corregido: 0.0115 -0.0192 0.0154 deg/s | norma=0.0272
+t=7274 | moving=0 | imu=1 | NEW=247 NO_NEW=4 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=8.7 max=40.0 ms NAV_ERR=0
+q=0.9994 -0.0033 -0.0337 0.0005
+v=-0.024 -0.016 0.507 m/s | p=-0.039 -0.035 1.267 m
+q_SR4=1.0000 0.0001 -0.0006 0.0007
+ACC: 0.6565 -0.0686 9.8965 m/s2 | norma=9.9185
+GYRO corregido: 0.0115 0.0113 0.0002 deg/s | norma=0.0161
+t=8274 | moving=0 | imu=1 | NEW=296 NO_NEW=5 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=8.7 max=40.0 ms NAV_ERR=0
+q=0.9994 -0.0033 -0.0338 0.0006
+v=-0.037 -0.014 0.606 m/s | p=-0.070 -0.049 1.824 m
+Temperatura: 23.73 C | Humedad: 93.72 %
+q_SR4=1.0000 0.0001 -0.0008 0.0009
+ACC: 0.6624 -0.0567 9.8846 m/s2 | norma=9.9070
+GYRO corregido: 0.0115 -0.0345 0.0002 deg/s | norma=0.0364
+t=9274 | moving=0 | imu=1 | NEW=345 NO_NEW=6 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=8.7 max=40.0 ms NAV_ERR=0
+q=0.9994 -0.0033 -0.0340 0.0008
+v=-0.051 -0.016 0.704 m/s | p=-0.114 -0.065 2.478 m
+q_SR4=1.0000 0.0001 -0.0009 0.0010
+ACC: 0.6600 -0.0674 9.8988 m/s2 | norma=9.9211
+GYRO corregido: -0.0038 -0.0345 0.0307 deg/s | norma=0.0463
+t=10274 | moving=0 | imu=1 | NEW=394 NO_NEW=7 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=8.7 max=40.0 ms NAV_ERR=0
+q=0.9994 -0.0033 -0.0342 0.0009
+v=-0.067 -0.022 0.807 m/s | p=-0.172 -0.083 3.233 m
+Temperatura: 23.73 C | Humedad: 93.75 %
+q_SR4=1.0000 0.0002 -0.0010 0.0012
+ACC: 0.6600 -0.0734 9.8835 m/s2 | norma=9.9057
+GYRO corregido: -0.0038 0.0266 0.0460 deg/s | norma=0.0532
+t=11274 | moving=0 | imu=1 | NEW=443 NO_NEW=8 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=8.7 max=40.0 ms NAV_ERR=0
+q=0.9994 -0.0033 -0.0343 0.0011
+v=-0.090 -0.023 0.906 m/s | p=-0.251 -0.105 4.088 m
+q_SR4=1.0000 0.0002 -0.0011 0.0013
+ACC: 0.6720 -0.0758 9.8704 m/s2 | norma=9.8936
+GYRO corregido: -0.0038 -0.0192 0.0002 deg/s | norma=0.0196
+t=12274 | moving=0 | imu=1 | NEW=492 NO_NEW=9 ERR=0 SAT=0 GAP=0
+NAV=1 dt=20.0 min=8.7 max=40.0 ms NAV_ERR=0
+q=0.9994 -0.0033 -0.0343 0.0012
+v=-0.110 -0.028 1.005 m/s | p=-0.351 -0.130 5.043 m

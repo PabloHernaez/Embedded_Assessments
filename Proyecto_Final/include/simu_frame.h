@@ -13,7 +13,11 @@
 #define SIMU_FRAME_WIRE_SIZE   221U
 #define SIMU_FRAME_BUFFER_SIZE (SIMU_FRAME_WIRE_SIZE + 1U)
 
-/**
+
+/*
+ * ROLL/PITCH/YAW se obtienen de acquisition->nav.relative_q.
+ * acquisition->nav.q conserva la orientacion de navegacion.
+ *
  * Los punteros apuntan a copias del llamador.
  * Deben permanecer validos durante la llamada.
  */

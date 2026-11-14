@@ -1,0 +1,11 @@
+{
+  "MODER": "0xfc003fdf",
+  "OTYPER": "0x4",
+  "OSPEEDR": "0x0",
+  "PUPDR": "0x0",
+  "IDR": "0x4",
+  "ODR": "0x4",
+  "PC2_mode": 1,
+  "PC2_open_drain": true,
+  "PC2_released": true
+}

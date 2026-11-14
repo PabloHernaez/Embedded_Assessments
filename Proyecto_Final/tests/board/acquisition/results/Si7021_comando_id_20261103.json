@@ -1,0 +1,7 @@
+{
+  "commanded_at": "2026-11-03T00:13:29.9574198+01:00",
+  "command": 9,
+  "meaning": "Identificacion electronica Si7021 FC/C9, seis bytes con CRC",
+  "address": "0x200006F8",
+  "hex_sha256": "4E489286B1C28309DC9A4D2C85FB5152801DEDFC723A0EF0E2043D961D629582"
+}

@@ -64,8 +64,8 @@ typedef struct {
     SampleQuality quality;
 } EnvironmentData;
 
-/** 
- *  Cuaternion Hamilton [w, x, y, z], del sensor al marco local
+/* Cuaternion Hamilton [w, x, y, z].
+ * El campo que lo contiene especifica los marcos de referencia.
  */
 typedef struct {
     float w;
@@ -74,19 +74,25 @@ typedef struct {
     float z;
 } Quaternionf;
 
-/**
-*   Resultado publicado del estimador.
-*   q: la orientación del sensor respecto al sistema local
-*   velocity_mps: velocidad (ojo, es un vector Vec3f)
-*   position_m: posicion desde el origen inicial (ojo, es un vector Vec3f)
-*
-*   El valor inicial de NavigationView tiene 
-*       q = [1, 0, 0, 0]
-*       velocity_mps, position_m = 0 (0 vector Vec3f)
-*       valid = false
-*/
+/*
+ * Resultado del estimador.
+ *
+ * q: sensor actual -> marco local con Z hacia arriba.
+ *    Se utiliza para compensar gravedad.
+ *
+ * relative_q: sensor actual -> referencia inicial del sensor.
+ *             Se utiliza para obtener ROLL/PITCH/YAW de SR4.
+ *
+ * velocity_mps y position_m: expresados en el marco local.
+ * valid: la ultima actualizacion completa fue aceptada.
+ *
+ * Al inicializar: ambos cuaterniones identidad, v/p cero,
+ * valid=false.
+ */
 typedef struct {
     Quaternionf q;
+    Quaternionf relative_q;
+
     Vec3f velocity_mps;
     Vec3f position_m;
 

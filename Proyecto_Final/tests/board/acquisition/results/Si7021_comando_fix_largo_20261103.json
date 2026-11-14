@@ -1,0 +1,7 @@
+{
+  "commanded_at": "2026-11-03T00:20:48.6301643+01:00",
+  "command": 4,
+  "meaning": "SDA 5s con correccion real, comprobar retoma de ambos sensores",
+  "address": "0x200006F8",
+  "hex_sha256": "765FB06F5CBF3DCBE1F9A4E543649090CCEFA9442CC46F90CD13D91B3425ABBA"
+}

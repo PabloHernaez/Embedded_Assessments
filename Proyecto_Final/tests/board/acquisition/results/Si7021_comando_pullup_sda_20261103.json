@@ -1,0 +1,7 @@
+{
+  "commanded_at": "2026-11-03T00:08:23.9735635+01:00",
+  "command": 3,
+  "meaning": "SDA 60ms con pull-ups GPIO preservados",
+  "address": "0x200006F8",
+  "hex_sha256": "DB0CCD2EFEE766B1B0D981779FDC5A7B74F3A3EC42C6F5FC9396CC99A079907F"
+}

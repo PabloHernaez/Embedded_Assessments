@@ -1,0 +1,7 @@
+{
+  "commanded_at": "2026-11-03T00:22:55.4386846+01:00",
+  "command": 4,
+  "meaning": "SCL retenido 5s, correccion Si7021 en modulo real",
+  "address": "0x200006F8",
+  "hex_sha256": "765FB06F5CBF3DCBE1F9A4E543649090CCEFA9442CC46F90CD13D91B3425ABBA"
+}

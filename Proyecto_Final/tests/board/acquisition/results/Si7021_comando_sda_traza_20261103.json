@@ -1,0 +1,7 @@
+{
+  "commanded_at": "2026-11-03T00:02:05.0256264+01:00",
+  "command": 3,
+  "meaning": "SDA 60ms, traza STM32 por mensaje",
+  "address": "0x200006F8",
+  "hex_sha256": "E65399ED973FA2CCFEF596B5B7D6EBECE186AFD4CE8FF48C628B46819F7985F7"
+}

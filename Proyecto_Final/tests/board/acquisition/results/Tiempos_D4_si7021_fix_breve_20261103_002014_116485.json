@@ -1,0 +1,1158 @@
+{
+  "captured_at": "2026-11-03T00:20:14.116485+01:00",
+  "label": "si7021_fix_breve",
+  "stlink_serial": "0020001E4741500220383733",
+  "hex_sha256": "765FB06F5CBF3DCBE1F9A4E543649090CCEFA9442CC46F90CD13D91B3425ABBA",
+  "elf_sha256": "8B414AEB3034DFAADB3FB05355F5F316CF49DF18B436A9F109E0E2C7D71B8435",
+  "layout": {
+    "timing": 536871088,
+    "timing_size": 64,
+    "published": 536870912,
+    "published_size": 176,
+    "imu_valid": 536870936,
+    "calibration_pending": 536870953,
+    "light_valid": 536870968,
+    "environment_valid": 536871000,
+    "nav_valid": 536871072,
+    "moving": 536871076,
+    "progress": 536871080,
+    "stats": 536871664,
+    "stats_size": 224,
+    "stats_active": 536871664,
+    "stats_ready": 536871784,
+    "window_begin_ms": 536871792,
+    "window_end_ms": 536871800,
+    "imu_configured_address": 536871952,
+    "i2c_test": 536872696,
+    "i2c_test_size": 2368,
+    "imu_context": 536871952,
+    "imu_context_size": 256,
+    "bias_dps": 536872116,
+    "initial_q": 536872144,
+    "last_init_ticks": 536871968,
+    "q": 536871016,
+    "relative_q": 536871032,
+    "velocity_mps": 536871048,
+    "position_m": 536871060,
+    "imu_last_good_ms": 536870944,
+    "light_last_good_ms": 536870976,
+    "environment_last_good_ms": 536871008
+  },
+  "timing": {
+    "expired_periods": 2178,
+    "missed_periods": 0,
+    "clock_hz": 48000000,
+    "counter_pair_cycles": 62,
+    "startup_cycles": 11888753,
+    "normal_count": 2125,
+    "normal_max_cycles": 155277,
+    "normal_max_at_ms": 2251,
+    "normal_ge_10_ms": 0,
+    "normal_ge_20_ms": 0,
+    "maintenance_count": 53,
+    "maintenance_max_cycles": 123432,
+    "maintenance_max_at_ms": 270,
+    "maintenance_ge_20_ms": 0,
+    "counter_pair_us_ceil": 2,
+    "startup_us_ceil": 247683,
+    "normal_max_us_ceil": 3235,
+    "maintenance_max_us_ceil": 2572
+  },
+  "state_sequential_read": {
+    "imu_valid": true,
+    "calibration_pending": false,
+    "light_valid": true,
+    "environment_valid": true,
+    "nav_valid": true,
+    "moving": false,
+    "progress": 2185,
+    "stats_active": true,
+    "stats_ready": true,
+    "window_begin_ms": 0,
+    "window_end_ms": 30000,
+    "bias_dps": [
+      -2.8312973976135254,
+      -0.6012214422225952,
+      -0.3433588445186615
+    ],
+    "initial_q": [
+      0.9993517994880676,
+      0.0054698814637959,
+      -0.03558197617530823,
+      0.0001947554264916107
+    ],
+    "q": [
+      0.9992325305938721,
+      0.0036185430362820625,
+      -0.03873831033706665,
+      0.004544559400528669
+    ],
+    "relative_q": [
+      0.9999838471412659,
+      -0.0016953261801972985,
+      -0.0031343779992312193,
+      0.004430146887898445
+    ],
+    "velocity_mps": [
+      -1.3259775638580322,
+      0.7393276691436768,
+      3.9378910064697266
+    ],
+    "position_m": [
+      -18.268028259277344,
+      9.965991020202637,
+      79.74011993408203
+    ],
+    "imu_last_good_ms": 43949,
+    "light_last_good_ms": 42268,
+    "environment_last_good_ms": 42730,
+    "last_init_ticks": 1004
+  },
+  "i2c_control": {
+    "command": 0,
+    "phase": 3,
+    "last_command": 3,
+    "gpio_init_result": 0,
+    "injected_ms": 16105,
+    "released_ms": 16165,
+    "inject_result": 0,
+    "event_count": 71,
+    "dropped": 0,
+    "new_count": 696,
+    "no_new_count": 2,
+    "error_count": 1,
+    "update_max_cycles": 90422,
+    "hold_cycles": 2884523,
+    "cycle": 2201,
+    "last_failed_remaining": 0,
+    "update_max_us_ceil": 1884,
+    "hold_us_ceil": 60095
+  },
+  "i2c_events": [
+    {
+      "t_ms": 16105,
+      "cycle": 792,
+      "kind": 2,
+      "name": "HOLD_BEGIN",
+      "result": 0,
+      "elapsed_cycles": 0,
+      "us_ceil": 0,
+      "detail": 3
+    },
+    {
+      "t_ms": 16108,
+      "cycle": 793,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": -5,
+      "elapsed_cycles": 3071,
+      "us_ceil": 64,
+      "detail": 1745097274,
+      "transfer": {
+        "address": 104,
+        "flags": 4,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": true,
+        "bus_error": false,
+        "first_byte": 58
+      }
+    },
+    {
+      "t_ms": 16108,
+      "cycle": 793,
+      "kind": 4,
+      "name": "READ",
+      "result": -5,
+      "elapsed_cycles": 4577,
+      "us_ceil": 96,
+      "detail": 0
+    },
+    {
+      "t_ms": 16108,
+      "cycle": 793,
+      "kind": 7,
+      "name": "RECOVER",
+      "result": -16,
+      "elapsed_cycles": 14279,
+      "us_ceil": 298,
+      "detail": 0
+    },
+    {
+      "t_ms": 16108,
+      "cycle": 793,
+      "kind": 10,
+      "name": "STATE",
+      "result": 17,
+      "elapsed_cycles": 21277,
+      "us_ceil": 444,
+      "detail": 0
+    },
+    {
+      "t_ms": 16165,
+      "cycle": 795,
+      "kind": 3,
+      "name": "HOLD_END",
+      "result": 0,
+      "elapsed_cycles": 2884523,
+      "us_ceil": 60095,
+      "detail": 1
+    },
+    {
+      "t_ms": 16428,
+      "cycle": 809,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 9728,
+      "us_ceil": 203,
+      "detail": 1074008295,
+      "transfer": {
+        "address": 64,
+        "flags": 4,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 231
+      }
+    },
+    {
+      "t_ms": 16428,
+      "cycle": 809,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 12516,
+      "us_ceil": 261,
+      "detail": 1074204672,
+      "transfer": {
+        "address": 64,
+        "flags": 7,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 0
+      }
+    },
+    {
+      "t_ms": 16428,
+      "cycle": 809,
+      "kind": 11,
+      "name": "ENV_INIT",
+      "result": 0,
+      "elapsed_cycles": 24241,
+      "us_ceil": 506,
+      "detail": 0
+    },
+    {
+      "t_ms": 16428,
+      "cycle": 809,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 10372,
+      "us_ceil": 217,
+      "detail": 1074139381,
+      "transfer": {
+        "address": 64,
+        "flags": 6,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 245
+      }
+    },
+    {
+      "t_ms": 16428,
+      "cycle": 809,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 11493,
+      "us_ceil": 240,
+      "detail": 0
+    },
+    {
+      "t_ms": 16488,
+      "cycle": 812,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 18021,
+      "us_ceil": 376,
+      "detail": 1074213055,
+      "transfer": {
+        "address": 64,
+        "flags": 7,
+        "length": 3,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 191
+      }
+    },
+    {
+      "t_ms": 16488,
+      "cycle": 812,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 9735,
+      "us_ceil": 203,
+      "detail": 1074008288,
+      "transfer": {
+        "address": 64,
+        "flags": 4,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 224
+      }
+    },
+    {
+      "t_ms": 16488,
+      "cycle": 812,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 14426,
+      "us_ceil": 301,
+      "detail": 1074208873,
+      "transfer": {
+        "address": 64,
+        "flags": 7,
+        "length": 2,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 105
+      }
+    },
+    {
+      "t_ms": 16488,
+      "cycle": 812,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 45988,
+      "us_ceil": 959,
+      "detail": 0
+    },
+    {
+      "t_ms": 17129,
+      "cycle": 844,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 53817,
+      "us_ceil": 1122,
+      "detail": 1
+    },
+    {
+      "t_ms": 17129,
+      "cycle": 844,
+      "kind": 10,
+      "name": "STATE",
+      "result": 1,
+      "elapsed_cycles": 54917,
+      "us_ceil": 1145,
+      "detail": 0
+    },
+    {
+      "t_ms": 17149,
+      "cycle": 845,
+      "kind": 4,
+      "name": "READ",
+      "result": 1,
+      "elapsed_cycles": 77089,
+      "us_ceil": 1607,
+      "detail": 0
+    },
+    {
+      "t_ms": 17149,
+      "cycle": 845,
+      "kind": 10,
+      "name": "STATE",
+      "result": 7,
+      "elapsed_cycles": 89229,
+      "us_ceil": 1859,
+      "detail": 0
+    },
+    {
+      "t_ms": 17349,
+      "cycle": 855,
+      "kind": 4,
+      "name": "READ",
+      "result": 0,
+      "elapsed_cycles": 76510,
+      "us_ceil": 1594,
+      "detail": 0
+    },
+    {
+      "t_ms": 17369,
+      "cycle": 856,
+      "kind": 4,
+      "name": "READ",
+      "result": 1,
+      "elapsed_cycles": 77090,
+      "us_ceil": 1607,
+      "detail": 0
+    },
+    {
+      "t_ms": 18430,
+      "cycle": 909,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 10374,
+      "us_ceil": 217,
+      "detail": 1074139381,
+      "transfer": {
+        "address": 64,
+        "flags": 6,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 245
+      }
+    },
+    {
+      "t_ms": 18430,
+      "cycle": 909,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 11497,
+      "us_ceil": 240,
+      "detail": 0
+    },
+    {
+      "t_ms": 18490,
+      "cycle": 912,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 18244,
+      "us_ceil": 381,
+      "detail": 1074213054,
+      "transfer": {
+        "address": 64,
+        "flags": 7,
+        "length": 3,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 190
+      }
+    },
+    {
+      "t_ms": 18490,
+      "cycle": 912,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 9953,
+      "us_ceil": 208,
+      "detail": 1074008288,
+      "transfer": {
+        "address": 64,
+        "flags": 4,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 224
+      }
+    },
+    {
+      "t_ms": 18490,
+      "cycle": 912,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 14430,
+      "us_ceil": 301,
+      "detail": 1074208872,
+      "transfer": {
+        "address": 64,
+        "flags": 7,
+        "length": 2,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 104
+      }
+    },
+    {
+      "t_ms": 18490,
+      "cycle": 912,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 46445,
+      "us_ceil": 968,
+      "detail": 0
+    },
+    {
+      "t_ms": 19130,
+      "cycle": 944,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 53827,
+      "us_ceil": 1122,
+      "detail": 1
+    },
+    {
+      "t_ms": 20450,
+      "cycle": 1010,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 10372,
+      "us_ceil": 217,
+      "detail": 1074139381,
+      "transfer": {
+        "address": 64,
+        "flags": 6,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 245
+      }
+    },
+    {
+      "t_ms": 20450,
+      "cycle": 1010,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 11489,
+      "us_ceil": 240,
+      "detail": 0
+    },
+    {
+      "t_ms": 20510,
+      "cycle": 1013,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 18018,
+      "us_ceil": 376,
+      "detail": 1074213054,
+      "transfer": {
+        "address": 64,
+        "flags": 7,
+        "length": 3,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 190
+      }
+    },
+    {
+      "t_ms": 20510,
+      "cycle": 1013,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 9974,
+      "us_ceil": 208,
+      "detail": 1074008288,
+      "transfer": {
+        "address": 64,
+        "flags": 4,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 224
+      }
+    },
+    {
+      "t_ms": 20510,
+      "cycle": 1013,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 14428,
+      "us_ceil": 301,
+      "detail": 1074208872,
+      "transfer": {
+        "address": 64,
+        "flags": 7,
+        "length": 2,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 104
+      }
+    },
+    {
+      "t_ms": 20510,
+      "cycle": 1013,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 46239,
+      "us_ceil": 964,
+      "detail": 0
+    },
+    {
+      "t_ms": 21150,
+      "cycle": 1045,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 53827,
+      "us_ceil": 1122,
+      "detail": 1
+    },
+    {
+      "t_ms": 22470,
+      "cycle": 1111,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 10156,
+      "us_ceil": 212,
+      "detail": 1074139381,
+      "transfer": {
+        "address": 64,
+        "flags": 6,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 245
+      }
+    },
+    {
+      "t_ms": 22470,
+      "cycle": 1111,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 11270,
+      "us_ceil": 235,
+      "detail": 0
+    },
+    {
+      "t_ms": 22530,
+      "cycle": 1114,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 18018,
+      "us_ceil": 376,
+      "detail": 1074213054,
+      "transfer": {
+        "address": 64,
+        "flags": 7,
+        "length": 3,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 190
+      }
+    },
+    {
+      "t_ms": 22530,
+      "cycle": 1114,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 9735,
+      "us_ceil": 203,
+      "detail": 1074008288,
+      "transfer": {
+        "address": 64,
+        "flags": 4,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 224
+      }
+    },
+    {
+      "t_ms": 22530,
+      "cycle": 1114,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 14200,
+      "us_ceil": 296,
+      "detail": 1074208872,
+      "transfer": {
+        "address": 64,
+        "flags": 7,
+        "length": 2,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 104
+      }
+    },
+    {
+      "t_ms": 22530,
+      "cycle": 1114,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 45772,
+      "us_ceil": 954,
+      "detail": 0
+    },
+    {
+      "t_ms": 23170,
+      "cycle": 1146,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 53826,
+      "us_ceil": 1122,
+      "detail": 1
+    },
+    {
+      "t_ms": 24490,
+      "cycle": 1212,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 10156,
+      "us_ceil": 212,
+      "detail": 1074139381,
+      "transfer": {
+        "address": 64,
+        "flags": 6,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 245
+      }
+    },
+    {
+      "t_ms": 24490,
+      "cycle": 1212,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 11270,
+      "us_ceil": 235,
+      "detail": 0
+    },
+    {
+      "t_ms": 24550,
+      "cycle": 1215,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 18018,
+      "us_ceil": 376,
+      "detail": 1074213054,
+      "transfer": {
+        "address": 64,
+        "flags": 7,
+        "length": 3,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 190
+      }
+    },
+    {
+      "t_ms": 24550,
+      "cycle": 1215,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 9735,
+      "us_ceil": 203,
+      "detail": 1074008288,
+      "transfer": {
+        "address": 64,
+        "flags": 4,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 224
+      }
+    },
+    {
+      "t_ms": 24550,
+      "cycle": 1215,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 14200,
+      "us_ceil": 296,
+      "detail": 1074208872,
+      "transfer": {
+        "address": 64,
+        "flags": 7,
+        "length": 2,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 104
+      }
+    },
+    {
+      "t_ms": 24550,
+      "cycle": 1215,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 45772,
+      "us_ceil": 954,
+      "detail": 0
+    },
+    {
+      "t_ms": 25190,
+      "cycle": 1247,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 53826,
+      "us_ceil": 1122,
+      "detail": 1
+    },
+    {
+      "t_ms": 26510,
+      "cycle": 1313,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 10156,
+      "us_ceil": 212,
+      "detail": 1074139381,
+      "transfer": {
+        "address": 64,
+        "flags": 6,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 245
+      }
+    },
+    {
+      "t_ms": 26510,
+      "cycle": 1313,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 11270,
+      "us_ceil": 235,
+      "detail": 0
+    },
+    {
+      "t_ms": 26570,
+      "cycle": 1316,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 18018,
+      "us_ceil": 376,
+      "detail": 1074213054,
+      "transfer": {
+        "address": 64,
+        "flags": 7,
+        "length": 3,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 190
+      }
+    },
+    {
+      "t_ms": 26570,
+      "cycle": 1316,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 9735,
+      "us_ceil": 203,
+      "detail": 1074008288,
+      "transfer": {
+        "address": 64,
+        "flags": 4,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 224
+      }
+    },
+    {
+      "t_ms": 26570,
+      "cycle": 1316,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 14200,
+      "us_ceil": 296,
+      "detail": 1074208872,
+      "transfer": {
+        "address": 64,
+        "flags": 7,
+        "length": 2,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 104
+      }
+    },
+    {
+      "t_ms": 26570,
+      "cycle": 1316,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 45772,
+      "us_ceil": 954,
+      "detail": 0
+    },
+    {
+      "t_ms": 27210,
+      "cycle": 1348,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 53826,
+      "us_ceil": 1122,
+      "detail": 1
+    },
+    {
+      "t_ms": 28530,
+      "cycle": 1414,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 10156,
+      "us_ceil": 212,
+      "detail": 1074139381,
+      "transfer": {
+        "address": 64,
+        "flags": 6,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 245
+      }
+    },
+    {
+      "t_ms": 28530,
+      "cycle": 1414,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 11270,
+      "us_ceil": 235,
+      "detail": 0
+    },
+    {
+      "t_ms": 28590,
+      "cycle": 1417,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 18018,
+      "us_ceil": 376,
+      "detail": 1074213054,
+      "transfer": {
+        "address": 64,
+        "flags": 7,
+        "length": 3,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 190
+      }
+    },
+    {
+      "t_ms": 28590,
+      "cycle": 1417,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 9735,
+      "us_ceil": 203,
+      "detail": 1074008288,
+      "transfer": {
+        "address": 64,
+        "flags": 4,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 224
+      }
+    },
+    {
+      "t_ms": 28590,
+      "cycle": 1417,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 14200,
+      "us_ceil": 296,
+      "detail": 1074208872,
+      "transfer": {
+        "address": 64,
+        "flags": 7,
+        "length": 2,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 104
+      }
+    },
+    {
+      "t_ms": 28590,
+      "cycle": 1417,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 45772,
+      "us_ceil": 954,
+      "detail": 0
+    },
+    {
+      "t_ms": 29089,
+      "cycle": 1442,
+      "kind": 4,
+      "name": "READ",
+      "result": 0,
+      "elapsed_cycles": 76510,
+      "us_ceil": 1594,
+      "detail": 0
+    },
+    {
+      "t_ms": 29109,
+      "cycle": 1443,
+      "kind": 4,
+      "name": "READ",
+      "result": 1,
+      "elapsed_cycles": 77104,
+      "us_ceil": 1607,
+      "detail": 0
+    },
+    {
+      "t_ms": 29230,
+      "cycle": 1449,
+      "kind": 5,
+      "name": "CHECK",
+      "result": 0,
+      "elapsed_cycles": 53820,
+      "us_ceil": 1122,
+      "detail": 1
+    },
+    {
+      "t_ms": 30550,
+      "cycle": 1515,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 10156,
+      "us_ceil": 212,
+      "detail": 1074139381,
+      "transfer": {
+        "address": 64,
+        "flags": 6,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 245
+      }
+    },
+    {
+      "t_ms": 30550,
+      "cycle": 1515,
+      "kind": 8,
+      "name": "ENV_START",
+      "result": 0,
+      "elapsed_cycles": 11270,
+      "us_ceil": 235,
+      "detail": 0
+    },
+    {
+      "t_ms": 30610,
+      "cycle": 1518,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 18018,
+      "us_ceil": 376,
+      "detail": 1074213054,
+      "transfer": {
+        "address": 64,
+        "flags": 7,
+        "length": 3,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 190
+      }
+    },
+    {
+      "t_ms": 30610,
+      "cycle": 1518,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 9735,
+      "us_ceil": 203,
+      "detail": 1074008288,
+      "transfer": {
+        "address": 64,
+        "flags": 4,
+        "length": 1,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 224
+      }
+    },
+    {
+      "t_ms": 30610,
+      "cycle": 1518,
+      "kind": 12,
+      "name": "TRANSFER",
+      "result": 0,
+      "elapsed_cycles": 14200,
+      "us_ceil": 296,
+      "detail": 1074208872,
+      "transfer": {
+        "address": 64,
+        "flags": 7,
+        "length": 2,
+        "nack": false,
+        "arbitration_lost": false,
+        "bus_error": false,
+        "first_byte": 104
+      }
+    },
+    {
+      "t_ms": 30610,
+      "cycle": 1518,
+      "kind": 9,
+      "name": "ENV_READ",
+      "result": 0,
+      "elapsed_cycles": 45770,
+      "us_ceil": 954,
+      "detail": 0
+    }
+  ]
+}

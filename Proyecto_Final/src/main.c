@@ -2,7 +2,6 @@
 #include "drivers/gps.h"
 #include "simu_frame.h"
 #include "human_report.h"
-#include <zephyr/logging/log.h>
 
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>

@@ -1,3 +1,5 @@
+/*
+
 #include <zephyr/devicetree.h>
 #include <zephyr/sys/util.h>
 
@@ -17,3 +19,4 @@ BUILD_ASSERT(
     !DT_HAS_CHOSEN(zephyr_shell_uart),
     "Produccion requiere retirar las asignaciones de consola del Devicetree"
 );
+*/

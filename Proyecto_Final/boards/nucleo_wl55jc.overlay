@@ -4,8 +4,10 @@
 
 / {
     chosen {
-        /delete-property/ zephyr,console;
-        /delete-property/ zephyr,shell-uart;
+        /* /delete-property/ zephyr,console; */
+        /* /delete-property/ zephyr,shell-uart; */
+        zephyr,console = &lpuart1;
+        zephyr,shell-uart = &usart1;
     };
 
     aliases {

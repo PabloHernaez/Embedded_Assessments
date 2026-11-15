@@ -13,6 +13,10 @@ target_sources(app PRIVATE
     src/drivers/environment.c
     src/algorithms/gyro_calibration.c
     src/drivers/gps.c
+    src/drivers/button.c
+    src/drivers/led.c
+    src/app/state_machine.c
+    src/app/app_tasks.c
     src/algorithms/motion.c
     src/algorithms/estimator.c
     src/algorithms/statistics.c

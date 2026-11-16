@@ -1,14 +1,16 @@
 #include "acquisition_api.h"
 #include "drivers/gps.h"
 #include "drivers/led.h"
+#include "drivers/light.h"
+#include "drivers/imu.h"
 #include "app/state_machine.h"
 #include "app/app_tasks.h"
 #include "simu_frame.h"
 #include "human_report.h"
 #include "drivers/button.h"
+#include "drivers/environment.h"
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
-
 
 
 int main(void)
@@ -30,6 +32,10 @@ int main(void)
     }*/
 
     int err;
+    LightReading light_data = {0};
+    int16_t raw = 0;
+    int ret;
+
 
     err = button_init();
     if (err != 0) {
@@ -43,12 +49,46 @@ int main(void)
         return 0;
     }
 
-    state_machine_init();
+    err = gps_init();
+    if (err != 0 ) {
+        printk("Error inicializando GPS\n");
+        return 0;
+    }
 
-    App_State state = STATE_TEST;
+    err = light_init();
+    if (err != 0) {
+        printk("Error inicializando el ADC\n");
+        return 0;
+    }
+
+    err = environment_init();
+    if (err != 0) {
+        printk("Error inicializando environment");
+        return 0;
+    }
+
+    /*err = imu_init();
+    if (err != 0) {
+        printk("Error inicializando IMU");
+        return 0;
+    }
+
+    bool * config;
+
+    err = imu_check_configuration(config);
+
+    if (err != 0) {
+        printk("Error IMU config error");
+        return 0;
+    }*/
+
+    App_State state = state_machine_init();
+
+    printk("Iniciamos en: %d \n", state);
 
     // Inicializamos el estado y ejecutamos sus acciones de entrada
     app_tasks_run(state, true);
+
 
     int64_t next_execution =
         k_uptime_get() + app_tasks_get_interval(state);
@@ -68,6 +108,8 @@ int main(void)
         if (err == 0 && event.type == BUTTON_PRESSED) {
 
             state = state_machine_on_button();
+
+            printk("Estado ejecutandose %d \n", state);
 
             // Ejecutamos acciones de entrada y tareas del nuevo estado
             app_tasks_run(state, true);

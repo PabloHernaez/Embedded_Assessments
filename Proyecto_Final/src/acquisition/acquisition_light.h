@@ -7,7 +7,6 @@ typedef struct {
     bool configured;
     LightData data;
     int64_t next_read_ticks;
-    int64_t sample_ticks;
 } AcquisitionLight;
 
 void acquisition_light_init(AcquisitionLight *ctx);

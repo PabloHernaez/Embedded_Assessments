@@ -54,11 +54,12 @@ end descarta parcial y oculta el resultado. El getter no acumula muestras.
 Se cuenta cada lectura nueva utilizable una vez, aunque repita su valor.
 count=0 se representa N/D. Los limites de ventana son [inicio, fin).
 
-nav.q transforma sensor a marco local; nav.relative_q expresa orientacion
-respecto a los ejes iniciales y es el campo que P2 debe usar para Euler.
-nav.valid informa de aceptacion numerica, no de exactitud de trayectoria.
+(Diseno de navegacion de esta entrega; sustituido por DEC-D3-02.) nav.q
+transformaba sensor a marco local y nav.relative_q daba la orientacion
+respecto a los ejes iniciales; nav.valid indicaba aceptacion numerica. Hoy
+NavigationView solo tiene q (sensor -> ejes iniciales), velocidad y posicion.
 moving no congela velocidad/posicion. La retoma usa dt=0 sin integrar el
-intervalo desconocido y conserva el sesgo y q0 ya preparados.
+intervalo desconocido y conserva el sesgo ya preparado.
 
 El main observador usa la API para medidas y sesiones; adicionalmente consulta
 la pila del hilo desde el ensayo. El main de produccion sigue siendo el de

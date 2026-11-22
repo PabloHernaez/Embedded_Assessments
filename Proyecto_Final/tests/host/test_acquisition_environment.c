@@ -42,6 +42,7 @@ int environment_read(EnvironmentReading *out)
 }
 
 int64_t k_uptime_ticks(void) { return now_ticks; }
+int64_t k_uptime_get(void) { return now_ticks / 10; }
 int64_t k_ticks_to_ms_floor64(int64_t ticks) { return ticks / 10; }
 int64_t k_ms_to_ticks_floor64(int64_t ms) { return ms * 10; }
 int64_t k_ms_to_ticks_ceil64(int64_t ms) { return ms * 10; }
@@ -97,38 +98,28 @@ int main(void)
     }
     CHECK(init_count == 2); /* revalida antes de F5 */
 
-    /* Error de bus de la IMU con conversion en curso: se abandona sin tocar el I2C. */
+    /* Error de bus de la IMU con conversion en curso: esa vuelta no toca el I2C,
+     * la conversion se recoge despues y el Si7021 se revalida antes del siguiente F5. */
     const unsigned int reads = read_count;
-    CHECK(loop(&ctx, true));
-    CHECK(read_count == reads && ctx.ready_ticks == -1);
-    CHECK(!ctx.data.quality.valid && !ctx.configured);
-
-    /* Error de bus sin conversion en curso: nada que publicar, pero se revalida. */
+    CHECK(!loop(&ctx, true));
+    CHECK(read_count == reads && ctx.ready_ticks >= 0 && !ctx.configured);
+    CHECK(loop(&ctx, false) && read_count == reads + 1 && ctx.data.quality.valid);
     while (start_count == 3) {
         (void)loop(&ctx, false);
     }
-    CHECK(init_count == 3);
-    CHECK(!loop(&ctx, false) && loop(&ctx, false) && ctx.data.quality.valid);
-    CHECK(!loop(&ctx, true) && !ctx.configured && ctx.data.quality.valid);
-    while (start_count == 4) {
-        (void)loop(&ctx, false);
-    }
-    CHECK(init_count == 4); /* regresion 03/11: Si7021 mudo tras un pulso en SDA */
+    CHECK(init_count == 3); /* regresion 03/11: Si7021 mudo tras un pulso en SDA */
 
     /* Fallo de F5: calidad invalida y nuevo intento a los 2 s, no en cada vuelta. */
     CHECK(!loop(&ctx, false) && loop(&ctx, false) && ctx.data.quality.valid);
-    while (start_count == 5) {
-        (void)loop(&ctx, false);
-    }
     start_result = -EIO;
-    while (start_count == 6) {
+    while (start_count == 4) {
         (void)loop(&ctx, false);
     }
     CHECK(!ctx.data.quality.valid && !ctx.configured && ctx.ready_ticks == -1);
     for (int i = 0; i < 98; ++i) {
         CHECK(!loop(&ctx, false));
     }
-    CHECK(start_count == 7);
+    CHECK(start_count == 5);
 
     printf("PASS: %u acquisition environment checks\n", checks);
     return 0;

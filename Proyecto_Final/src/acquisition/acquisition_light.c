@@ -10,7 +10,6 @@ void acquisition_light_init(AcquisitionLight *ctx)
 {
     *ctx = (AcquisitionLight){
         .data.quality = { .valid = false, .last_good_ms = -1 },
-        .sample_ticks = -1,
     };
 }
 
@@ -29,7 +28,6 @@ bool acquisition_light_update(AcquisitionLight *ctx)
         ret = light_read_raw(&raw);
     }
     ctx->configured = ret == 0;
-    ctx->sample_ticks = k_uptime_ticks();
 
     if (ret != 0) {
         ctx->data.quality.valid = false; /* se conserva el ultimo valor y su fecha */
@@ -40,7 +38,7 @@ bool acquisition_light_update(AcquisitionLight *ctx)
     ctx->data = (LightData){
         .light_pct = reading.light_pct,
         .clipped = reading.clipped,
-        .quality = { .valid = true, .last_good_ms = k_ticks_to_ms_floor64(ctx->sample_ticks) },
+        .quality = { .valid = true, .last_good_ms = k_uptime_get() },
     };
     return true;
 }

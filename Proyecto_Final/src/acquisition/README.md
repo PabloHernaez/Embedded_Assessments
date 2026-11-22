@@ -28,3 +28,6 @@ La aplicación solo usa `include/acquisition_api.h`: `acquisition_snapshot_get`,
 `../algorithms/statistics.c`: ventanas consecutivas de 30 s `[inicio, fin)`
 desde `acquisition_stats_begin`, con media/mín/máx/n de luz, T, HR, |a| y |ω|.
 La ventana se cierra a su hora aunque no haya muestras; n = 0 se muestra N/D.
+Cada vuelta primero cierra la ventana vencida y luego suma las muestras nuevas,
+así que una muestra puede caer en la ventana siguiente con un error de 20 ms
+como mucho.

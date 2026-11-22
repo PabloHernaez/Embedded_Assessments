@@ -46,7 +46,7 @@ void acquisition_snapshot_get(AcquisitionSnapshot *out)
 void acquisition_stats_begin(void)
 {
     k_mutex_lock(&acquisition_lock, K_FOREVER);
-    statistics_begin(&stats, k_uptime_ticks(), CONFIG_SYS_CLOCK_TICKS_PER_SEC);
+    statistics_begin(&stats, k_uptime_get());
     k_mutex_unlock(&acquisition_lock);
 }
 
@@ -62,10 +62,13 @@ static void publish(bool light_new, bool imu_new, bool environment_new)
 {
     k_mutex_lock(&acquisition_lock, K_FOREVER);
 
+    /* Primero se cierra la ventana vencida; las muestras de esta vuelta van a la nueva. */
+    statistics_advance(&stats, k_uptime_get());
+
     if (light_new) {
         published.light = light.data;
         if (light.data.quality.valid) {
-            statistics_add(&stats, STATS_LIGHT, light.data.light_pct, light.sample_ticks);
+            statistics_add(&stats, STATS_LIGHT, light.data.light_pct);
         }
     }
     if (imu_new) {
@@ -73,21 +76,17 @@ static void publish(bool light_new, bool imu_new, bool environment_new)
         published.nav = imu.nav;
         published.moving = imu.moving;
         if (imu.data.quality.valid && !imu.data.calibration_pending) {
-            statistics_add(&stats, STATS_ACCEL_NORM, imu.accel_norm_mps2, imu.sample_ticks);
-            statistics_add(&stats, STATS_GYRO_NORM, imu.gyro_norm_dps, imu.sample_ticks);
+            statistics_add(&stats, STATS_ACCEL_NORM, imu.accel_norm_mps2);
+            statistics_add(&stats, STATS_GYRO_NORM, imu.gyro_norm_dps);
         }
     }
     if (environment_new) {
         published.environment = environment.data;
         if (environment.data.quality.valid) {
-            statistics_add(&stats, STATS_TEMP, environment.data.temperature_c,
-                           environment.sample_ticks);
-            statistics_add(&stats, STATS_RH, environment.data.humidity_pct,
-                           environment.sample_ticks);
+            statistics_add(&stats, STATS_TEMP, environment.data.temperature_c);
+            statistics_add(&stats, STATS_RH, environment.data.humidity_pct);
         }
     }
-    statistics_advance(&stats, k_uptime_ticks()); /* cerrar la ventana aunque no haya muestras */
-
     k_mutex_unlock(&acquisition_lock);
 }
 

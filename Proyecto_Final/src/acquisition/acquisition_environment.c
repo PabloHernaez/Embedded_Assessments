@@ -11,7 +11,6 @@ void acquisition_environment_init(AcquisitionEnvironment *ctx)
     *ctx = (AcquisitionEnvironment){
         .data.quality = { .valid = false, .last_good_ms = -1 },
         .ready_ticks = -1,
-        .sample_ticks = -1,
     };
 }
 
@@ -20,7 +19,6 @@ static bool environment_failed(AcquisitionEnvironment *ctx)
 {
     ctx->configured = false;
     ctx->ready_ticks = -1;
-    ctx->sample_ticks = k_uptime_ticks();
     ctx->data.quality.valid = false;
     return true;
 }
@@ -32,7 +30,7 @@ bool acquisition_environment_update(AcquisitionEnvironment *ctx, bool bus_error)
     if (bus_error) {
         /* Tras un pulso en SDA el Si7021 puede quedar sin responder: revalidarlo. */
         ctx->configured = false;
-        return ctx->ready_ticks >= 0 ? environment_failed(ctx) : false;
+        return false;
     }
 
     if (ctx->ready_ticks >= 0) {
@@ -45,11 +43,10 @@ bool acquisition_environment_update(AcquisitionEnvironment *ctx, bool bus_error)
             return environment_failed(ctx);
         }
         ctx->ready_ticks = -1;
-        ctx->sample_ticks = k_uptime_ticks();
         ctx->data = (EnvironmentData){
             .temperature_c = reading.temperature_c,
             .humidity_pct = reading.humidity_pct,
-            .quality = { .valid = true, .last_good_ms = k_ticks_to_ms_floor64(ctx->sample_ticks) },
+            .quality = { .valid = true, .last_good_ms = k_uptime_get() },
         };
         return true;
     }

@@ -5,7 +5,7 @@
 
 #define DEG_TO_RAD (3.14159265358979323846f / 180.0f)
 
-/*El estimador arranca con un cuaternión identidad*/
+/* Orientacion identidad, v/p a cero y valid = false. */
 void estimator_init(NavigationView *state)
 {
     *state = (NavigationView){
@@ -17,11 +17,7 @@ void estimator_init(NavigationView *state)
     };
 }
 
-/*
- * Producto Hamilton: el orden a * b importa.
- *  Recibe dos cuaterniones, a y b.
- *  La función relaciona orientación actual con giro medido
- */
+/* Producto de Hamilton a * b (no conmutativo). */
 static Quaternionf quaternion_multiply(Quaternionf a, Quaternionf b)
 {
     return (Quaternionf){
@@ -32,13 +28,7 @@ static Quaternionf quaternion_multiply(Quaternionf a, Quaternionf b)
     };
 }
 
-/**
- *  Normalización del cuaternión
- *      *q  -> puntero a cuaternión
- *
- *      1. Halla la magnitud del vector cuaternión
- *      2. Normaliza el vector dividiéndolo por su magnitud
- */
+/* Divide q por su norma; false si la norma es 0 o no finita. */
 static bool quaternion_normalize(Quaternionf *q)
 {
     float norm = sqrtf(
@@ -66,7 +56,7 @@ bool estimator_relative_orientation(
     const Quaternionf *current
 )
 {
-    /* Para un cuaternion unitario, inversa = conjugado. */
+    /* q_rel = q0^-1 * q; para un cuaternion unitario la inversa es el conjugado. */
     Quaternionf initial_inverse = {
         .w = initial->w,
         .x = -initial->x,
@@ -126,34 +116,21 @@ bool estimator_set_initial_tilt(NavigationView *state, const Vec3f *accel_mean_m
     return true;
 }
 
-/**
- *  Actualización de orientación del cuaternión
- *      *q          -> puntero a cuaternión de orientación actual
- *      *gyro_dps   -> puntero a giro
- *      dt_s        -> intervalo de tiempo
- *
- */
+/* Euler sobre q: q += 0.5 * q * (0, w) * dt, con w en rad/s, y normalizar. */
 
 bool estimator_orientation_update(Quaternionf *q, const Vec3f *gyro_dps, float dt_s)
 {
-    /*Se comprueba que el intervalo sea máximo de TRACKER_IMU_MAX_GAP_MS (50ms)*/
     const float max_dt_s = TRACKER_IMU_MAX_GAP_MS / 1000.0f;
     if (!isfinite(dt_s) || dt_s < 0.0f || dt_s > max_dt_s) {
         return false;
     }
 
-    /*omega es el giro en rad/s como cuaternión con w=0*/
     Quaternionf omega = {
         .w = 0.0f,
         .x = gyro_dps->x * DEG_TO_RAD,
         .y = gyro_dps->y * DEG_TO_RAD,
         .z = gyro_dps->z * DEG_TO_RAD,
     };
-
-    /**
-     *  candidate es el avance. Se multiplica (mult. Hamilton) orientación actual
-     *      por cuaternión de giro omega
-     */
 
     Quaternionf product = quaternion_multiply(*q, omega);
     float half_dt = 0.5f * dt_s;
@@ -173,14 +150,7 @@ bool estimator_orientation_update(Quaternionf *q, const Vec3f *gyro_dps, float d
     return true;
 }
 
-/**
- *  Función de rotado de cuaternión
- *
- *      Rotar un vector del sensor al marco local
- *          q       -> Orientación. cuaternión unitario
- *                      (se normaliza en estimator_orientation_update())
- *          vector  -> Vector que se desea transformar
- */
+/* Rota un vector del marco del sensor al marco local con q unitario. */
 static Vec3f quaternion_rotate(Quaternionf q, Vec3f vector)
 {
     float xx = q.x * q.x;
@@ -229,7 +199,7 @@ bool estimator_update(NavigationView *state, const Quaternionf *initial_q,
         return false;
     }
 
-    /*Aceleración lineal ya en el marco local*/
+    /* Aceleracion en el marco local menos la gravedad (Z arriba). */
     Vec3f linear_accel = quaternion_rotate(candidate.q, *accel_mps2);
     linear_accel.z -= TRACKER_GRAVITY_MPS2;
 

@@ -214,7 +214,9 @@ static void calibration_step(SensorTest *ctx, const ImuSample *sample)
                (sample->result == IMU_NEW &&
                 sample->reading.range_limited)) {
 
-        gyro_calibration_update(&ctx->calibration, NULL, 0.0f, 0.0f);
+        if (!ctx->calibration.ready) {
+            gyro_calibration_init(&ctx->calibration);
+        }
         ctx->calibration_accel_sum = (Vec3f){0};
     }
 

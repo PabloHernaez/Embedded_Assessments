@@ -30,7 +30,6 @@ consola en LPUART1 (115200 8N1). Producción no la tiene.
 
 | Ensayo | Comando | Para qué |
 | --- | --- | --- |
-| `board/sensors` | `west build -b nucleo_wl55jc tests/board/sensors -d build-sensors` | MPU6050, calibración, movimiento, navegación y Si7021; capturas de deriva (`capturar_deriva.py`). |
 | `board/light` | `west build -b nucleo_wl55jc tests/board/light -d build-light` | Códigos ADC brutos del LDR para calibrar (`capturar_ldr.py`). |
 | `board/gps` | `west build -b nucleo_wl55jc tests/board/gps -d build-gps` | Servicio GPS real: enlace, fix, posición y UTC cada segundo. |
 | `board/acquisition` | `west build -b nucleo_wl55jc tests/board/acquisition -d build-acquisition` | Servicio de adquisición real con un observador de snapshots y órdenes `b`/`e` de sesión. |
@@ -39,7 +38,7 @@ consola en LPUART1 (115200 8N1). Producción no la tiene.
 
 | Registro | Contenido |
 | --- | --- |
-| [Deriva D3](../docs/D3_ESTIMACION.md) y `board/sensors/results/` | 600 s en reposo: \|v\| = 284,24 m/s y \|p\| = 55 567,65 m al final; giro de 90° en Z; orientación relativa. |
+| [Deriva D3](../docs/D3_ESTIMACION.md) y `board/sensors/results/` (firmware de ensayo retirado) | 600 s en reposo: \|v\| = 284,24 m/s y \|p\| = 55 567,65 m al final; giro de 90° en Z; orientación relativa. |
 | [Calibración LDR](board/light/results/Calibracion_LDR_20261102.md) | Referencias 4062 (oscuridad) y 128 (linterna a 5 cm), 3,3 V sin pull-down. |
 | [Ensayo D4](board/acquisition/results/Ensayo_D4_20261102.md) | Arranque, movimiento, luz, sesiones y ausencia/retoma de cada sensor. |
 | [Tiempos D4](board/acquisition/results/Tiempos_Adquisicion_D4_20261102.md), [I2C](board/acquisition/results/I2C_D4_20261102.md), [Si7021](board/acquisition/results/Si7021_Diagnostico_20261103.md) | Medidos con la versión `bc0797f` (antes de simplificar la recuperación): vuelta nominal máx. 3,2 ms, bus retenido y la corrección del Si7021. |

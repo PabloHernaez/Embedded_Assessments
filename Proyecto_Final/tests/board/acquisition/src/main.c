@@ -19,23 +19,13 @@ static int watchdog_init(void)
 }
 SYS_INIT(watchdog_init, APPLICATION, 0);
 
-/**
- * Calcula la edad de la ultima medida utilizable de una familia.
- * Entradas: now_ms posterior al snapshot; quality apunta a su calidad valida.
- * Retorno: edad en ms, o -1 si nunca hubo una medida utilizable.
- * Modifica: nada; no cambia calidad ni lee hardware.
- */
+/* Edad en ms de la ultima medida utilizable, o -1 si nunca la hubo. */
 static int64_t sample_age(int64_t now_ms, const SampleQuality *quality)
 {
     return quality->last_good_ms < 0 ? -1 : now_ms - quality->last_good_ms;
 }
 
-/**
- * Muestra las medidas publicadas, sus edades, navegacion y avance del hilo.
- * Entradas: snapshot coherente, ahora en ms y diferencias desde el reporte previo.
- * Retorno: ninguno (void).
- * Modifica: escribe por consola; conserva el snapshot y no accede a sensores.
- */
+/* Una linea por familia: IMU, navegacion y sensores lentos. */
 static void snapshot_print(const AcquisitionSnapshot *s, int64_t now_ms,
                            int64_t report_dt_ms)
 {
@@ -68,12 +58,7 @@ static void snapshot_print(const AcquisitionSnapshot *s, int64_t now_ms,
            (double)s->environment.humidity_pct, s->stats.ready);
 }
 
-/**
- * Muestra una ventana completa con las cinco metricas originales de D4.
- * Entradas: result apunta a un resultado ready del snapshot.
- * Retorno: ninguno (void).
- * Modifica: escribe limites, conteos y resumen por consola; no recalcula estadisticas.
- */
+/* Imprime una ventana completa de 30 s con las cinco metricas. */
 static void statistics_print(const StatsResult *result)
 {
     static const char *const names[STATS_METRIC_COUNT] = {
@@ -94,13 +79,7 @@ static void statistics_print(const StatsResult *result)
     }
 }
 
-/**
- * Consulta el espacio de pila que permanece sin usar en los dos hilos del ensayo.
- * Entradas: ninguna explicita; utiliza acquisition_tid y el hilo main actual.
- * Retorno: ninguno (void).
- * Modifica: consulta las marcas de pila de Zephyr y escribe bytes libres o error.
- *           No cambia prioridades ni la pila solicitada por adquisicion (2048 B).
- */
+/* Bytes de pila sin usar en adquisicion y main. */
 static void stacks_print(void)
 {
     size_t acquisition_free = 0;
@@ -113,14 +92,7 @@ static void stacks_print(void)
            main_ret, (unsigned)main_free);
 }
 
-/**
- * Observa el servicio real y permite abrir/cerrar sesiones estadisticas por UART.
- * Entradas: ninguna explicita; recibe 'b' (begin) o 'e' (end) por LPUART1.
- * Retorno: 0 si la consola no esta disponible; no retorna durante el ensayo.
- * Modifica: abre una sesion inicial, consulta snapshots y emite reportes de 1 s;
- *           b/e llaman a las APIs publicas y reinician la deteccion de ventanas.
- *           No lee sensores directamente ni procesa navegacion o movimiento.
- */
+/* Observador del servicio real: un reporte por segundo; b/e abren y cierran la sesion. */
 int main(void)
 {
     if (!device_is_ready(console)) {

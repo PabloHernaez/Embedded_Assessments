@@ -2,7 +2,7 @@
 
 **Fecha:** 2 de noviembre de 2026.
 **Responsable del desarrollo:** David. **Revisión cruzada con Pablo:** pendiente.
-**Alcance:** aplicación de ensayo `tests/board/sensors`; evidencia para D3-14/T10 y decisión inicial de D3-15. No constituye el cierre completo de D3 ni la aceptación de producción.
+**Alcance:** aplicación de ensayo `tests/board/sensors` (retirada después; quedan sus capturas); evidencia para D3-14/T10 y decisión inicial de D3-15. No constituye el cierre completo de D3 ni la aceptación de producción.
 
 ## Resultado
 

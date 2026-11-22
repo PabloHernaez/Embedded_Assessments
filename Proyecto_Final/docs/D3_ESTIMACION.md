@@ -164,6 +164,35 @@ ZUPT, congelación o retroceso de posición, sesgo gyro adaptativo, gravedad ada
 
 En P2 se debe conservar el recorte de los campos emitidos, sin limitar artificialmente el estado del estimador: posición `±9999.99 m` y velocidad `±999.99 m/s`. En esta captura el primer reporte con alguna componente de posición fuera del rango del formato aparece a los 357 s. Los flags `0x0040` y `0x0080` siguen correspondiendo a la base sin corrección GPS y sin referencia fiable de yaw.
 
+## Decisión DEC-D3-02: un único marco, el de la postura inicial (16/11/2026)
+
+Las capturas anteriores se tomaron con el diseño de dos cuaterniones (`q` al
+marco local con Z arriba e inclinación inicial por `atan2`, y `relative_q = q0⁻¹ ⊗ q`
+para SR4). Se conservan tal cual como evidencia de ese diseño.
+
+Desde `e8c0dd2` el estimador usa un solo marco: los ejes del sensor al terminar la
+calibración.
+
+- `q` empieza en identidad, que es la orientación inicial cero de SR4, y de él
+  salen ROLL/PITCH/YAW.
+- La gravedad que se resta es `g0`, la aceleración media de las mismas 100
+  muestras en reposo que dan el sesgo del giróscopo: `a = rotar(q, a_medida) − g0`.
+  Es exacta con cualquier inclinación de arranque.
+- En la postura inicial, `g0` cancela el error de norma del acelerómetro
+  (0,0947 m/s² en Z en la tabla anterior). Al girar la placa reaparece el error
+  del offset, que rota con el sensor (`R·b − b`); la corrección de seis
+  posturas lo reduce. La deriva por el giro residual no cambia:
+  `a_err ≈ g·θ(t)`.
+- **Hipótesis:** X/Y/Z están en los ejes iniciales, así que Z es altura si la placa
+  arranca aproximadamente nivelada. Con los 3,6° medidos aquí, el error es
+  despreciable frente a la deriva.
+- Se eliminan la inclinación inicial, `q0`, `relative_q`, la validación numérica
+  del estimador (las entradas son `int16 × constante` con `dt` acotado) y
+  `NavigationView.valid`.
+
+**Pendiente:** repetir en placa la captura de 600 s en reposo y los giros de 90° para
+cuantificar la deriva con este diseño. No se atribuye una mejora sin medirla.
+
 ## Pendientes para cerrar D3
 
 1. **Integración de SR4.** El cálculo relativo y su campo en el modelo están implementados y contrastados en el ensayo. Queda revisar el contrato con Pablo y verificar la conversión y emisión de ROLL/PITCH/YAW desde `relative_q` en P2, junto con el snapshot real de D4. El cuaternión de navegación no debe convertirse directamente para esos campos.

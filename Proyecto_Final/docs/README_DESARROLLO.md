@@ -67,14 +67,19 @@ west build -p auto -b nucleo_wl55jc . -d build -- -DCONF_FILE=confs/prj_nucleo_w
   (TX por IRQ, Si7021 sin hold); el sensor de temperatura del MPU está
   apagado y el calentador del Si7021 también; no hay hilo de logs.
   Mejora posible: usar el pin INT del MPU en lugar de sondear `INT_STATUS`.
+- **Orientación y navegación.** Un solo marco: los ejes del sensor al terminar la
+  calibración. `q` empieza en identidad (SR4) y se integra con Euler; la aceleración
+  se rota con `q` y se le resta `g0`, la gravedad medida en reposo. Z es altura si
+  la placa arranca nivelada ([DEC-D3-02](D3_ESTIMACION.md)).
 - **Deriva.** Velocidad y posición se integran sin corrección (FLAGS 0x0040)
-  y el yaw no tiene referencia absoluta (0x0080). En 600 s en reposo:
-  |v| = 284 m/s, |p| = 55,6 km ([D3](D3_ESTIMACION.md)).
+  y el yaw no tiene referencia absoluta (0x0080). Con el diseño anterior, en
+  600 s en reposo: |v| = 284 m/s, |p| = 55,6 km ([D3](D3_ESTIMACION.md)); hay que
+  repetirlo con el actual.
 - **LDR.** Referencias medidas con el montaje actual (3,3 V, sin pull-down
   de 47 kΩ); hay que repetirlas si cambia el montaje. No mide lux.
 - **Recuperación de la IMU.** Tras 3 errores seguidos o 500 ms sin muestra
   nueva se recupera el bus y se reinicializa, como mucho una vez por
-  segundo, conservando sesgo, q0 y trayectoria. El Si7021 se revalida tras
+  segundo, conservando sesgo, g0 y trayectoria. El Si7021 se revalida tras
   cualquier error del bus compartido.
 - **Impactos.** No se detectan; el flag 0x0010 siempre vale 0.
 

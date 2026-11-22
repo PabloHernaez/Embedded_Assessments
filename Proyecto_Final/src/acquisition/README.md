@@ -18,7 +18,7 @@ La aplicación solo usa `include/acquisition_api.h`: `acquisition_snapshot_get`,
 
 | Caso | Qué hace |
 | --- | --- |
-| Error I2C de la IMU | Dato inválido, se conservan valor, fecha, q/v/p, sesgo y q0. El Si7021 no usa el bus en esa vuelta y se revalida antes de su siguiente medida. |
+| Error I2C de la IMU | Dato inválido, se conservan valor, fecha, q/v/p, sesgo y g0. El Si7021 no usa el bus en esa vuelta y se revalida antes de su siguiente medida. |
 | 3 errores seguidos o 500 ms sin muestra nueva | `i2c_recover_bus` y `imu_init`, como mucho una vez por segundo. La primera muestra posterior usa dt = 0. |
 | Saturación | Dato inválido y continuidad rota, sin reiniciar nada. |
 | Error del Si7021 o del ADC | Calidad inválida, se conserva el último valor y se reconfigura en el siguiente intento (2 s). |

@@ -12,8 +12,8 @@ Desde `Proyecto_Final`:
 | Suite | Qué comprueba |
 | --- | --- |
 | `test_motion.c` | Confirmación de movimiento (300 ms) y reposo (2 s), histéresis y cancelación. |
-| `test_estimator.c` | Integración del cuaternión, giros en los tres ejes, dt de 0 a 50 ms y rechazo de entradas no finitas. |
-| `test_acquisition_imu.c` | Calibración (100 muestras, media de inclinación), NO_NEW, errores, saturación, huecos > 50 ms, navegación con dt reales, orientación relativa y recuperación (3 errores o 500 ms sin muestra → reinicio, máx. 1/s, sin perder sesgo, q0 ni trayectoria). |
+| `test_estimator.c` | Reposo con la placa inclinada sin deriva (resta de g0), giros de 90° en cada eje y su composición, Euler explícito (p = 0,49 m tras 1 s a 1 m/s²) y dt = 0. |
+| `test_acquisition_imu.c` | Calibración (100 muestras: sesgo y g0 como medias), NO_NEW, errores, saturación, huecos > 50 ms, navegación con dt reales desde una postura inclinada y recuperación (3 errores o 500 ms sin muestra → reinicio, máx. 1/s, sin perder sesgo, g0 ni trayectoria). |
 | `test_acquisition_environment.c` | Cadencia de 2 s, 40 ms desde el final de F5, retención del par, revalidación tras fallos y tras un error de bus de la IMU (regresión Si7021 del 03/11). |
 | `test_statistics.c` | Ventanas `[t0, t1)`, muestra en el límite, valores repetidos, n = 0, ventanas perdidas, begin/end. |
 | `test_simu_frame.c` | Vector oficial del enunciado (XOR 3F), sin fix, valores fuera de rango, NaN y TMS de 11 cifras. |

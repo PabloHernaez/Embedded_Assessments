@@ -5,69 +5,35 @@
 
 #include "model.h"
 
+/* Resultados no negativos de imu_read; los errores I2C son negativos. */
 enum {
-    IMU_NO_NEW = 0,
-    IMU_NEW = 1
+    IMU_NO_NEW = 0, /* DATA_RDY a cero: no hay muestra nueva desde la ultima lectura */
+    IMU_NEW = 1,
 };
 
-/**
- * Resultado privado del driver, antes de aplicar calibracion. 
- */
+/* Muestra en unidades fisicas, antes de calibracion y correcciones. */
 typedef struct {
     Vec3f accel_mps2;
     Vec3f gyro_dps;
-    bool range_limited;
+    bool range_limited; /* algun eje cerca del fondo de escala */
 } ImuReading;
 
 /*
- * Inicializa y verifica el MPU6050.
- * Retorna 0 o un error negativo.
- * Requiere alimentacion estabilizada y contexto de hilo.
+ * Reset, configuracion (+-4 g, +-500 grados/s, DLPF4, 50 Hz) con relectura
+ * y 140 ms de esperas. Retorna 0 o error negativo. Solo desde un hilo.
  */
 int imu_init(void);
 
-/*
- * Requiere inicializacion correcta y un puntero out valido.
- *
- * IMU_NEW: actualiza out, incluida la indicacion de saturacion.
- * IMU_NO_NEW o error negativo: conserva out.
- *
- * Uso desde un unico hilo.
- */
+/* IMU_NEW (actualiza *out), IMU_NO_NEW o error negativo (sin tocar *out). */
 int imu_read(ImuReading *out);
 
-/*
- * Comprueba alimentacion/configuracion y escalas de muestreo.
- * Requiere matches valido y uso desde el mismo hilo del driver.
- *
- * Retorna 0: actualiza matches con el resultado de la comparacion.
- *      matches = true  -> Se leyó y los ajustes coinciden
- *      matches = false -> Se leyó pero al menos un ajuste difiere 
- * Retorna un error negativo: conserva matches.
- *      La comprobación falló
- *
- * Solo lee registros; no modifica la configuracion.
- * 
- */
+/* Relee PWR_MGMT_1 y 0x19..0x1C; *matches indica si coinciden con imu_init. */
 int imu_check_configuration(bool *matches);
 
-/**
- * Observa las líneas del bus después de una transferencia fallida.
- * Entradas: blocked apunta a un bool escribible; uso desde el hilo del driver.
- * Retorno: 0 si se pudieron leer ambas líneas; error negativo si falla GPIO.
- * Modifica: en éxito escribe *blocked=true si SCL o SDA están bajas. En fallo
- *           conserva *blocked. Solo lee niveles; no cambia pinctrl ni envía I2C.
- */
+/* *blocked = true si SCL o SDA estan a nivel bajo. */
 int imu_bus_is_blocked(bool *blocked);
 
-/**
- * Ejecuta un intento físico de recuperación del bus I2C compartido.
- * Entradas: ninguna explícita; requiere evidencia de bloqueo y control exclusivo.
- * Retorno: resultado de i2c_recover_bus (0 o error negativo).
- * Modifica: el controlador Zephyr conmuta las líneas y restaura su pinctrl.
- *           El llamador debe descartar la conversión ambiental pendiente y
- *           comprobar después la configuración. No modifica los datos del llamador.
- */
+/* Nueve pulsos SCL y STOP mediante i2c_recover_bus para liberar el bus compartido. */
 int imu_recover_bus(void);
 
 #endif

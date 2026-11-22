@@ -6,13 +6,6 @@
 
 #define LIGHT_PERIOD_MS 2000
 
-/* Referencias provisionales medidas el 02/11/2026: KY-018 a 3,3 V sin
- * pull-down adicional de 47 kohm; oscuridad y linterna del movil al maximo a 5 cm.
- * Repetir al cambiar el montaje. Registro: tests/board/light/results/Calibracion_LDR_20261102.md.
- */
-#define LIGHT_RAW_DARK   4062
-#define LIGHT_RAW_BRIGHT 128
-
 /**
  * Prepara el contexto de luz para que la primera actualización intente leer el ADC.
  *
@@ -41,7 +34,7 @@ void acquisition_light_init(AcquisitionLight *ctx)
  * un porcentaje mediante las referencias de calibración del montaje.
  *
  * Entradas: ctx válido e inicializado, usado solo por el hilo de adquisición.
- *           Lee el reloj y utiliza LIGHT_RAW_DARK y LIGHT_RAW_BRIGHT.
+ *           Lee el reloj; la conversion a porcentaje la hace el driver.
  * Retorno: false si aún no vence la lectura, sin modificar ctx; true si vence y
  *          se atiende un intento, aunque falle la configuración, lectura o conversión.
  * Modifica: programa next_read_ticks a 2 s del instante actual, actualiza configured
@@ -69,7 +62,6 @@ bool acquisition_light_update(AcquisitionLight *ctx)
     }
 
     int16_t raw = 0;
-    LightReading reading = {0};
 
     ctx->capture_begin_ticks = k_uptime_ticks();
 
@@ -84,13 +76,8 @@ bool acquisition_light_update(AcquisitionLight *ctx)
     ctx->sample_ticks = k_uptime_ticks();
 
     if (ret == 0) {
-        ret = light_raw_to_percent(raw,
-                                   LIGHT_RAW_DARK,
-                                   LIGHT_RAW_BRIGHT,
-                                   &reading);
-    }
+        const LightReading reading = light_from_raw(raw);
 
-    if (ret == 0) {
         ctx->data = (LightData){
             .light_pct = reading.light_pct,
             .quality = {

@@ -2,164 +2,104 @@
 
 #include <errno.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include <zephyr/drivers/i2c.h>
 #include <zephyr/drivers/gpio.h>
+#include <zephyr/drivers/i2c.h>
 #include <zephyr/kernel.h>
-#include <zephyr/sys/util.h>
 #include <zephyr/sys/byteorder.h>
+#include <zephyr/sys/util.h>
 
-/* Direccion I2C de 7 bits, suponiendo AD0 a nivel bajo. */
+/* Direccion de 7 bits con AD0 a nivel bajo. WHO_AM_I devuelve el mismo valor. */
 #define MPU_I2C_ADDR    0x68U
 #define MPU_EXPECTED_ID 0x68U
 
-/* Valores compartidos por inicializacion y comprobacion. */
-#define MPU_EXPECTED_PWR_MGMT_1   0x09U
-#define MPU_EXPECTED_SMPLRT_DIV   19U
-#define MPU_EXPECTED_CONFIG       0x04U
-#define MPU_EXPECTED_GYRO_CONFIG  0x08U
-#define MPU_EXPECTED_ACCEL_CONFIG 0x08U
+/* Registros del MPU6050 usados por el driver. */
+#define MPU_REG_SMPLRT_DIV   0x19U
+#define MPU_REG_CONFIG       0x1AU
+#define MPU_REG_GYRO_CONFIG  0x1BU
+#define MPU_REG_ACCEL_CONFIG 0x1CU
+#define MPU_REG_FIFO_EN      0x23U
+#define MPU_REG_INT_PIN_CFG  0x37U
+#define MPU_REG_INT_ENABLE   0x38U
+#define MPU_REG_INT_STATUS   0x3AU
+#define MPU_REG_PWR_MGMT_1   0x6BU
+#define MPU_REG_PWR_MGMT_2   0x6CU
+#define MPU_REG_WHO_AM_I     0x75U
 
-/**
- * Establecimos un rango de funcionamiento noemal de +-4G
- * El fabricante del sensor determina 8192 cuentas por cada G
- *      Es decir, 8192 es 1G
- * 
- * Establecimos un rango de +-500 °/s.
- * El giroscopio mide velocidad angular (rapidez de giro en cada eje)
- *      65.5 cuentas por cada grado por segundo
- *          Es decir, si la lectura es de 6550, es 100°/s
- * 
- */
+/* Valores escritos. */
+#define MPU_DEVICE_RESET   0x80U /* PWR_MGMT_1: reset completo */
+#define MPU_PWR_PLL_NOTEMP 0x09U /* PWR_MGMT_1: reloj PLL gyro X, sensor de temperatura apagado */
+#define MPU_SMPLRT_50HZ    19U   /* 1 kHz / (1 + 19) = 50 Hz */
+#define MPU_DLPF_20HZ      0x04U /* CONFIG: DLPF4, ~20 Hz de ancho de banda */
+#define MPU_GYRO_500DPS    0x08U /* FS_SEL = 1 */
+#define MPU_ACCEL_4G       0x08U /* AFS_SEL = 1 */
+#define MPU_DATA_RDY       0x01U /* INT_ENABLE e INT_STATUS: bit DATA_RDY */
+
+/* Escalas del datasheet: +-4 g -> 8192 LSB/g; +-500 grados/s -> 65,5 LSB/(grados/s). */
 #define MPU_ACCEL_MPS2_PER_LSB (9.80665f / 8192.0f)
 #define MPU_GYRO_DPS_PER_LSB   (1.0f / 65.5f)
 
-/* Valor máximo para calcular saturación. Máximo de la escala: 32767*/
+/* Margen bajo el fondo de escala (32767) para marcar saturacion. */
 #define MPU_RAW_SATURATION 32760
-#define MPU_READ_SIZE      15U
 
-enum {
-    MPU_REG_INT_STATUS      = 0x3A,
-    MPU_DATA_RDY_FLAG       = 0x01,
-    MPU_REG_SMPLRT_DIV      = 0x19,
-    MPU_REG_CONFIG          = 0x1A,
-    MPU_REG_GYRO_CONFIG     = 0x1B,
-    MPU_REG_ACCEL_CONFIG    = 0x1C,
-    MPU_REG_FIFO_EN         = 0x23,
-    MPU_REG_INT_PIN_CFG     = 0x37,
-    MPU_REG_INT_ENABLE      = 0x38,
-    MPU_REG_PWR_MGMT_1      = 0x6B,
-    MPU_REG_PWR_MGMT_2      = 0x6C,
-    MPU_REG_WHO_AM_I        = 0x75,
+static const struct device *const imu_bus = DEVICE_DT_GET(DT_NODELABEL(i2c2));
+static const struct gpio_dt_spec imu_scl = GPIO_DT_SPEC_GET(DT_NODELABEL(i2c2), scl_gpios);
+static const struct gpio_dt_spec imu_sda = GPIO_DT_SPEC_GET(DT_NODELABEL(i2c2), sda_gpios);
 
-    MPU_DEVICE_RESET        = 0x80,
-    MPU_DATA_RDY_ENABLE     = 0x01
-};
-
-static const struct device *const imu_bus =
-    DEVICE_DT_GET(DT_NODELABEL(i2c2));
-
-static const struct gpio_dt_spec imu_scl =
-    GPIO_DT_SPEC_GET(DT_NODELABEL(i2c2), scl_gpios);
-static const struct gpio_dt_spec imu_sda =
-    GPIO_DT_SPEC_GET(DT_NODELABEL(i2c2), sda_gpios);
-
-typedef struct {
+static const struct {
     uint8_t reg;
     uint8_t value;
-} RegisterSetting;
-
-static const RegisterSetting initial_config[] = {
-    /* PLL del gyro X, despierto, temperatura interna desactivada. */
-    { MPU_REG_PWR_MGMT_1, MPU_EXPECTED_PWR_MGMT_1 },
-
-    /* Todos los ejes de aceleracion y giro habilitados. */
-    { MPU_REG_PWR_MGMT_2, 0x00 },
-
-    /* Muestreo nominal de 50 Hz con DLPF habilitado. */
-    { MPU_REG_SMPLRT_DIV, MPU_EXPECTED_SMPLRT_DIV },
-
-    /* Filtro interno DLPF4. */
-    { MPU_REG_CONFIG, MPU_EXPECTED_CONFIG },
-
-    /* Giroscopio: rango de +/-500 grados/s. */
-    { MPU_REG_GYRO_CONFIG, MPU_EXPECTED_GYRO_CONFIG },
-
-    /* Acelerometro: rango de +/-4 g. */
-    { MPU_REG_ACCEL_CONFIG, MPU_EXPECTED_ACCEL_CONFIG },
-
-    /* DATA_RDY se limpia leyendo INT_STATUS. */
-    { MPU_REG_INT_PIN_CFG, 0x00 },
-
-    /* Habilitar el indicador de nueva muestra. */
-    { MPU_REG_INT_ENABLE, MPU_DATA_RDY_ENABLE },
-
-    /* No introducir medidas en el FIFO. */
-    { MPU_REG_FIFO_EN, 0x00 },
+} initial_config[] = {
+    { MPU_REG_PWR_MGMT_1, MPU_PWR_PLL_NOTEMP },
+    { MPU_REG_PWR_MGMT_2, 0x00 },             /* seis ejes activos */
+    { MPU_REG_SMPLRT_DIV, MPU_SMPLRT_50HZ },
+    { MPU_REG_CONFIG, MPU_DLPF_20HZ },
+    { MPU_REG_GYRO_CONFIG, MPU_GYRO_500DPS },
+    { MPU_REG_ACCEL_CONFIG, MPU_ACCEL_4G },
+    { MPU_REG_INT_PIN_CFG, 0x00 },            /* DATA_RDY se borra al leer INT_STATUS */
+    { MPU_REG_INT_ENABLE, MPU_DATA_RDY },
+    { MPU_REG_FIFO_EN, 0x00 },                /* sin FIFO */
 };
 
-/**
- *  Comprobación de escritura de configuraciones sobre el I2C
- *  reg     -> registro sobre el que se va a escribir
- *  value   -> valor que se va a escribir de prueba
- *  return != 0 -> error posible 
- *  Este método se llama por cada una de las configuraciones de initial_config[]
- */
+/* Escribe un registro y lo relee para confirmar el valor. */
 static int write_checked(uint8_t reg, uint8_t value)
 {
     uint8_t readback;
-    int ret;
+    int ret = i2c_reg_write_byte(imu_bus, MPU_I2C_ADDR, reg, value);
 
-    ret = i2c_reg_write_byte(imu_bus, MPU_I2C_ADDR, reg, value);
-    if (ret < 0) {
-        return ret;
+    if (ret == 0) {
+        ret = i2c_reg_read_byte(imu_bus, MPU_I2C_ADDR, reg, &readback);
     }
-
-    ret = i2c_reg_read_byte(imu_bus, MPU_I2C_ADDR, reg, &readback);
-    if (ret < 0) {
-        return ret;
+    if (ret == 0 && readback != value) {
+        ret = -EIO;
     }
-
-    if (readback != value) {
-        return -EIO;
-    }
-
-    return 0;
+    return ret;
 }
 
-/**
- *  Inicialización del IMU: No recibe nada.
- *  1. Se consulta WHO_AM_I en 0x75, se espera 0x68 (MPU_EXPECTED_ID)
- *  2. Se escribe el bit de reset. Este se borra automáticamente, así que
- *      no se hace comprobación de lectura. Luego hay un k_sleep de 100ms
- *  3. Se recorren la initial_config y se les hace write_checked()
- *      Se espera 40ms con k_sleep para que haya estabilización
- */
 int imu_init(void)
 {
     uint8_t identity;
-    int ret;
 
     if (!device_is_ready(imu_bus)) {
         return -ENODEV;
     }
 
-    ret = i2c_reg_read_byte(imu_bus, MPU_I2C_ADDR, MPU_REG_WHO_AM_I, &identity);
+    int ret = i2c_reg_read_byte(imu_bus, MPU_I2C_ADDR, MPU_REG_WHO_AM_I, &identity);
     if (ret < 0) {
         return ret;
     }
-
     if (identity != MPU_EXPECTED_ID) {
         return -ENODEV;
     }
 
+    /* El bit de reset se borra solo: no se relee. */
     ret = i2c_reg_write_byte(imu_bus, MPU_I2C_ADDR, MPU_REG_PWR_MGMT_1, MPU_DEVICE_RESET);
     if (ret < 0) {
         return ret;
     }
-
     k_sleep(K_MSEC(100));
 
     for (size_t i = 0; i < ARRAY_SIZE(initial_config); i++) {
@@ -169,170 +109,91 @@ int imu_init(void)
         }
     }
 
-    k_sleep(K_MSEC(40));
-
+    k_sleep(K_MSEC(40)); /* estabilizacion de giroscopo y DLPF */
     return 0;
 }
-
-
-/**
- *  Evaluación de saturación del valor raw
- *      Si el valor es negativo, le da valor negativo
- *      comprueba luego si la magnitud es mayor que la saturación
- *      Si si, devuelve True  
- */
-
-static bool raw_is_saturated(int16_t raw)
-{
-    int32_t magnitude = raw;
-
-    if (magnitude < 0) {
-        magnitude = -magnitude;
-    }
-
-    return magnitude >= MPU_RAW_SATURATION;
-}
-
-/**
- *  Función de lectura de IMU. Recibe/Escribe en puntero out Imureading
- *      Devuelve estado
- *  i2c_burst_read genera un frame de datos, el cual escribe posiciones:
- *      0       -> indicador de muestra nueva
- *      1-6     -> Aceleración en X/Y/Z: Escribe 1, 3, 5 en raw_accel
- *      7-8     -> Temperatura interna. No se usa
- *      9-14    -> Giro en X/Y/Z: Escribe 9, 11, 13 en raw_gyro
- * 
- * 
- */
 
 int imu_read(ImuReading *out)
 {
-    uint8_t frame[MPU_READ_SIZE];
+    /*
+     * Lectura en rafaga desde INT_STATUS (0x3A):
+     * [0] INT_STATUS, [1..6] ACCEL X/Y/Z, [7..8] TEMP (no usada), [9..14] GYRO X/Y/Z.
+     * Todos los valores son int16 big-endian.
+     */
+    uint8_t frame[15];
 
-    int ret = i2c_burst_read(imu_bus, MPU_I2C_ADDR,
-                             MPU_REG_INT_STATUS,
-                             frame, sizeof(frame));
+    int ret = i2c_burst_read(imu_bus, MPU_I2C_ADDR, MPU_REG_INT_STATUS, frame, sizeof(frame));
     if (ret < 0) {
         return ret;
     }
-
-    if ((frame[0] & MPU_DATA_RDY_FLAG) == 0) {
+    if ((frame[0] & MPU_DATA_RDY) == 0U) {
         return IMU_NO_NEW;
     }
 
-    int16_t raw_accel[3] = {
-        (int16_t)sys_get_be16(&frame[1]),
-        (int16_t)sys_get_be16(&frame[3]),
-        (int16_t)sys_get_be16(&frame[5]),
-    };
-
-    int16_t raw_gyro[3] = {
-        (int16_t)sys_get_be16(&frame[9]),
-        (int16_t)sys_get_be16(&frame[11]),
-        (int16_t)sys_get_be16(&frame[13]),
-    };
-
-    bool range_limited = false;
-
-    // Si los datos de aceleración o giro están saturados, limita el rango
-    for (size_t i = 0; i < ARRAY_SIZE(raw_accel); i++) {
-        if (raw_is_saturated(raw_accel[i]) ||
-            raw_is_saturated(raw_gyro[i])) {
-            range_limited = true;
-            break;
-        }
+    int16_t raw[6];
+    for (size_t i = 0; i < 3; i++) {
+        raw[i] = (int16_t)sys_get_be16(&frame[1 + 2 * i]);
+        raw[3 + i] = (int16_t)sys_get_be16(&frame[9 + 2 * i]);
     }
 
-    // Llena los resultados en result, los multiplica por la gravedad y por 
-    ImuReading result = {
+    bool saturated = false;
+    for (size_t i = 0; i < ARRAY_SIZE(raw); i++) {
+        saturated = saturated || abs(raw[i]) >= MPU_RAW_SATURATION;
+    }
+
+    *out = (ImuReading){
         .accel_mps2 = {
-            .x = raw_accel[0] * MPU_ACCEL_MPS2_PER_LSB,
-            .y = raw_accel[1] * MPU_ACCEL_MPS2_PER_LSB,
-            .z = raw_accel[2] * MPU_ACCEL_MPS2_PER_LSB,
+            raw[0] * MPU_ACCEL_MPS2_PER_LSB,
+            raw[1] * MPU_ACCEL_MPS2_PER_LSB,
+            raw[2] * MPU_ACCEL_MPS2_PER_LSB,
         },
         .gyro_dps = {
-            .x = raw_gyro[0] * MPU_GYRO_DPS_PER_LSB,
-            .y = raw_gyro[1] * MPU_GYRO_DPS_PER_LSB,
-            .z = raw_gyro[2] * MPU_GYRO_DPS_PER_LSB,
+            raw[3] * MPU_GYRO_DPS_PER_LSB,
+            raw[4] * MPU_GYRO_DPS_PER_LSB,
+            raw[5] * MPU_GYRO_DPS_PER_LSB,
         },
-        .range_limited = range_limited,
+        .range_limited = saturated,
     };
-
-    *out = result;
     return IMU_NEW;
 }
 
-
-/**
- *  Esta función verifica que las configuraciones del IMU estén correctas
- */
 int imu_check_configuration(bool *matches)
 {
     uint8_t power;
-    uint8_t config[4];
-    int ret;
+    uint8_t config[4]; /* SMPLRT_DIV, CONFIG, GYRO_CONFIG, ACCEL_CONFIG consecutivos */
 
-    if (!device_is_ready(imu_bus)) { return -ENODEV; }
+    if (!device_is_ready(imu_bus)) {
+        return -ENODEV;
+    }
 
-    ret = i2c_reg_read_byte(imu_bus, MPU_I2C_ADDR, MPU_REG_PWR_MGMT_1, &power);
-    if (ret < 0) { return ret; }
-
-    /*
-     * Cuatro registros consecutivos:
-     * [0] SMPLRT_DIV
-     * [1] CONFIG
-     * [2] GYRO_CONFIG
-     * [3] ACCEL_CONFIG
-     */
-    ret = i2c_burst_read(imu_bus, MPU_I2C_ADDR, MPU_REG_SMPLRT_DIV, config, sizeof(config));
-    if (ret < 0) { return ret; }
-
-    bool result =
-        power     == MPU_EXPECTED_PWR_MGMT_1 &&
-        config[0] == MPU_EXPECTED_SMPLRT_DIV &&
-        config[1] == MPU_EXPECTED_CONFIG &&
-        config[2] == MPU_EXPECTED_GYRO_CONFIG &&
-        config[3] == MPU_EXPECTED_ACCEL_CONFIG;
-
-    *matches = result;
-
-    return 0;
+    int ret = i2c_reg_read_byte(imu_bus, MPU_I2C_ADDR, MPU_REG_PWR_MGMT_1, &power);
+    if (ret == 0) {
+        ret = i2c_burst_read(imu_bus, MPU_I2C_ADDR, MPU_REG_SMPLRT_DIV, config, sizeof(config));
+    }
+    if (ret == 0) {
+        *matches = power == MPU_PWR_PLL_NOTEMP && config[0] == MPU_SMPLRT_50HZ &&
+                   config[1] == MPU_DLPF_20HZ && config[2] == MPU_GYRO_500DPS &&
+                   config[3] == MPU_ACCEL_4G;
+    }
+    return ret;
 }
 
-/**
- * Comprueba niveles de SCL/SDA sin generar nuevas transferencias.
- * Entradas: blocked válido y escribible; el hilo es el único usuario del bus.
- * Retorno: 0 en éxito; -ENODEV o error GPIO negativo si no puede observarlo.
- * Modifica: solo *blocked en éxito; conserva la salida si falla una lectura.
- *           Usa los GPIO ya declarados en el devicetree, sin reconfigurarlos.
- */
 int imu_bus_is_blocked(bool *blocked)
 {
     if (!gpio_is_ready_dt(&imu_scl) || !gpio_is_ready_dt(&imu_sda)) {
         return -ENODEV;
     }
 
-    int scl = gpio_pin_get_dt(&imu_scl);
-    if (scl < 0) {
-        return scl;
+    const int scl = gpio_pin_get_dt(&imu_scl);
+    const int sda = gpio_pin_get_dt(&imu_sda);
+    if (scl < 0 || sda < 0) {
+        return scl < 0 ? scl : sda;
     }
 
-    int sda = gpio_pin_get_dt(&imu_sda);
-    if (sda < 0) {
-        return sda;
-    }
-
-    *blocked = (scl == 0 || sda == 0);
+    *blocked = scl == 0 || sda == 0;
     return 0;
 }
 
-/**
- * Delega un único intento de recuperación física en el controlador Zephyr.
- * Entradas: ninguna explícita; bus observado bloqueado y uso desde su único hilo.
- * Retorno: 0 o error negativo de Zephyr; -ENODEV si el controlador no está listo.
- * Modifica: líneas/pinctrl mediante i2c_recover_bus. No reinicia el MPU ni los
- *           contextos de cálculo; el servicio espacia intentos y valida la retoma.
- */
 int imu_recover_bus(void)
 {
     if (!device_is_ready(imu_bus)) {

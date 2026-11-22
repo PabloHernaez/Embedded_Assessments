@@ -9,6 +9,6 @@ bool output_service(int64_t now_ms);
 bool output_report(AppMode mode, const AcquisitionSnapshot *acq,
                    const GpsSnapshot *gps, const TrackerStatus *status,
                    int64_t now_ms, uint32_t reset_cause,
-                   uint32_t omitted_reports);
+                   uint32_t omitted_reports, int watchdog_error);
 
 #endif

@@ -3,8 +3,14 @@
 
 #include "model.h"
 
-TrackerStatus tracker_status_from_snapshots(const AcquisitionSnapshot *acq,
-                                            const GpsSnapshot *gps, int64_t now_ms);
+typedef struct {
+    bool problem;
+    int64_t healthy_since_ms;
+} TrackerHealth;
+
+TrackerStatus tracker_status_from_snapshots(TrackerHealth *health,
+                                            const AcquisitionSnapshot *acq,
+                                            const GpsSnapshot *gps,
+                                            int64_t now_ms, bool tx_failed);
 
 #endif
-

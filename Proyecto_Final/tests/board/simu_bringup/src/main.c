@@ -20,6 +20,7 @@ int main(void)
 {
     char frame[SIMU_FRAME_BUFFER_SIZE];
     uint16_t seq = 0U;
+    TrackerHealth health = { .healthy_since_ms = -1 };
 
     if (!device_is_ready(simu_uart)) {
         return -ENODEV;
@@ -39,7 +40,8 @@ int main(void)
         gps_snapshot_get(&gps);
 
         const int64_t now_ms = k_uptime_get();
-        const TrackerStatus status = tracker_status_from_snapshots(&snapshot, &gps, now_ms);
+        const TrackerStatus status =
+            tracker_status_from_snapshots(&health, &snapshot, &gps, now_ms, false);
         const SimuFrameInput input = {
             .acquisition = &snapshot,
             .gps = &gps,

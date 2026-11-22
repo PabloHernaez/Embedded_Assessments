@@ -189,6 +189,11 @@ int human_report_format(AppMode mode, const HumanReportInput *in,
                in->reset_cause, in->simu_replaced_fields);
         append(&report, "TX_OK=%" PRIu32 " TX_ABORT=%" PRIu32 " TX_OMIT=%" PRIu32 "\r\n",
                in->tx_completed, in->tx_aborted, in->tx_omitted);
+        if (in->watchdog_error == 0) {
+            append(&report, "IWDG=ACTIVO\r\n");
+        } else {
+            append(&report, "IWDG=ERROR %d\r\n", in->watchdog_error);
+        }
     }
 
     if (report.error == 0) {

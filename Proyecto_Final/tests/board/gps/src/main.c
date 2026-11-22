@@ -66,6 +66,19 @@ int main(void)
                (unsigned int)fix_usable, (long long)fix_age_ms,
                (long)snapshot.lat_udeg, (long)snapshot.lon_udeg, (long)snapshot.alt_mm);
 
+        if (snapshot.utc_valid) {
+            const uint32_t seconds = snapshot.utc_ms_of_day / 1000U;
+            printk("UTC=%02u:%02u:%02u.%03u\n",
+                   (unsigned int)(seconds / 3600U),
+                   (unsigned int)((seconds / 60U) % 60U),
+                   (unsigned int)(seconds % 60U),
+                   (unsigned int)(snapshot.utc_ms_of_day % 1000U));
+        } else {
+            printk("UTC=N/D\n");
+        }
+
+        printk("GPS progress=%u\n", (unsigned int)snapshot.progress);
+
         k_msleep(1000);
     }
 }

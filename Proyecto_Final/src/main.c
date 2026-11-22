@@ -2,6 +2,7 @@
 #include <zephyr/kernel.h>
 
 #include "acquisition_api.h"
+#include "app/app_watchdog.h"
 #include "app/board_ui.h"
 #include "app/tracker_status.h"
 #include "drivers/gps.h"
@@ -38,9 +39,11 @@ int main(void)
 
     output_init();
     (void)gps_init();
+    app_watchdog_start();
     AppMode mode = APP_MODE_TEST;
     AppMode requested = APP_MODE_TEST;
     uint32_t omitted_reports = 0U;
+    TrackerHealth health = { .healthy_since_ms = -1 };
     const int64_t start_ms = k_uptime_get();
     int64_t next_report_ms = start_ms + report_period_ms(mode);
 
@@ -66,12 +69,11 @@ int main(void)
         GpsSnapshot gps;
         acquisition_snapshot_get(&acq);
         gps_snapshot_get(&gps);
+        const int watchdog_error = app_watchdog_observe(acq.progress, gps.progress);
 
         const int64_t now_ms = k_uptime_get();
-        TrackerStatus status = tracker_status_from_snapshots(&acq, &gps, now_ms);
-        if (tx_failed) {
-            status.state = TRACKER_STATE_PROBLEM;
-        }
+        const TrackerStatus status =
+            tracker_status_from_snapshots(&health, &acq, &gps, now_ms, tx_failed);
         board_ui_show(mode, status.state);
 
         if (requested == mode && now_ms >= next_report_ms) {
@@ -80,7 +82,7 @@ int main(void)
             next_report_ms += (late_periods + 1) * period_ms;
             omitted_reports += (uint32_t)late_periods;
             if (!output_report(mode, &acq, &gps, &status, now_ms,
-                               reset_cause, omitted_reports)) {
+                               reset_cause, omitted_reports, watchdog_error)) {
                 ++omitted_reports;
             }
         }

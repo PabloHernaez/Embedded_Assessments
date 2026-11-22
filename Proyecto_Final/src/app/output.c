@@ -132,7 +132,7 @@ static void start_tx(size_t len)
 
 bool output_report(AppMode mode, const AcquisitionSnapshot *acq,
                    const GpsSnapshot *gps, const TrackerStatus *status,
-                   int64_t now_ms, uint32_t reset_cause, uint32_t omitted_reports)
+                   int64_t now_ms, uint32_t reset_cause, uint32_t omitted_reports, int watchdog_error)
 {
     if (!enabled || output_busy()) {
         return false;
@@ -164,6 +164,7 @@ bool output_report(AppMode mode, const AcquisitionSnapshot *acq,
             .tx_completed = (uint32_t)atomic_get(&completed),
             .tx_aborted = aborted,
             .tx_omitted = omitted_reports,
+            .watchdog_error = watchdog_error,
         };
         if (human_report_format(mode, &input, tx_buf, sizeof(tx_buf), &len) != 0) {
             return false;

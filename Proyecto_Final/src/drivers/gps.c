@@ -25,6 +25,7 @@
 
 #define GPS_THREAD_STACK_SIZE 1536
 #define GPS_THREAD_PRIORITY   5
+#define GPS_THREAD_WAIT_MS    200
 
 static const struct device *uart = DEVICE_DT_GET(UART_NODE);
 
@@ -50,6 +51,7 @@ static GpsSnapshot gps_snapshot = {
 K_MUTEX_DEFINE(gps_mutex);
 
 static bool gps_initialized = false;
+static bool gps_worker_started;
 
 static void gps_uart_isr(const struct device *dev, void *user_data);
 
@@ -65,23 +67,20 @@ int gps_init(void)
 {
     if (gps_initialized) {
         return 0;
-        
+    }
+
+    /* El trabajador tiene que avanzar aunque la UART no este disponible. */
+    if (!gps_worker_started) {
+        k_thread_create(&gps_thread_data, gps_stack, K_THREAD_STACK_SIZEOF(gps_stack),
+                        gps_thread, NULL, NULL, NULL,
+                        GPS_THREAD_PRIORITY, 0, K_NO_WAIT);
+        gps_worker_started = true;
     }
 
     if (!device_is_ready(uart)) {
         printk("GPS: UART no disponible\n");
         return -ENODEV;
     }
-
-    // Creamos el hilo
-    k_thread_create(&gps_thread_data,
-                    gps_stack,
-                    GPS_THREAD_STACK_SIZE,
-                    gps_thread,
-                    NULL, NULL, NULL,
-                    GPS_THREAD_PRIORITY,
-                    0,
-                    K_NO_WAIT);
 
     // Registrar callback
     int ret = uart_irq_callback_user_data_set(uart, gps_uart_isr, NULL);
@@ -151,12 +150,14 @@ static void gps_thread(void *p1, void *p2, void *p3)
 
     char sentence[GPS_LINE_MAX];
 
-    while (1) {
-
-        if (k_msgq_get(&gps_msgq, sentence, K_FOREVER) == 0) {
-
+    while (true) {
+        if (k_msgq_get(&gps_msgq, sentence, K_MSEC(GPS_THREAD_WAIT_MS)) == 0) {
             gps_process_sentence(sentence);
         }
+
+        k_mutex_lock(&gps_mutex, K_FOREVER);
+        ++gps_snapshot.progress;
+        k_mutex_unlock(&gps_mutex);
     }
 }
 
@@ -190,6 +191,43 @@ static bool gps_check_checksum(const char *sentence)
     return checksum == (unsigned char)received;
 }
 
+
+static bool gps_parse_utc(const char *field, uint32_t *utc_ms)
+{
+    uint32_t hhmmss = 0U;
+    for (unsigned int i = 0U; i < 6U; ++i) {
+        if (*field < '0' || *field > '9') {
+            return false;
+        }
+        hhmmss = hhmmss * 10U + (uint32_t)(*field++ - '0');
+    }
+
+    const uint32_t hh = hhmmss / 10000U;
+    const uint32_t mm = (hhmmss / 100U) % 100U;
+    const uint32_t ss = hhmmss % 100U;
+    if (hh >= 24U || mm >= 60U || ss >= 60U) {
+        return false;
+    }
+
+    uint32_t fraction_ms = 0U;
+    if (*field == '.') {
+        ++field;
+        if (*field == '\0') {
+            return false;
+        }
+        uint32_t scale = 100U;
+        while (*field >= '0' && *field <= '9') {
+            fraction_ms += (uint32_t)(*field++ - '0') * scale;
+            scale /= 10U;
+        }
+    }
+    if (*field != '\0') {
+        return false;
+    }
+
+    *utc_ms = (hh * 3600U + mm * 60U + ss) * 1000U + fraction_ms;
+    return true;
+}
 
 static bool gps_parse_number(const char *field, double *out)
 {
@@ -283,6 +321,8 @@ static void gps_process_gga(char *sentence)
 
     const uint8_t fix = (uint8_t)(fields[6][0] - '0');
     const bool valid = fix == 1U || fix == 2U;
+    uint32_t utc_ms = 0U;
+    const bool utc_valid = gps_parse_utc(fields[1], &utc_ms);
 
     char *end;
     const long sats = strtol(fields[7], &end, 10);
@@ -319,6 +359,8 @@ static void gps_process_gga(char *sentence)
     gps_data.valid = valid;
     gps_data.gga_count++;
 
+    gps_snapshot.utc_valid = utc_valid;
+    gps_snapshot.utc_ms_of_day = utc_ms;
     gps_snapshot.fix_valid = valid;
     if (valid) {
         gps_snapshot.lat_udeg = gps_round_i32(latitude * 1000000.0);

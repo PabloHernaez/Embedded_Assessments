@@ -29,6 +29,7 @@ typedef struct {
     uint32_t tx_completed;
     uint32_t tx_aborted;
     uint32_t tx_omitted;
+    int watchdog_error;
 } HumanReportInput;
 
 /*

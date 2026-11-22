@@ -77,7 +77,13 @@ add_executable(human_report_tests
     ../../src/telemetry/human_report.c
 )
 
-foreach(test_target IN ITEMS motion_tests orientation_tests acquisition_imu_tests acquisition_environment_tests acquisition_statistics_tests acquisition_recovery_tests simu_frame_tests human_report_tests)
+add_executable(tracker_status_tests
+    test_tracker_status.c
+    ../../src/app/tracker_status.c
+)
+target_include_directories(tracker_status_tests PRIVATE ../../src/app)
+
+foreach(test_target IN ITEMS motion_tests orientation_tests acquisition_imu_tests acquisition_environment_tests acquisition_statistics_tests acquisition_recovery_tests simu_frame_tests human_report_tests tracker_status_tests)
     target_include_directories(${test_target} PRIVATE
         ../../include
         ../../src/algorithms
@@ -105,3 +111,4 @@ add_test(NAME acquisition_recovery_tests COMMAND acquisition_recovery_tests)
 
 add_test(NAME simu_frame_tests COMMAND simu_frame_tests)
 add_test(NAME human_report_tests COMMAND human_report_tests)
+add_test(NAME tracker_status_tests COMMAND tracker_status_tests)

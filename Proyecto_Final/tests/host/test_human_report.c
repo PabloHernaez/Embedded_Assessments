@@ -30,6 +30,10 @@ int main(void)
     CHECK(strstr(output, "UTC=12:00:01") != NULL);
     CHECK(strstr(output, "RESET=0xFFFFFFFF") != NULL);
     CHECK(strstr(output, "TX_OK=123 TX_ABORT=4 TX_OMIT=5") != NULL);
+    CHECK(strstr(output, "IWDG=ACTIVO") != NULL);
+    in.watchdog_error = -ENODEV;
+    CHECK(human_report_format(APP_MODE_TEST, &in, output, sizeof(output), &len) == 0);
+    CHECK(strstr(output, "IWDG=ERROR -") != NULL);
 
     CHECK(human_report_format(APP_MODE_NORMAL, &in, output, sizeof(output), &len) == 0);
     CHECK(strstr(output, "Estadisticas 30 s: pendiente") != NULL);

@@ -1,67 +1,49 @@
 # Drone tracker — proyecto final IoT UPM
 
-Desarrollamos el firmware para NUCLEO-WL55JC del proyecto final de Embedded
-Platforms and IoT. Partimos de la base D1 y de los contratos compartidos de
-adquisición, GPS y reportes NORMAL/SIMU.
+Firmware para NUCLEO-WL55JC (Zephyr 4.4.2) de un nodo de seguimiento y
+telemetría: GPS, MPU6050, LDR y Si7021, LED RGB y salida por el VCP del
+ST-LINK en tres modos (TEST, NORMAL y SIMU) que se cambian con B1.
 
-## Estado actual
+## Arquitectura
 
-Tenemos implementados los drivers privados del MPU6050, el Si7021 y el LDR
-KY-018, además de la calibración inicial del giroscopio. En
-`tests/board/sensors` mantenemos un ensayo independiente para MPU6050,
-calibración y Si7021, con salida por serie.
+Tres hilos, cada uno con su canal de `task_wdt` (respaldado por el IWDG):
 
-El main de producción conserva el parpadeo provisional. Seguimos trabajando
-en la validación física de sensores, la calibración final del LDR, la
-adquisición integrada y la estimación de orientación, velocidad y posición.
-D2 y D3 siguen abiertos; GPS, formatos y aplicación tienen sus contratos
-preparados para el trabajo en paralelo.
-
-## Entorno y perfiles
-
-Usamos Zephyr 4.4.2, SDK 1.0.1 y el target `nucleo_wl55jc/stm32wl55xx`.
-Trabajamos en VS Code con `../Proyecto_Final.code-workspace`; también podemos
-abrir directamente esta carpeta. En ambos casos, `${workspaceFolder}` es
-`Proyecto_Final` y la raíz Git es `Embedded_Assessments`.
-
-| Perfil | Compilación | Programación | Salida |
+| Hilo | Prioridad | Despierta | Hace |
 | --- | --- | --- | --- |
-| Producción | Ctrl+Shift+B / `West Build (auto)`; limpia: `West Build (pristine)` | `Flash (CubeProgrammer, UR+HWrst)` | `build/zephyr`, sin consola Zephyr |
-| Ensayo MPU6050 + Si7021 | `West Build (sensores)` | `Flash (Sensores)` | `build-sensors/zephyr`, LPUART1 a 115200 8N1 |
+| Adquisición (`src/acquisition`) | 3 | `k_timer` de 20 ms | IMU a 50 Hz, luz y ambiente cada 2 s, calibración, movimiento, navegación y estadísticas de 30 s. |
+| main (`src/main.c`, `src/app`) | 4 | Slot absoluto de 100 ms | Modo (B1), estado IDLE/FLYING/PROBLEM, LED y envío por LPUART1. |
+| GPS (`src/gps`) | 5 | Línea NMEA de la ISR (`k_msgq`), máx. 1 s | Checksum, GGA, enlace, fix y UTC. |
 
-Compartimos la configuración y el overlay de placa entre perfiles; el ensayo
-aplica sus ajustes propios después. Mantenemos las restricciones de consola
-en producción mediante `src/build_checks.c`.
+Los hilos comparten datos solo mediante copias (`*_snapshot_get`) protegidas
+por un mutex por servicio. Los drivers (`src/drivers`) son propios y sin
+estado; los formatos (`src/telemetry`) son funciones puras.
 
-Cada uno configura su instalación de Zephyr, SDK y herramientas en su equipo.
-Los ajustes de `.vscode/`, los scripts personales y las notas locales de
-Windows quedan fuera de Git. Compartimos el firmware, CMake y la configuración
-de placa, sin imponer rutas ni preferencias del editor.
+| Modo | Salida | LED |
+| --- | --- | --- |
+| TEST | Informe legible cada 2 s, con causa de reinicio y watchdog | Azul |
+| NORMAL | Informe cada 5 s y estadísticas de 30 s | Verde IDLE / amarillo FLYING / rojo PROBLEM |
+| SIMU | Solo tramas `$SIMU1` de 221 bytes cada 100 ms | Cian |
 
-Con el entorno de Zephyr ya activo, compilamos desde esta carpeta con:
+## Compilar
+
+Con el entorno de Zephyr activo, desde esta carpeta:
 
 ```sh
 west build -p auto -b nucleo_wl55jc . -d build -- -DCONF_FILE=confs/prj_nucleo_wl55jc.conf -DDTC_OVERLAY_FILE=boards/nucleo_wl55jc.overlay
-west build -p auto -b nucleo_wl55jc tests/board/sensors -d build-sensors
 ```
 
-Los nombres de tareas de la tabla corresponden a los ajustes locales de
-Windows; no son un requisito para compilar por terminal en Ubuntu.
+Producción no tiene consola: `src/build_checks.c` impide compilarla con
+consola, printk o logs. Los ensayos están en [tests](tests/README.md).
 
-## Reparto del trabajo
+## Reparto
 
-| Bloque | Responsable | Contrato compartido |
-| --- | --- | --- |
-| Drivers, estimación, estadísticas y adquisición | David | `include/acquisition_api.h` |
-| GPS y parser NMEA | Pablo | `include/gps_api.h` |
-| Reportes SIMU y humano | Pablo | `include/simu_frame.h`, `include/human_report.h` |
-| Aplicación, modos, UART, estado y RGB | Pablo | Tipos de `include/model.h` |
-
-Mantenemos los tipos y las seis APIs públicas en `include/`, y los detalles
-privados de cada bloque en `src/`. Coordinamos los cambios de contratos;
-Pablo mantiene `main`, CMake, configuración y overlay tras la base D1.
+| Bloque | Responsable |
+| --- | --- |
+| Drivers, algoritmos y adquisición (D1–D4) | David |
+| GPS, formatos, aplicación y validación (P1–P4) | Pablo |
 
 ## Documentación
 
-- [Desarrollo y pendientes](docs/README_DESARROLLO.md).
-- [Ensayos](tests/README.md).
+- [Desarrollo: entorno, configuración, decisiones y pendientes](docs/README_DESARROLLO.md)
+- [Ensayos y evidencia](tests/README.md)
+- [Estimación y deriva (D3)](docs/D3_ESTIMACION.md)

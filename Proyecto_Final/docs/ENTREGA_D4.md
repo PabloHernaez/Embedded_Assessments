@@ -1,5 +1,10 @@
 # Entrega de adquisicion y estadisticas D4
 
+> Registro historico de la entrega del 03/11/2026 (version hasta `bc0797f`).
+> Despues se simplificaron la recuperacion de la IMU, la instrumentacion de
+> tiempos y los perfiles de ensayo; el diseno vigente esta en
+> [src/acquisition/README.md](../src/acquisition/README.md).
+
 Estado al 03/11/2026: implementacion local construida y ensayada; defecto de
 retoma del Si7021 tras SDA retenida 60 ms corregido y repetido en placa.
 La entrega queda pendiente de revision/aceptacion conjunta por Pablo.

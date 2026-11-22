@@ -195,7 +195,7 @@ cuantificar la deriva con este diseño. No se atribuye una mejora sin medirla.
 
 ## Pendientes para cerrar D3
 
-1. **Integración de SR4.** El cálculo relativo y su campo en el modelo están implementados y contrastados en el ensayo. Queda revisar el contrato con Pablo y verificar la conversión y emisión de ROLL/PITCH/YAW desde `relative_q` en P2, junto con el snapshot real de D4. El cuaternión de navegación no debe convertirse directamente para esos campos.
+1. **Integración de SR4.** Con DEC-D3-02, ROLL/PITCH/YAW salen de `nav.q`, que empieza en identidad al calibrar. Queda revisar el contrato con Pablo y comprobar en placa los ángulos de la trama SIMU con giros conocidos.
 2. **D3-15.** Completar la demostración integrada y explicar el comportamiento aceptado de posición/velocidad. La captura dinámica alrededor de Z y la decisión de conservar la base están registradas; no se acredita precisión angular metrológica, trayectoria precisa ni toda la demo integrada.
 3. **Trazabilidad.** Asociar fuentes y build a un commit del incremento completo y conservar las capturas. La actualización de `tests/README.md`, `docs/README_DESARROLLO.md` y el contrato de telemetría se incluye en la preparación del commit. No se archivaron los ELF exactos de cada captura y no se atribuye retroactivamente su compilación a un hash nuevo.
 4. **Revisión cruzada y pruebas restantes.** Pablo debe revisar y explicar la actualización y la compensación de gravedad. Conservar como pendientes las pruebas de fallos, recuperación e integración no respaldadas por esta captura. No se marca todo D3 ni T07–T10 como aprobado por haber realizado el ensayo de deriva.

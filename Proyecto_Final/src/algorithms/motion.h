@@ -12,7 +12,7 @@ typedef struct {
 /* Inicializar una vez al arrancar. */
 void motion_init(MotionDetector *ctx);
 
-/* Función para interrumpir la cuenta cuando falla una lectura */
+/* Cancela una transicion pendiente (fallo, saturacion o hueco). */
 void motion_interrupt(MotionDetector *ctx);
 
 /*

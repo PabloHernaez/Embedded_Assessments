@@ -10,7 +10,7 @@ add_executable(motion_tests
     ../../src/algorithms/motion.c
 )
 
-add_executable(orientation_tests
+add_executable(estimator_tests
     test_estimator.c
     ../../src/algorithms/estimator.c
 )
@@ -60,7 +60,7 @@ add_executable(tracker_status_tests
 )
 target_include_directories(tracker_status_tests PRIVATE ../../src/app)
 
-foreach(test_target IN ITEMS motion_tests orientation_tests acquisition_imu_tests acquisition_environment_tests statistics_tests simu_frame_tests human_report_tests tracker_status_tests)
+foreach(test_target IN ITEMS motion_tests estimator_tests acquisition_imu_tests acquisition_environment_tests statistics_tests simu_frame_tests human_report_tests tracker_status_tests)
     target_include_directories(${test_target} PRIVATE
         ../../include
         ../../src/algorithms
@@ -76,7 +76,7 @@ endforeach()
 
 add_test(NAME motion_tests COMMAND motion_tests)
 
-add_test(NAME orientation_tests COMMAND orientation_tests)
+add_test(NAME estimator_tests COMMAND estimator_tests)
 
 add_test(NAME acquisition_imu_tests COMMAND acquisition_imu_tests)
 

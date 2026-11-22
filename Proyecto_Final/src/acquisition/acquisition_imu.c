@@ -24,9 +24,9 @@ static float vector_norm(Vec3f v)
 static Vec3f accel_correct(Vec3f m)
 {
     return (Vec3f){
-        .x = (m.x - 0.12409f) * 0.9964143f,
-        .y = (m.y + 0.06164f) * 0.9966736f,
-        .z = (m.z + 0.05113f) * 0.9891509f,
+        .x = (m.x - TRACKER_ACCEL_OFFSET_X) * TRACKER_ACCEL_SCALE_X,
+        .y = (m.y - TRACKER_ACCEL_OFFSET_Y) * TRACKER_ACCEL_SCALE_Y,
+        .z = (m.z - TRACKER_ACCEL_OFFSET_Z) * TRACKER_ACCEL_SCALE_Z,
     };
 }
 

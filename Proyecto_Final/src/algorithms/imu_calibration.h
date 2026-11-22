@@ -8,7 +8,7 @@
 #include "algorithm_config.h"
 
 /*
- * Calibracion inicial con TRACKER_GYRO_CALIBRATION_SAMPLES (100) muestras
+ * Calibracion inicial con TRACKER_CALIBRATION_SAMPLES (100) muestras
  * seguidas en reposo: | |a| - g | < 0,3 m/s2 y |w| < 5 grados/s.
  * Una muestra en movimiento reinicia la cuenta.
  *   gyro_bias_dps   media del giro: se resta a cada lectura
@@ -25,8 +25,7 @@ typedef struct {
 
 void imu_calibration_init(ImuCalibration *c);
 
-/* Anade una muestra NEW utilizable. Devuelve true cuando la calibracion esta lista;
- * una calibracion terminada ya no cambia. */
-bool imu_calibration_update(ImuCalibration *c, const Vec3f *accel_mps2, const Vec3f *gyro_dps);
+/* Anade una muestra NEW utilizable; con ready = true ya no cambia nada. */
+void imu_calibration_update(ImuCalibration *c, const Vec3f *accel_mps2, const Vec3f *gyro_dps);
 
 #endif

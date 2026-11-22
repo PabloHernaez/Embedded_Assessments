@@ -92,11 +92,11 @@ static bool near_navigation_values(NavigationView a, NavigationView b)
 
 static Vec3f sensor_accel_for(Vec3f corrected)
 {
-    /* Lectura sintetica: invertir las correcciones existentes del montaje. */
+    /* Lectura sintetica: invertir la correccion de seis posturas del montaje. */
     return (Vec3f){
-        .x = corrected.x / 0.9964143f + 0.12409f,
-        .y = corrected.y / 0.9966736f - 0.06164f,
-        .z = corrected.z / 0.9891509f - 0.05113f,
+        .x = corrected.x / TRACKER_ACCEL_SCALE_X + TRACKER_ACCEL_OFFSET_X,
+        .y = corrected.y / TRACKER_ACCEL_SCALE_Y + TRACKER_ACCEL_OFFSET_Y,
+        .z = corrected.z / TRACKER_ACCEL_SCALE_Z + TRACKER_ACCEL_OFFSET_Z,
     };
 }
 
@@ -151,8 +151,8 @@ static int test_calibration(void)
 
     /* 100 muestras en reposo, en dos grupos: sesgo y g0 son las medias, no la ultima. */
     Vec3f accel_sum = zero;
-    for (unsigned int i = 0; i < TRACKER_GYRO_CALIBRATION_SAMPLES; ++i) {
-        const bool second_half = i >= TRACKER_GYRO_CALIBRATION_SAMPLES / 2U;
+    for (unsigned int i = 0; i < TRACKER_CALIBRATION_SAMPLES; ++i) {
+        const bool second_half = i >= TRACKER_CALIBRATION_SAMPLES / 2U;
         next_reading.accel_mps2 = second_half ? (Vec3f){2.0f, 0.0f, 9.6f}
                                               : (Vec3f){0.0f, 0.0f, TRACKER_GRAVITY_MPS2};
         next_reading.gyro_dps = second_half ? (Vec3f){3.0f, 0.0f, -0.5f}
@@ -161,9 +161,9 @@ static int test_calibration(void)
         accel_sum.x += ctx.data.accel_mps2.x;
         accel_sum.y += ctx.data.accel_mps2.y;
         accel_sum.z += ctx.data.accel_mps2.z;
-        CHECK(ctx.data.calibration_pending == (i + 1U < TRACKER_GYRO_CALIBRATION_SAMPLES));
+        CHECK(ctx.data.calibration_pending == (i + 1U < TRACKER_CALIBRATION_SAMPLES));
     }
-    const float n = (float)TRACKER_GYRO_CALIBRATION_SAMPLES;
+    const float n = (float)TRACKER_CALIBRATION_SAMPLES;
     CHECK(ctx.calibration.ready);
     CHECK(near_vec(ctx.calibration.gyro_bias_dps, (Vec3f){2.0f, -1.0f, 0.0f}));
     CHECK(near_vec(ctx.calibration.gravity_mps2,
@@ -215,7 +215,7 @@ static int test_motion(void)
 
     /* Sesgo deliberado de 4 grados/s: el detector recibe giro corregido. */
     next_reading.gyro_dps.x = 4.0f;
-    for (unsigned int i = 0; i < TRACKER_GYRO_CALIBRATION_SAMPLES; ++i) {
+    for (unsigned int i = 0; i < TRACKER_CALIBRATION_SAMPLES; ++i) {
         CHECK(step(&ctx, IMU_NEW));
     }
     CHECK(!ctx.data.calibration_pending);
@@ -322,7 +322,7 @@ static int calibrate_tilted(AcquisitionImu *ctx, Vec3f g_sensor)
     now_ticks = 0;
     acquisition_imu_init(ctx);
     next_reading = (ImuReading){ .accel_mps2 = sensor_accel_for(g_sensor) };
-    for (unsigned int i = 0; i < TRACKER_GYRO_CALIBRATION_SAMPLES; ++i) {
+    for (unsigned int i = 0; i < TRACKER_CALIBRATION_SAMPLES; ++i) {
         CHECK(step(ctx, IMU_NEW));
     }
     CHECK(ctx->calibration.ready);
@@ -406,7 +406,7 @@ static int prepare_navigation(AcquisitionImu *ctx)
         .accel_mps2 = sensor_accel_for((Vec3f){0.0f, 0.0f, TRACKER_GRAVITY_MPS2}),
         .gyro_dps = {0.5f, 0.0f, 0.0f},
     };
-    for (unsigned int i = 0; i < TRACKER_GYRO_CALIBRATION_SAMPLES; ++i) {
+    for (unsigned int i = 0; i < TRACKER_CALIBRATION_SAMPLES; ++i) {
         CHECK(step(ctx, IMU_NEW));
     }
     next_reading.accel_mps2 = sensor_accel_for((Vec3f){1.0f, 0.0f, TRACKER_GRAVITY_MPS2});
@@ -446,7 +446,7 @@ static int test_recovery(void)
     CHECK(step(&ctx, IMU_NEW));
     CHECK(init_count == 2 && recover_count == 2 && read_count == reads);
     CHECK(ctx.bus_error && ctx.configured);
-    /* El reinicio conserva sesgo, q0 y trayectoria: no se recalibra en vuelo. */
+    /* El reinicio conserva sesgo, g0 y trayectoria: no se recalibra en vuelo. */
     CHECK(near_vec(ctx.calibration.gyro_bias_dps, bias) &&
           near_vec(ctx.calibration.gravity_mps2, g0));
     CHECK(near_navigation_values(ctx.nav, retained));

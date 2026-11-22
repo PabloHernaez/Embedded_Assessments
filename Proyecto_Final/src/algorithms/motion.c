@@ -12,7 +12,7 @@ void motion_init(MotionDetector *ctx)
     };
 }
 
-/* Función para interrumpir la cuenta cuando falla una lectura */
+/* Cancela una transicion pendiente (fallo, saturacion o hueco). */
 void motion_interrupt(MotionDetector *ctx)
 {
     ctx->pending_since_ms = -1;
@@ -48,7 +48,6 @@ bool motion_update(MotionDetector *ctx, float accel_norm, float gyro_norm, int64
     if (ctx->pending_since_ms < 0) {
         /* Primera muestra de una posible transicion. */
         ctx->pending_since_ms = now_ms;
-    /* Tiempo que lleva manteniéndose la condición */
     } else if (now_ms - ctx->pending_since_ms >= confirmation_ms) {
         ctx->moving = !ctx->moving;
         motion_interrupt(ctx);

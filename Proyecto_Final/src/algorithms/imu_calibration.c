@@ -24,10 +24,10 @@ void imu_calibration_init(ImuCalibration *c)
     *c = (ImuCalibration){0};
 }
 
-bool imu_calibration_update(ImuCalibration *c, const Vec3f *accel_mps2, const Vec3f *gyro_dps)
+void imu_calibration_update(ImuCalibration *c, const Vec3f *accel_mps2, const Vec3f *gyro_dps)
 {
     if (c->ready) {
-        return true;
+        return;
     }
 
     const bool at_rest =
@@ -35,17 +35,16 @@ bool imu_calibration_update(ImuCalibration *c, const Vec3f *accel_mps2, const Ve
         norm(gyro_dps) < TRACKER_GYRO_CALIBRATION_MAX_DPS;
     if (!at_rest) {
         imu_calibration_init(c); /* se movio: empezar de nuevo */
-        return false;
+        return;
     }
 
     add(&c->gyro_sum_dps, gyro_dps);
     add(&c->accel_sum_mps2, accel_mps2);
     c->count++;
 
-    if (c->count == TRACKER_GYRO_CALIBRATION_SAMPLES) {
+    if (c->count == TRACKER_CALIBRATION_SAMPLES) {
         c->gyro_bias_dps = mean(&c->gyro_sum_dps, (float)c->count);
         c->gravity_mps2 = mean(&c->accel_sum_mps2, (float)c->count);
         c->ready = true;
     }
-    return c->ready;
 }

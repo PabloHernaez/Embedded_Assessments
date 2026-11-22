@@ -25,6 +25,7 @@ target_sources(app PRIVATE
     src/acquisition/acquisition_light.c
     src/acquisition/acquisition_environment.c
     src/gps/gps.c
+    src/gps/nmea.c
 )
 
 target_link_libraries(app PRIVATE m)

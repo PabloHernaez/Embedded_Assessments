@@ -16,6 +16,7 @@ Desde `Proyecto_Final`:
 | `test_acquisition_imu.c` | Calibración (100 muestras: sesgo y g0 como medias), NO_NEW, errores, saturación, huecos > 50 ms, navegación con dt reales desde una postura inclinada y recuperación (3 errores o 500 ms sin muestra → reinicio, máx. 1/s, sin perder sesgo, g0 ni trayectoria). |
 | `test_acquisition_environment.c` | Cadencia de 2 s, 40 ms desde el final de F5, retención del par, revalidación tras fallos y tras un error de bus de la IMU (regresión Si7021 del 03/11). |
 | `test_statistics.c` | Ventanas `[t0, t1)` en ms, cierre a los 30 s exactos, valores repetidos, n = 0, cierre sin muestras y begin/end. |
+| `test_nmea.c` | Parser NMEA puro (`src/gps/nmea.c`): checksum, GGA con fix, GP/GN, hemisferios S/W, sin fix con campos vacíos, campos corruptos ignorados y frases que no son GGA. |
 | `test_simu_frame.c` | Vector oficial del enunciado (XOR 3F), sin fix, valores fuera de rango, NaN y TMS de 11 cifras. |
 | `test_human_report.c` | Informe TEST/NORMAL, N/D, estadísticas y falta de espacio. |
 | `test_tracker_status.c` | Flags, gracias iniciales, prioridad de PROBLEM y recuperación tras 2 s. |

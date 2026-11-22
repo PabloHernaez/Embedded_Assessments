@@ -43,6 +43,12 @@ add_executable(statistics_tests
     ../../src/algorithms/statistics.c
 )
 
+add_executable(nmea_tests
+    test_nmea.c
+    ../../src/gps/nmea.c
+)
+target_include_directories(nmea_tests PRIVATE ../../src/gps)
+
 add_executable(simu_frame_tests
     test_simu_frame.c
     ../../src/telemetry/simu_frame.c
@@ -60,7 +66,7 @@ add_executable(tracker_status_tests
 )
 target_include_directories(tracker_status_tests PRIVATE ../../src/app)
 
-foreach(test_target IN ITEMS motion_tests estimator_tests acquisition_imu_tests acquisition_environment_tests statistics_tests simu_frame_tests human_report_tests tracker_status_tests)
+foreach(test_target IN ITEMS motion_tests estimator_tests acquisition_imu_tests acquisition_environment_tests statistics_tests nmea_tests simu_frame_tests human_report_tests tracker_status_tests)
     target_include_directories(${test_target} PRIVATE
         ../../include
         ../../src/algorithms
@@ -84,6 +90,7 @@ add_test(NAME acquisition_environment_tests COMMAND acquisition_environment_test
 
 add_test(NAME statistics_tests COMMAND statistics_tests)
 
+add_test(NAME nmea_tests COMMAND nmea_tests)
 add_test(NAME simu_frame_tests COMMAND simu_frame_tests)
 add_test(NAME human_report_tests COMMAND human_report_tests)
 add_test(NAME tracker_status_tests COMMAND tracker_status_tests)

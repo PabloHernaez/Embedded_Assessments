@@ -12,10 +12,8 @@ set(DTC_OVERLAY_FILE
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(tracker_gps_test)
 
-target_include_directories(app PRIVATE 
-    "${TRACKER_ROOT}/src/drivers" 
-    "${TRACKER_ROOT}/include")
+target_include_directories(app PRIVATE "${TRACKER_ROOT}/include")
 target_sources(app PRIVATE
     src/main.c
-    "${TRACKER_ROOT}/src/drivers/gps.c"
+    "${TRACKER_ROOT}/src/gps/gps.c"
 )

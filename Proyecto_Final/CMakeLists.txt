@@ -18,7 +18,6 @@ target_sources(app PRIVATE
     src/drivers/imu.c
     src/drivers/environment.c
     src/algorithms/gyro_calibration.c
-    src/drivers/gps.c
     src/algorithms/motion.c
     src/algorithms/estimator.c
     src/algorithms/statistics.c
@@ -26,6 +25,7 @@ target_sources(app PRIVATE
     src/acquisition/acquisition_imu.c
     src/acquisition/acquisition_light.c
     src/acquisition/acquisition_environment.c
+    src/gps/gps.c
 )
 
 target_link_libraries(app PRIVATE m)

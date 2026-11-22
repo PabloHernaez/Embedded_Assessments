@@ -5,7 +5,6 @@
 #include "app/app_watchdog.h"
 #include "app/board_ui.h"
 #include "app/tracker_status.h"
-#include "drivers/gps.h"
 #include "gps_api.h"
 #include "app/output.h"
 
@@ -38,7 +37,6 @@ int main(void)
     }
 
     output_init();
-    (void)gps_init();
     app_watchdog_start();
     AppMode mode = APP_MODE_TEST;
     AppMode requested = APP_MODE_TEST;

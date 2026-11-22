@@ -8,7 +8,6 @@
 #include "acquisition_api.h"
 #include "simu_frame.h"
 #include "gps_api.h"
-#include "gps.h"
 #include "tracker_status.h"
 
 K_TIMER_DEFINE(simu_timer, NULL, NULL);
@@ -25,8 +24,6 @@ int main(void)
     if (!device_is_ready(simu_uart)) {
         return -ENODEV;
     }
-
-    (void)gps_init();
 
     k_timer_start(&simu_timer, K_MSEC(100), K_MSEC(100));
 

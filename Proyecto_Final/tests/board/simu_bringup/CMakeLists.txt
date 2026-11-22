@@ -32,7 +32,7 @@ target_sources(app PRIVATE
     "${TRACKER_ROOT}/src/acquisition/acquisition_light.c"
     "${TRACKER_ROOT}/src/acquisition/acquisition_environment.c"
     "${TRACKER_ROOT}/src/telemetry/simu_frame.c"
-    "${TRACKER_ROOT}/src/drivers/gps.c"
+    "${TRACKER_ROOT}/src/gps/gps.c"
 )
 
 target_link_libraries(app PRIVATE m)

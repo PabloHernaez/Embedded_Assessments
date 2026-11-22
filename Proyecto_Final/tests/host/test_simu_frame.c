@@ -1,4 +1,5 @@
 #include "simu_frame.h"
+#include "attitude.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -76,6 +77,21 @@ int main(void)
         return fail("TMS de 11 cifras aceptado", "-EIO", frame);
     }
 
-    puts("SIMU: vector oficial y limites OK");
+    /* Euler ZYX: identidad, yaw 90, roll 30 y pitch 90 (finito, sin rama especial). */
+    const float s = sqrtf(0.5f);
+    const Vec3f e0 = euler_degrees((Quaternionf){1.0f, 0.0f, 0.0f, 0.0f});
+    const Vec3f yaw = euler_degrees((Quaternionf){s, 0.0f, 0.0f, s});
+    const Vec3f roll = euler_degrees((Quaternionf){cosf(0.2617994f), sinf(0.2617994f), 0.0f, 0.0f});
+    const Vec3f pitch = euler_degrees((Quaternionf){s, 0.0f, s, 0.0f});
+    if (fabsf(e0.x) + fabsf(e0.y) + fabsf(e0.z) > 1e-4f ||
+        fabsf(yaw.z - 90.0f) > 1e-3f || fabsf(yaw.x) + fabsf(yaw.y) > 1e-3f ||
+        fabsf(roll.x - 30.0f) > 1e-3f || fabsf(roll.y) + fabsf(roll.z) > 1e-3f ||
+        fabsf(pitch.y - 90.0f) > 0.05f || /* en float asin(0,99999994) = 89,98 grados */
+        !isfinite(pitch.x) || !isfinite(pitch.z)) {
+        fprintf(stderr, "Euler incorrecto: yaw=%f roll=%f pitch=%f\n", yaw.z, roll.x, pitch.y);
+        return 1;
+    }
+
+    puts("SIMU: vector oficial, limites y Euler OK");
     return 0;
 }

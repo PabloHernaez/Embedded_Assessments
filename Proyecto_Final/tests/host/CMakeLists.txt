@@ -47,6 +47,7 @@ add_executable(simu_frame_tests
     test_simu_frame.c
     ../../src/telemetry/simu_frame.c
 )
+target_include_directories(simu_frame_tests PRIVATE ../../src/telemetry)
 
 add_executable(human_report_tests
     test_human_report.c

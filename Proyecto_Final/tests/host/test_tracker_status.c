@@ -9,6 +9,7 @@
     } \
 } while (0)
 
+/* Todos los sensores con un dato bueno de ahora mismo. */
 static AcquisitionSnapshot present_sensors(int64_t now_ms)
 {
     const SampleQuality good = { .valid = true, .last_good_ms = now_ms };
@@ -19,33 +20,37 @@ static AcquisitionSnapshot present_sensors(int64_t now_ms)
     };
 }
 
+static TrackerState state_at(TrackerHealth *h, const AcquisitionSnapshot *a,
+                             const GpsSnapshot *g, int64_t now_ms)
+{
+    return tracker_status_from_snapshots(h, a, g, now_ms).state;
+}
+
 static int imu_tests(void)
 {
     TrackerHealth health = { .healthy_since_ms = -1 };
     AcquisitionSnapshot acq = present_sensors(0);
     GpsSnapshot gps = { .last_nmea_ms = 0, .last_fix_ms = 0, .fix_valid = true };
 
-    TrackerStatus s = tracker_status_from_snapshots(&health, &acq, &gps, 0, false);
+    TrackerStatus s = tracker_status_from_snapshots(&health, &acq, &gps, 0);
     CHECK(s.state == TRACKER_STATE_IDLE && s.flags == 0x00C0U);
 
+    /* Sin IMU ni calibracion: flags ya, PROBLEM solo tras la gracia de 10 s. */
     acq = present_sensors(9999);
     gps.last_nmea_ms = 9999;
     acq.imu.quality = (SampleQuality){ .last_good_ms = -1 };
     acq.imu.calibration_pending = true;
-    s = tracker_status_from_snapshots(&health, &acq, &gps, 9999, false);
+    s = tracker_status_from_snapshots(&health, &acq, &gps, 9999);
     CHECK(s.state == TRACKER_STATE_IDLE);
-    CHECK(s.flags & TRACKER_FLAG_IMU_INVALID);
-    CHECK(s.flags & TRACKER_FLAG_CALIBRATION_PENDING);
-    CHECK(tracker_status_from_snapshots(&health, &acq, &gps, 10000, false).state ==
-          TRACKER_STATE_PROBLEM);
+    CHECK((s.flags & TRACKER_FLAG_IMU_INVALID) && (s.flags & TRACKER_FLAG_CALIBRATION_PENDING));
+    CHECK(state_at(&health, &acq, &gps, 10000) == TRACKER_STATE_PROBLEM);
 
+    /* 250 ms sin muestra de IMU: PROBLEM. */
     health = (TrackerHealth){ .healthy_since_ms = -1 };
     acq = present_sensors(10249);
-    acq.imu.quality = (SampleQuality){ .last_good_ms = 10000 };
-    CHECK(tracker_status_from_snapshots(&health, &acq, &gps, 10249, false).state ==
-          TRACKER_STATE_IDLE);
-    CHECK(tracker_status_from_snapshots(&health, &acq, &gps, 10250, false).state ==
-          TRACKER_STATE_PROBLEM);
+    acq.imu.quality = (SampleQuality){ .valid = true, .last_good_ms = 10000 };
+    CHECK(state_at(&health, &acq, &gps, 10249) == TRACKER_STATE_IDLE);
+    CHECK(state_at(&health, &acq, &gps, 10250) == TRACKER_STATE_PROBLEM);
     return 0;
 }
 
@@ -53,46 +58,40 @@ static int gps_tests(void)
 {
     TrackerHealth health = { .healthy_since_ms = -1 };
     GpsSnapshot gps = { .last_nmea_ms = -1, .last_fix_ms = -1 };
-    AcquisitionSnapshot acq = present_sensors(29999);
-    CHECK(tracker_status_from_snapshots(&health, &acq, &gps, 29999, false).state ==
-          TRACKER_STATE_IDLE);
-    CHECK(tracker_status_from_snapshots(&health, &acq, &gps, 30000, false).state ==
-          TRACKER_STATE_PROBLEM);
+    AcquisitionSnapshot acq = present_sensors(9999);
 
+    /* Nunca hubo NMEA: enlace caido a los 10 s desde el arranque. */
+    CHECK(state_at(&health, &acq, &gps, 9999) == TRACKER_STATE_IDLE);
+    CHECK(state_at(&health, &acq, &gps, 10000) == TRACKER_STATE_PROBLEM);
+
+    /* NMEA sin fix: flag GPS_INVALID, pero nunca PROBLEM (se vuela igual). */
     health = (TrackerHealth){ .healthy_since_ms = -1 };
     acq = present_sensors(29999);
     acq.moving = true;
     gps.last_nmea_ms = 20000;
-    TrackerStatus s = tracker_status_from_snapshots(&health, &acq, &gps, 29999, false);
+    TrackerStatus s = tracker_status_from_snapshots(&health, &acq, &gps, 29999);
     CHECK(s.state == TRACKER_STATE_FLYING && (s.flags & TRACKER_FLAG_GPS_INVALID));
-    CHECK(tracker_status_from_snapshots(&health, &acq, &gps, 30000, false).state ==
-          TRACKER_STATE_PROBLEM);
 
+    /* 10 s sin NMEA: PROBLEM; vuelve a IDLE tras 2 s sin causas. */
+    acq = present_sensors(30000);
+    CHECK(state_at(&health, &acq, &gps, 30000) == TRACKER_STATE_PROBLEM);
     gps.last_nmea_ms = 30100;
     acq = present_sensors(30100);
-    CHECK(tracker_status_from_snapshots(&health, &acq, &gps, 30100, false).state ==
-          TRACKER_STATE_PROBLEM);
+    CHECK(state_at(&health, &acq, &gps, 30100) == TRACKER_STATE_PROBLEM);
     acq = present_sensors(32099);
-    CHECK(tracker_status_from_snapshots(&health, &acq, &gps, 32099, false).state ==
-          TRACKER_STATE_PROBLEM);
-
-    /* Una nueva causa reinicia la espera de recuperacion. */
-    CHECK(tracker_status_from_snapshots(&health, &acq, &gps, 32100, true).state ==
-          TRACKER_STATE_PROBLEM);
-    acq = present_sensors(32200);
-    CHECK(tracker_status_from_snapshots(&health, &acq, &gps, 32200, false).state ==
-          TRACKER_STATE_PROBLEM);
-    acq = present_sensors(34200);
-    s = tracker_status_from_snapshots(&health, &acq, &gps, 34200, false);
+    CHECK(state_at(&health, &acq, &gps, 32099) == TRACKER_STATE_PROBLEM);
+    acq = present_sensors(32100);
+    s = tracker_status_from_snapshots(&health, &acq, &gps, 32100);
     CHECK(s.state == TRACKER_STATE_IDLE && (s.flags & TRACKER_FLAG_GPS_INVALID));
 
+    /* Fix valido: sin flag; caduca a los 3 s. */
     gps.last_fix_ms = 34200;
     gps.last_nmea_ms = 34200;
     gps.fix_valid = true;
     acq = present_sensors(37199);
-    s = tracker_status_from_snapshots(&health, &acq, &gps, 37199, false);
+    s = tracker_status_from_snapshots(&health, &acq, &gps, 37199);
     CHECK(!(s.flags & TRACKER_FLAG_GPS_INVALID));
-    s = tracker_status_from_snapshots(&health, &acq, &gps, 37200, false);
+    s = tracker_status_from_snapshots(&health, &acq, &gps, 37200);
     CHECK(s.state == TRACKER_STATE_IDLE && (s.flags & TRACKER_FLAG_GPS_INVALID));
     return 0;
 }
@@ -100,34 +99,29 @@ static int gps_tests(void)
 static int slow_sensor_tests(void)
 {
     TrackerHealth health = { .healthy_since_ms = -1 };
-    GpsSnapshot gps = { .last_nmea_ms = 10000, .last_fix_ms = -1 };
+    GpsSnapshot gps = { .last_nmea_ms = 6000, .last_fix_ms = -1 };
+
+    /* Dato invalido o recortado: flags, sin PROBLEM. */
     AcquisitionSnapshot acq = present_sensors(6000);
-    acq.environment.quality.last_good_ms = 0;
+    acq.environment.quality.valid = false;
     acq.light.clipped = true;
-    gps.last_nmea_ms = 0;
-    TrackerStatus s = tracker_status_from_snapshots(&health, &acq, &gps, 6000, false);
+    TrackerStatus s = tracker_status_from_snapshots(&health, &acq, &gps, 6000);
     CHECK(s.state == TRACKER_STATE_IDLE);
-    CHECK(s.flags & TRACKER_FLAG_ENV_INVALID);
-    CHECK(s.flags & TRACKER_FLAG_LIGHT_WARNING);
+    CHECK((s.flags & TRACKER_FLAG_ENV_INVALID) && (s.flags & TRACKER_FLAG_LIGHT_WARNING));
 
+    /* 10 s sin un dato bueno: PROBLEM. */
     acq = present_sensors(9999);
-    acq.environment.quality.last_good_ms = 0;
+    acq.environment.quality = (SampleQuality){ .last_good_ms = 0 };
     gps.last_nmea_ms = 9999;
-    CHECK(tracker_status_from_snapshots(&health, &acq, &gps, 9999, false).state ==
-          TRACKER_STATE_IDLE);
-    CHECK(tracker_status_from_snapshots(&health, &acq, &gps, 10000, false).state ==
-          TRACKER_STATE_PROBLEM);
+    CHECK(state_at(&health, &acq, &gps, 9999) == TRACKER_STATE_IDLE);
+    CHECK(state_at(&health, &acq, &gps, 10000) == TRACKER_STATE_PROBLEM);
 
+    /* Luz que nunca dio dato: cuenta desde el arranque. */
     health = (TrackerHealth){ .healthy_since_ms = -1 };
     gps.last_nmea_ms = 30000;
     acq = present_sensors(30000);
-    acq.light.clipped = true;
-    s = tracker_status_from_snapshots(&health, &acq, &gps, 30000, false);
-    CHECK(s.state == TRACKER_STATE_IDLE && (s.flags & TRACKER_FLAG_LIGHT_WARNING));
-
-    acq.light.quality = (SampleQuality){.last_good_ms = -1};
-    CHECK(tracker_status_from_snapshots(&health, &acq, &gps, 30000, false).state ==
-          TRACKER_STATE_PROBLEM);
+    acq.light.quality = (SampleQuality){ .last_good_ms = -1 };
+    CHECK(state_at(&health, &acq, &gps, 30000) == TRACKER_STATE_PROBLEM);
     return 0;
 }
 
@@ -136,6 +130,6 @@ int main(void)
     if (imu_tests() || gps_tests() || slow_sensor_tests()) {
         return 1;
     }
-    puts("Salud: edades, gracias, flags y recuperacion OK");
+    puts("Salud: edades, gracia, flags y recuperacion OK");
     return 0;
 }

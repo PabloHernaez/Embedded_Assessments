@@ -121,7 +121,8 @@ typedef struct {
 typedef enum {
     APP_MODE_TEST = 0,
     APP_MODE_NORMAL,
-    APP_MODE_SIMU
+    APP_MODE_SIMU,
+    APP_MODE_COUNT
 } AppMode;
 
 /* Estado del tracker (SR7). */

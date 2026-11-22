@@ -27,10 +27,11 @@ static char tx_buf[HUMAN_REPORT_BUFFER_SIZE];
 static size_t tx_len;
 static size_t tx_offset;
 static atomic_t busy;
-static atomic_t link_failed;
 static int64_t tx_deadline_ms;
 static bool ready;
 static uint16_t seq; /* SEQ de SIMU: solo avanza si la trama se envia; 65535 -> 0 */
+static uint32_t boot_reset_cause;
+static int boot_watchdog_status;
 
 static void tx_isr(const struct device *dev, void *user_data)
 {
@@ -55,16 +56,16 @@ static void tx_isr(const struct device *dev, void *user_data)
 
     if (uart_irq_tx_complete(dev) > 0) {
         uart_irq_tx_disable(dev);
-        atomic_clear(&link_failed);
         atomic_clear(&busy);
     }
 }
 
-void output_init(void)
+void output_init(uint32_t reset_cause, int watchdog_status)
 {
+    boot_reset_cause = reset_cause;
+    boot_watchdog_status = watchdog_status;
     ready = device_is_ready(port) && uart_configure(port, &config) == 0 &&
             uart_irq_callback_user_data_set(port, tx_isr, NULL) == 0;
-    atomic_set(&link_failed, ready ? 0 : 1);
 }
 
 bool output_busy(void)
@@ -72,33 +73,24 @@ bool output_busy(void)
     return atomic_get(&busy) != 0;
 }
 
-bool output_service(int64_t now_ms)
+void output_service(int64_t now_ms)
 {
     /* Comprobar y abortar con la IRQ bloqueada: la ISR no puede terminar a la vez. */
     const unsigned int key = irq_lock();
-    const bool expired = output_busy() && now_ms >= tx_deadline_ms;
-    if (expired) {
+    if (output_busy() && now_ms >= tx_deadline_ms) {
         uart_irq_tx_disable(port);
         atomic_clear(&busy);
     }
     irq_unlock(key);
-
-    if (expired) {
-        /* TC no llego a tiempo: enlace en fallo y UART reconfigurada. */
-        atomic_set(&link_failed, 1);
-        (void)uart_configure(port, &config);
-    }
-    return atomic_get(&link_failed) != 0;
 }
 
-bool output_report(AppMode mode, const AcquisitionSnapshot *acq, const GpsSnapshot *gps,
-                   const TrackerStatus *status, int64_t now_ms, uint32_t reset_cause,
-                   int watchdog_error)
+void output_report(AppMode mode, const AcquisitionSnapshot *acq, const GpsSnapshot *gps,
+                   const TrackerStatus *status, int64_t now_ms)
 {
     int len;
 
     if (!ready || output_busy()) {
-        return false;
+        return;
     }
 
     if (mode == APP_MODE_SIMU) {
@@ -110,13 +102,13 @@ bool output_report(AppMode mode, const AcquisitionSnapshot *acq, const GpsSnapsh
     } else {
         const HumanReportInput in = {
             .acquisition = acq, .gps = gps, .status = status,
-            .uptime_ms = (uint64_t)now_ms, .reset_cause = reset_cause,
-            .watchdog_error = watchdog_error,
+            .uptime_ms = (uint64_t)now_ms, .reset_cause = boot_reset_cause,
+            .watchdog_error = boot_watchdog_status,
         };
         len = human_report_format(mode, &in, tx_buf, sizeof(tx_buf));
     }
     if (len <= 0) {
-        return false;
+        return;
     }
     if (mode == APP_MODE_SIMU) {
         seq++;
@@ -130,5 +122,4 @@ bool output_report(AppMode mode, const AcquisitionSnapshot *acq, const GpsSnapsh
     atomic_set(&busy, 1);
     uart_irq_tx_enable(port);
     irq_unlock(key);
-    return true;
 }

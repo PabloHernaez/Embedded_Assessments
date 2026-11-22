@@ -1,8 +1,8 @@
 /*
- * Aplicacion (P3), hilo main de prioridad 4. Cada 100 ms: atiende B1 y el
- * cambio de modo, copia los snapshots de adquisicion y GPS, decide el estado
- * (IDLE/FLYING/PROBLEM), actualiza el LED y, si toca, envia el mensaje del modo:
- * TEST cada 2 s, NORMAL cada 5 s, SIMU cada 100 ms.
+ * Aplicacion (P3), hilo main de prioridad 4, despertado por un k_timer de 100 ms.
+ * Cada vuelta: atiende B1 y el cambio de modo, copia los snapshots de adquisicion
+ * y GPS, decide el estado (IDLE/FLYING/PROBLEM), pone el LED y, cada N vueltas,
+ * envia el mensaje del modo: TEST cada 2 s, NORMAL cada 5 s, SIMU cada 100 ms.
  * Adquisicion (prioridad 3) y GPS (prioridad 5) son hilos propios que arrancan solos.
  */
 #include <errno.h>
@@ -22,6 +22,8 @@
 #define APP_SLOT_MS 100
 #define MAIN_WDT_MS 1000
 
+K_TIMER_DEFINE(app_timer, NULL, NULL);
+
 static const struct device *const iwdg = DEVICE_DT_GET(DT_ALIAS(watchdog0));
 static int watchdog_status;
 
@@ -40,15 +42,16 @@ static int watchdog_init(void)
 }
 SYS_INIT(watchdog_init, APPLICATION, 0);
 
-static int64_t report_period_ms(AppMode mode)
+/* Vueltas de 100 ms entre mensajes. */
+static unsigned int report_slots(AppMode mode)
 {
     switch (mode) {
     case APP_MODE_NORMAL:
-        return 5000;
+        return 50;
     case APP_MODE_SIMU:
-        return APP_SLOT_MS;
+        return 1;
     default:
-        return 2000;
+        return 20;
     }
 }
 
@@ -59,24 +62,25 @@ int main(void)
     if (hwinfo_get_reset_cause(&reset_cause) == 0) {
         (void)hwinfo_clear_reset_cause();
     }
-    if (board_ui_init() != 0) {
-        return -ENODEV;
-    }
-    output_init();
+    (void)board_ui_init(); /* sin LED el tracker sigue midiendo y transmitiendo */
+    output_init(reset_cause, watchdog_status);
     const int wdt = task_wdt_add(MAIN_WDT_MS, NULL, NULL);
 
     AppMode mode = APP_MODE_TEST;
     AppMode requested = APP_MODE_TEST;
     TrackerHealth health = { .healthy_since_ms = -1 };
-    const int64_t start_ms = k_uptime_get();
-    int64_t next_report_ms = start_ms + report_period_ms(mode);
+    unsigned int slots = 0U; /* vueltas desde el ultimo mensaje o cambio de modo */
+
+    k_timer_start(&app_timer, K_MSEC(APP_SLOT_MS), K_MSEC(APP_SLOT_MS));
 
     while (true) {
+        /* Si main se retrasa, los vencimientos perdidos se atienden en una sola vuelta. */
+        (void)k_timer_status_sync(&app_timer);
         (void)task_wdt_feed(wdt);
-        const bool tx_failed = output_service(k_uptime_get());
+        output_service(k_uptime_get());
 
         /* B1 avanza TEST -> NORMAL -> SIMU -> TEST; el cambio espera a que acabe el envio. */
-        requested = (AppMode)((requested + board_ui_take_presses()) % 3U);
+        requested = (AppMode)((requested + board_ui_take_presses()) % APP_MODE_COUNT);
         if (requested != mode && !output_busy()) {
             if (mode == APP_MODE_NORMAL) {
                 acquisition_stats_end();
@@ -85,8 +89,7 @@ int main(void)
             if (mode == APP_MODE_NORMAL) {
                 acquisition_stats_begin();
             }
-            /* SIMU envia su primera trama ya; TEST y NORMAL al cumplir su periodo. */
-            next_report_ms = k_uptime_get() + (mode == APP_MODE_SIMU ? 0 : report_period_ms(mode));
+            slots = 0U; /* SIMU envia ya; TEST y NORMAL al cumplir su periodo */
         }
 
         AcquisitionSnapshot acq;
@@ -95,19 +98,12 @@ int main(void)
         gps_snapshot_get(&gps);
 
         const int64_t now_ms = k_uptime_get();
-        const TrackerStatus status =
-            tracker_status_from_snapshots(&health, &acq, &gps, now_ms, tx_failed);
+        const TrackerStatus status = tracker_status_from_snapshots(&health, &acq, &gps, now_ms);
         board_ui_show(mode, status.state);
 
-        if (requested == mode && now_ms >= next_report_ms) {
-            /* Con retraso se envia un solo mensaje actual y se salta al siguiente periodo. */
-            const int64_t period_ms = report_period_ms(mode);
-            next_report_ms += ((now_ms - next_report_ms) / period_ms + 1) * period_ms;
-            (void)output_report(mode, &acq, &gps, &status, now_ms, reset_cause, watchdog_status);
+        if (requested == mode && ++slots >= report_slots(mode)) {
+            slots = 0U;
+            output_report(mode, &acq, &gps, &status, now_ms);
         }
-
-        /* Siguiente slot de 100 ms contado desde el arranque (sin acumular deriva). */
-        const int64_t elapsed_ms = k_uptime_get() - start_ms;
-        k_sleep(K_TIMEOUT_ABS_MS(start_ms + (elapsed_ms / APP_SLOT_MS + 1) * APP_SLOT_MS));
     }
 }

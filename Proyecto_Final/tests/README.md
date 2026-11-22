@@ -60,9 +60,22 @@ Firmware de producción, capturando LPUART1 desde el PC:
 - Watchdog: suspendiendo adquisición, GPS o main se reinicia por `task_wdt`
   (`RESET=0x3`); con las interrupciones bloqueadas reinicia el IWDG (`RESET=0x11`).
 
+### Desconexión de sensores (informes TEST cada 2 s, sin reinicios)
+
+| Sensor | Desconexión | Detección | Recuperación |
+| --- | --- | --- | --- |
+| MPU6050 | ~12 s | `IMU=invalida`, flag 0x0001 y PROBLEM en el primer informe; posición congelada en el último valor | `IMU=OK` sin recalibrar y la posición sigue desde donde estaba; PROBLEM se quita 2 s después. El Si7021 sigue válido |
+| GPS | ~10 s | La edad del NMEA sube y a los 10 s hay PROBLEM; el flag 0x0002 ya estaba por falta de fix | NMEA de nuevo a ~0,8 s y PROBLEM se quita 2 s después |
+| Si7021 (SDA suelto) | ~30 s | Temp/HR `[invalido]`, flag 0x0008 y PROBLEM a los 10 s sin dato bueno; se conserva el último par | Par válido nuevo al reconectar (se revalida el sensor) y PROBLEM se quita 2 s después |
+| LDR (VCC suelto) | ~20 s | Luz recortada a 100 %, `[aviso]` y flag 0x0004; sin PROBLEM (la lectura es válida) | Valor normal en el siguiente intento (2 s) |
+| LDR (señal suelta) | ~10 s | No se distingue: la entrada queda flotando y da valores intermedios | Limitación conocida del montaje sin pull-down |
+
+Soltar solo el VCC del Si7021 no basta para verlo fallar: puede seguir alimentado a
+través de las resistencias pull-up del bus.
+
 ## Pendiente en placa (P4)
 
-- Desconexión de cada sensor, reset del MPU, SDA/SCL retenidas y retoma del Si7021.
+- Reset del MPU y SDA/SCL retenidas con fixture (bus compartido).
 - 10 min de SIMU con DroneSIMU (parseo del simulador).
 - Deriva: 600 s en reposo sin tocar la placa.
 - Pilas reales (`.map` y margen observado) y consumo.

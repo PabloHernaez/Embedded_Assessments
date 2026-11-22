@@ -24,9 +24,7 @@ typedef struct {
 
     /* Calculo */
     ImuCalibration calibration;
-    Quaternionf initial_q;      /* q al terminar la calibracion: referencia de ROLL/PITCH/YAW */
-    bool navigation_time_pending; /* la proxima muestra usa dt = 0 */
-    int64_t previous_imu_ticks;
+    int64_t previous_imu_ticks; /* -1: la proxima muestra usa dt = 0 */
     MotionDetector motion;
 } AcquisitionImu;
 

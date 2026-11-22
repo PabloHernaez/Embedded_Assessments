@@ -61,10 +61,7 @@ TrackerStatus tracker_status_from_snapshots(TrackerHealth *health,
     const bool imu_problem = now_ms >= IMU_START_GRACE_MS &&
         (imu_stale || acq->imu.calibration_pending);
 
-    /* D4 puede invalidar nav al perder la IMU. Ese caso usa el plazo de IMU. */
-    const bool nav_problem = !imu_warning && !acq->imu.calibration_pending && !acq->nav.valid;
-
-    const bool active_fault = imu_problem || nav_problem || gps_link_problem || tx_failed ||
+    const bool active_fault = imu_problem || gps_link_problem || tx_failed ||
         slow_sensor_failed(now_ms, acq->light.quality.last_good_ms) ||
         slow_sensor_failed(now_ms, acq->environment.quality.last_good_ms);
 

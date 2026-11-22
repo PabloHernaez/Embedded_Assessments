@@ -13,7 +13,7 @@ int main(void)
     AcquisitionSnapshot acq = {
         .imu = { .quality = { .valid = true, .last_good_ms = 9990 },
                  .accel_mps2 = {0.0f, -0.12f, 9.81f} },
-        .nav = { .valid = true, .relative_q = { .w = 1.0f } },
+        .nav = { .q = { .w = 1.0f } },
         .light.quality.last_good_ms = -1,
         .environment.quality.last_good_ms = -1,
     };

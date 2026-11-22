@@ -23,7 +23,7 @@ int main(void)
         "+0000.5,-0001.2,+0000.1,073.5,+024.6,045.2,FLYING__,0000*3F\r\n";
     const AcquisitionSnapshot acq = {
         .nav = {
-            .relative_q = {0.9235574231f, 0.0230200168f, -0.0008525778f, 0.3827676033f},
+            .q = {0.9235574231f, 0.0230200168f, -0.0008525778f, 0.3827676033f},
             .position_m = {12.34f, -3.20f, 15.00f},
             .velocity_mps = {0.50f, -0.10f, 1.20f},
         },
@@ -54,7 +54,7 @@ int main(void)
         "+0000.0,+0000.0,-9999.9,100.0,-040.0,000.0,PROBLEM_,0043*";
     const AcquisitionSnapshot extreme = {
         .nav = {
-            .relative_q = {1.0f, 0.0f, 0.0f, 0.0f},
+            .q = {1.0f, 0.0f, 0.0f, 0.0f},
             .position_m = {1.0e9f, -12345.0f, -0.001f},
             .velocity_mps = {1000.0f, -0.006f, NAN},
         },

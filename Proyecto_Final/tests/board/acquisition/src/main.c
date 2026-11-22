@@ -30,21 +30,19 @@ static void snapshot_print(const AcquisitionSnapshot *s, int64_t now_ms,
                            int64_t report_dt_ms)
 {
     printk("D4 t_ms=%lld dt_ms=%lld cal=%d moving=%d "
-           "imu_ok=%d imu_age=%lld sat=%d nav_ok=%d\n",
+           "imu_ok=%d imu_age=%lld sat=%d\n",
            (long long)now_ms,
            (long long)report_dt_ms, s->imu.calibration_pending, s->moving,
            s->imu.quality.valid, (long long)sample_age(now_ms, &s->imu.quality),
-           s->imu.range_limited, s->nav.valid);
+           s->imu.range_limited);
     printk("IMU a=%.5f,%.5f,%.5f gyro=%.5f,%.5f,%.5f\n",
            (double)s->imu.accel_mps2.x, (double)s->imu.accel_mps2.y,
            (double)s->imu.accel_mps2.z, (double)s->imu.gyro_dps.x,
            (double)s->imu.gyro_dps.y, (double)s->imu.gyro_dps.z);
-    printk("NAV q=%.6f,%.6f,%.6f,%.6f rel=%.6f,%.6f,%.6f,%.6f "
+    printk("NAV q=%.6f,%.6f,%.6f,%.6f "
            "v=%.5f,%.5f,%.5f p=%.5f,%.5f,%.5f\n",
            (double)s->nav.q.w, (double)s->nav.q.x,
            (double)s->nav.q.y, (double)s->nav.q.z,
-           (double)s->nav.relative_q.w, (double)s->nav.relative_q.x,
-           (double)s->nav.relative_q.y, (double)s->nav.relative_q.z,
            (double)s->nav.velocity_mps.x, (double)s->nav.velocity_mps.y,
            (double)s->nav.velocity_mps.z, (double)s->nav.position_m.x,
            (double)s->nav.position_m.y, (double)s->nav.position_m.z);

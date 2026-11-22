@@ -56,18 +56,14 @@ typedef struct {
 } Quaternionf;
 
 /*
- * Resultado del estimador inercial:
- *   q            sensor -> marco local con Z hacia arriba (compensa la gravedad)
- *   relative_q   sensor -> postura inicial del sensor (ROLL/PITCH/YAW, SR4)
- *   velocity_mps, position_m en el marco local
- *   valid        la ultima actualizacion fue aceptada (no implica precision)
+ * Navegacion inercial, toda en los ejes del sensor al terminar la calibracion
+ * (orientacion inicial cero, SR4). Z es altura si la placa arranca nivelada.
+ *   q   sensor actual -> ejes iniciales; de aqui salen ROLL/PITCH/YAW
  */
 typedef struct {
     Quaternionf q;
-    Quaternionf relative_q;
     Vec3f velocity_mps;
     Vec3f position_m;
-    bool valid;
 } NavigationView;
 
 /* Indices de las cinco metricas de NORMAL: stats.metric[STATS_TEMP].mean, ... */

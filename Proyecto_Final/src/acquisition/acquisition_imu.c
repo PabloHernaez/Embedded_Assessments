@@ -30,33 +30,18 @@ static Vec3f accel_correct(Vec3f m)
     };
 }
 
-/* Calibracion inicial: sesgo del gyro y gravedad media de las mismas 100 muestras en reposo. */
-static void calibration_step(AcquisitionImu *ctx, Vec3f accel, Vec3f gyro)
-{
-    if (ctx->calibration.ready || !imu_calibration_update(&ctx->calibration, &accel, &gyro)) {
-        return;
-    }
-    if (estimator_set_initial_tilt(&ctx->nav, &ctx->calibration.gravity_mps2)) {
-        ctx->initial_q = ctx->nav.q;
-    } else {
-        imu_calibration_init(&ctx->calibration); /* la media no es gravedad: repetir */
-    }
-}
-
 /* Movimiento y navegacion con la muestra calibrada que hay en ctx->data. */
 static void inertial_step(AcquisitionImu *ctx)
 {
-    float dt_s = 0.0f;
+    float dt_s = 0.0f; /* primera muestra o tras una ruptura: no integrar */
 
     if (ctx->previous_imu_ticks >= 0) {
         const int64_t elapsed = ctx->sample_ticks - ctx->previous_imu_ticks;
 
-        if (elapsed > (int64_t)k_ms_to_ticks_floor64(TRACKER_IMU_MAX_GAP_MS)) {
-            /* Hueco > 50 ms: no integrar un tramo desconocido. */
-            motion_interrupt(&ctx->motion);
-            ctx->navigation_time_pending = true;
-        } else {
+        if (elapsed <= (int64_t)k_ms_to_ticks_floor64(TRACKER_IMU_MAX_GAP_MS)) {
             dt_s = (float)elapsed / CONFIG_SYS_CLOCK_TICKS_PER_SEC;
+        } else {
+            motion_interrupt(&ctx->motion); /* hueco > 50 ms: tramo desconocido */
         }
     }
     ctx->previous_imu_ticks = ctx->sample_ticks;
@@ -66,17 +51,13 @@ static void inertial_step(AcquisitionImu *ctx)
     ctx->moving = motion_update(&ctx->motion, ctx->accel_norm_mps2, ctx->gyro_norm_dps,
                                 ctx->data.quality.last_good_ms);
 
-    if (ctx->navigation_time_pending) {
-        dt_s = 0.0f; /* retomar el tiempo sin integrar */
-    }
-    ctx->navigation_time_pending =
-        !estimator_update(&ctx->nav, &ctx->initial_q, &ctx->data.accel_mps2,
-                          &ctx->data.gyro_dps, dt_s);
+    estimator_update(&ctx->nav, &ctx->calibration.gravity_mps2, &ctx->data.accel_mps2,
+                     &ctx->data.gyro_dps, dt_s);
 }
 
 /*
  * Muestra perdida (error, saturacion o reinicio): calidad invalida y continuidad
- * rota. Se conservan los ultimos valores, q/v/p, el sesgo y q0 ya calculados.
+ * rota. Se conservan los ultimos valores, q/v/p, el sesgo y g0 ya calculados.
  */
 static void imu_interrupt(AcquisitionImu *ctx)
 {
@@ -85,9 +66,7 @@ static void imu_interrupt(AcquisitionImu *ctx)
     }
     motion_interrupt(&ctx->motion);
     ctx->previous_imu_ticks = -1;
-    ctx->navigation_time_pending = true;
     ctx->data.quality.valid = false;
-    ctx->nav.valid = false;
 }
 
 static void imu_restart(AcquisitionImu *ctx)
@@ -108,8 +87,6 @@ void acquisition_imu_init(AcquisitionImu *ctx)
             .quality = { .valid = false, .last_good_ms = -1 },
             .calibration_pending = true,
         },
-        .initial_q = { .w = 1.0f },
-        .navigation_time_pending = true,
         .previous_imu_ticks = -1,
         .sample_ticks = -1,
     };
@@ -158,8 +135,9 @@ bool acquisition_imu_update(AcquisitionImu *ctx)
         return true;
     }
 
+    /* Hasta tener 100 muestras en reposo no hay sesgo ni g0: solo se calibra. */
     const Vec3f accel = accel_correct(reading.accel_mps2);
-    calibration_step(ctx, accel, reading.gyro_dps);
+    imu_calibration_update(&ctx->calibration, &accel, &reading.gyro_dps);
 
     const Vec3f bias = ctx->calibration.ready ? ctx->calibration.gyro_bias_dps : (Vec3f){0};
     ctx->data = (ImuData){

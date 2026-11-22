@@ -21,7 +21,7 @@ int simu_frame_encode(const SimuFrameInput *in, char buf[SIMU_FRAME_BUFFER_SIZE]
     const GpsSnapshot *g = in->gps;
     const bool fix = (in->status->flags & TRACKER_FLAG_GPS_INVALID) == 0U;
     const bool have_position = g->last_fix_ms >= 0; /* si nunca hubo fix: ceros */
-    const Vec3f rpy = euler_degrees(a->nav.relative_q);
+    const Vec3f rpy = euler_degrees(a->nav.q);
     const Vec3f p = a->nav.position_m;
     const Vec3f v = a->nav.velocity_mps;
     const Vec3f acc = a->imu.accel_mps2;

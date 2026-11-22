@@ -16,7 +16,6 @@ static AcquisitionSnapshot present_sensors(int64_t now_ms)
         .imu = { .quality = good },
         .light = { .quality = good },
         .environment = { .quality = good },
-        .nav = { .valid = true },
     };
 }
 
@@ -46,12 +45,6 @@ static int imu_tests(void)
     CHECK(tracker_status_from_snapshots(&health, &acq, &gps, 10249, false).state ==
           TRACKER_STATE_IDLE);
     CHECK(tracker_status_from_snapshots(&health, &acq, &gps, 10250, false).state ==
-          TRACKER_STATE_PROBLEM);
-
-    health = (TrackerHealth){ .healthy_since_ms = -1 };
-    acq = present_sensors(11200);
-    acq.nav.valid = false;
-    CHECK(tracker_status_from_snapshots(&health, &acq, &gps, 11200, false).state ==
           TRACKER_STATE_PROBLEM);
     return 0;
 }

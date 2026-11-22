@@ -8,7 +8,7 @@
 
 #define HUMAN_REPORT_BUFFER_SIZE 1024U
 
-/* Copias del llamador. ROLL/PITCH/YAW salen de acquisition->nav.relative_q. */
+/* Copias del llamador. ROLL/PITCH/YAW salen de acquisition->nav.q. */
 typedef struct {
     const AcquisitionSnapshot *acquisition;
     const GpsSnapshot *gps;

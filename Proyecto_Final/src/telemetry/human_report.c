@@ -120,9 +120,10 @@ int human_report_format(AppMode mode, const HumanReportInput *in, char *buf, siz
            a->imu.calibration_pending ? "pendiente" : "lista");
     append_vector(&r, "A", a->imu.accel_mps2, "m/s2", imu_seen);
     append_vector(&r, "G", a->imu.gyro_dps, "deg/s", imu_seen);
-    append_vector(&r, "RPY", euler_degrees(a->nav.relative_q), "deg", a->nav.valid);
-    append_vector(&r, "XYZ", a->nav.position_m, "m", a->nav.valid);
-    append_vector(&r, "VXYZ", a->nav.velocity_mps, "m/s", a->nav.valid);
+    const bool nav_ready = !a->imu.calibration_pending;
+    append_vector(&r, "RPY", euler_degrees(a->nav.q), "deg", nav_ready);
+    append_vector(&r, "XYZ", a->nav.position_m, "m", nav_ready);
+    append_vector(&r, "VXYZ", a->nav.velocity_mps, "m/s", nav_ready);
     append_gps(&r, in->gps, in->status, in->uptime_ms);
     append(&r, "Luz=%s %% [%s] Temp=%s C HR=%s %% [%s]\r\n",
            number(a->light.light_pct, light_seen, 1).text,

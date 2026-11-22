@@ -9,7 +9,7 @@
 #define SIMU_FRAME_WIRE_SIZE   221U
 #define SIMU_FRAME_BUFFER_SIZE (SIMU_FRAME_WIRE_SIZE + 1U)
 
-/* Copias del llamador. ROLL/PITCH/YAW salen de acquisition->nav.relative_q. */
+/* Copias del llamador. ROLL/PITCH/YAW salen de acquisition->nav.q. */
 typedef struct {
     const AcquisitionSnapshot *acquisition;
     const GpsSnapshot *gps;

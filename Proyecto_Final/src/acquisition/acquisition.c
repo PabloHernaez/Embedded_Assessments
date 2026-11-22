@@ -32,7 +32,7 @@ static AcquisitionSnapshot published = {
     .imu = { .quality.last_good_ms = -1, .calibration_pending = true },
     .light = { .quality.last_good_ms = -1 },
     .environment = { .quality.last_good_ms = -1 },
-    .nav = { .q.w = 1.0f, .relative_q.w = 1.0f },
+    .nav = { .q.w = 1.0f },
 };
 
 void acquisition_snapshot_get(AcquisitionSnapshot *out)

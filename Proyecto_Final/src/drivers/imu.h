@@ -27,12 +27,6 @@ int imu_init(void);
 /* IMU_NEW (actualiza *out), IMU_NO_NEW o error negativo (sin tocar *out). */
 int imu_read(ImuReading *out);
 
-/* Relee PWR_MGMT_1 y 0x19..0x1C; *matches indica si coinciden con imu_init. */
-int imu_check_configuration(bool *matches);
-
-/* *blocked = true si SCL o SDA estan a nivel bajo. */
-int imu_bus_is_blocked(bool *blocked);
-
 /* Nueve pulsos SCL y STOP mediante i2c_recover_bus para liberar el bus compartido. */
 int imu_recover_bus(void);
 

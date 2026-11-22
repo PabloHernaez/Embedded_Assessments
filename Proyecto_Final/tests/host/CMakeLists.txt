@@ -31,7 +31,6 @@ target_include_directories(acquisition_imu_tests PRIVATE
 add_executable(acquisition_environment_tests
     test_acquisition_environment.c
     ../../src/acquisition/acquisition_environment.c
-    ../../src/algorithms/statistics.c
 )
 target_include_directories(acquisition_environment_tests PRIVATE
     fakes
@@ -39,32 +38,9 @@ target_include_directories(acquisition_environment_tests PRIVATE
     ../../src/drivers
 )
 
-add_executable(acquisition_statistics_tests
-    test_acquisition_statistics.c
-    ../../src/acquisition/acquisition_imu.c
-    ../../src/acquisition/acquisition_environment.c
-    ../../src/algorithms/gyro_calibration.c
-    ../../src/algorithms/motion.c
-    ../../src/algorithms/estimator.c
+add_executable(statistics_tests
+    test_statistics.c
     ../../src/algorithms/statistics.c
-)
-target_include_directories(acquisition_statistics_tests PRIVATE
-    fakes_coordinator
-    ../../src/acquisition
-    ../../src/drivers
-)
-
-add_executable(acquisition_recovery_tests
-    test_acquisition_recovery.c
-    ../../src/acquisition/acquisition_imu.c
-    ../../src/algorithms/gyro_calibration.c
-    ../../src/algorithms/motion.c
-    ../../src/algorithms/estimator.c
-)
-target_include_directories(acquisition_recovery_tests PRIVATE
-    fakes
-    ../../src/acquisition
-    ../../src/drivers
 )
 
 add_executable(simu_frame_tests
@@ -83,7 +59,7 @@ add_executable(tracker_status_tests
 )
 target_include_directories(tracker_status_tests PRIVATE ../../src/app)
 
-foreach(test_target IN ITEMS motion_tests orientation_tests acquisition_imu_tests acquisition_environment_tests acquisition_statistics_tests acquisition_recovery_tests simu_frame_tests human_report_tests tracker_status_tests)
+foreach(test_target IN ITEMS motion_tests orientation_tests acquisition_imu_tests acquisition_environment_tests statistics_tests simu_frame_tests human_report_tests tracker_status_tests)
     target_include_directories(${test_target} PRIVATE
         ../../include
         ../../src/algorithms
@@ -105,9 +81,7 @@ add_test(NAME acquisition_imu_tests COMMAND acquisition_imu_tests)
 
 add_test(NAME acquisition_environment_tests COMMAND acquisition_environment_tests)
 
-add_test(NAME acquisition_statistics_tests COMMAND acquisition_statistics_tests)
-
-add_test(NAME acquisition_recovery_tests COMMAND acquisition_recovery_tests)
+add_test(NAME statistics_tests COMMAND statistics_tests)
 
 add_test(NAME simu_frame_tests COMMAND simu_frame_tests)
 add_test(NAME human_report_tests COMMAND human_report_tests)

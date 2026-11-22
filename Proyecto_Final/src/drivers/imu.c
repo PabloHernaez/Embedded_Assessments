@@ -6,7 +6,6 @@
 
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/i2c.h>
 #include <zephyr/kernel.h>
 #include <zephyr/sys/byteorder.h>
@@ -46,8 +45,6 @@
 #define MPU_RAW_SATURATION 32760
 
 static const struct device *const imu_bus = DEVICE_DT_GET(DT_NODELABEL(i2c2));
-static const struct gpio_dt_spec imu_scl = GPIO_DT_SPEC_GET(DT_NODELABEL(i2c2), scl_gpios);
-static const struct gpio_dt_spec imu_sda = GPIO_DT_SPEC_GET(DT_NODELABEL(i2c2), sda_gpios);
 
 static const struct {
     uint8_t reg;
@@ -155,43 +152,6 @@ int imu_read(ImuReading *out)
         .range_limited = saturated,
     };
     return IMU_NEW;
-}
-
-int imu_check_configuration(bool *matches)
-{
-    uint8_t power;
-    uint8_t config[4]; /* SMPLRT_DIV, CONFIG, GYRO_CONFIG, ACCEL_CONFIG consecutivos */
-
-    if (!device_is_ready(imu_bus)) {
-        return -ENODEV;
-    }
-
-    int ret = i2c_reg_read_byte(imu_bus, MPU_I2C_ADDR, MPU_REG_PWR_MGMT_1, &power);
-    if (ret == 0) {
-        ret = i2c_burst_read(imu_bus, MPU_I2C_ADDR, MPU_REG_SMPLRT_DIV, config, sizeof(config));
-    }
-    if (ret == 0) {
-        *matches = power == MPU_PWR_PLL_NOTEMP && config[0] == MPU_SMPLRT_50HZ &&
-                   config[1] == MPU_DLPF_20HZ && config[2] == MPU_GYRO_500DPS &&
-                   config[3] == MPU_ACCEL_4G;
-    }
-    return ret;
-}
-
-int imu_bus_is_blocked(bool *blocked)
-{
-    if (!gpio_is_ready_dt(&imu_scl) || !gpio_is_ready_dt(&imu_sda)) {
-        return -ENODEV;
-    }
-
-    const int scl = gpio_pin_get_dt(&imu_scl);
-    const int sda = gpio_pin_get_dt(&imu_sda);
-    if (scl < 0 || sda < 0) {
-        return scl < 0 ? scl : sda;
-    }
-
-    *blocked = scl == 0 || sda == 0;
-    return 0;
 }
 
 int imu_recover_bus(void)

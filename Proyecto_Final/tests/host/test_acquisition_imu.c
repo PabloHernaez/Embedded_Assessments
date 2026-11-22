@@ -11,6 +11,8 @@
     printf("FAIL line %d: %s\n", __LINE__, #expr); return 1; } } while (0)
 
 static int init_result;
+static unsigned int init_count;
+static unsigned int recover_count;
 static int read_result;
 static unsigned int read_count;
 static int64_t now_ticks;
@@ -18,12 +20,15 @@ static ImuReading next_reading;
 
 int imu_init(void)
 {
+    ++init_count;
     return init_result;
 }
 
-int imu_check_configuration(bool *matches) { *matches = true; return 0; }
-int imu_bus_is_blocked(bool *blocked) { *blocked = false; return 0; }
-int imu_recover_bus(void) { return 0; }
+int imu_recover_bus(void)
+{
+    ++recover_count;
+    return 0;
+}
 
 int imu_read(ImuReading *out)
 {
@@ -121,7 +126,7 @@ static int test_calibration(void)
     CHECK(!ctx.nav.valid);
     CHECK(near_q(ctx.nav.q, identity));
     CHECK(near_q(ctx.nav.relative_q, identity));
-    CHECK(ctx.capture_begin_ticks == -1 && ctx.sample_ticks == -1);
+    CHECK(ctx.sample_ticks == -1);
 
     next_reading = (ImuReading){
         .accel_mps2 = {0.0f, 0.0f, TRACKER_GRAVITY_MPS2},
@@ -131,7 +136,6 @@ static int test_calibration(void)
     CHECK(ctx.calibration.count == 1);
     CHECK(ctx.data.quality.valid && ctx.data.calibration_pending);
     CHECK(near_vec(ctx.data.gyro_dps, next_reading.gyro_dps));
-    CHECK(ctx.capture_begin_ticks == now_ticks);
     CHECK(ctx.sample_ticks == now_ticks);
     CHECK(ctx.data.quality.last_good_ms == now_ticks / 10);
 
@@ -563,10 +567,96 @@ static int test_navigation_relative_orientation(void)
     return 0;
 }
 
+/* Calibra con muestras en reposo y deja una trayectoria no nula. */
+static int prepare_navigation(AcquisitionImu *ctx)
+{
+    unsigned int checks = 0;
+    init_result = 0;
+    now_ticks = 0;
+    acquisition_imu_init(ctx);
+    next_reading = (ImuReading){
+        .accel_mps2 = sensor_accel_for((Vec3f){0.0f, 0.0f, TRACKER_GRAVITY_MPS2}),
+        .gyro_dps = {0.5f, 0.0f, 0.0f},
+    };
+    for (unsigned int i = 0; i < TRACKER_GYRO_CALIBRATION_SAMPLES; ++i) {
+        CHECK(step(ctx, IMU_NEW));
+    }
+    next_reading.accel_mps2 = sensor_accel_for((Vec3f){1.0f, 0.0f, TRACKER_GRAVITY_MPS2});
+    for (int i = 0; i < 10; ++i) {
+        CHECK(step(ctx, IMU_NEW));
+    }
+    CHECK(ctx->nav.valid && ctx->nav.velocity_mps.x > 0.1f);
+    return 0;
+}
+
+static int test_recovery(void)
+{
+    unsigned int checks = 0;
+    AcquisitionImu ctx;
+
+    /* Arranque: recupera el bus e inicializa una vez. */
+    init_count = 0;
+    recover_count = 0;
+    CHECK(prepare_navigation(&ctx) == 0);
+    CHECK(init_count == 1 && recover_count == 1);
+    const Vec3f bias = ctx.calibration.bias_dps;
+    const Quaternionf initial_q = ctx.initial_q;
+
+    /* Uno o dos errores: dato invalido, bus marcado, sin reinicio. */
+    NavigationView retained = ctx.nav;
+    CHECK(step(&ctx, -EIO) && ctx.bus_error && !ctx.data.quality.valid);
+    CHECK(step(&ctx, -EIO) && init_count == 1);
+    CHECK(step(&ctx, IMU_NEW) && !ctx.bus_error && ctx.data.quality.valid);
+    CHECK(ctx.nav.valid && near_navigation_values(ctx.nav, retained)); /* dt = 0 */
+
+    /* Tres errores seguidos: la vuelta siguiente reinicia sin leer. */
+    CHECK(step(&ctx, -EIO));
+    CHECK(step(&ctx, -EIO));
+    CHECK(step(&ctx, -EIO));
+    retained = ctx.nav;
+    unsigned int reads = read_count;
+    CHECK(step(&ctx, IMU_NEW));
+    CHECK(init_count == 2 && recover_count == 2 && read_count == reads);
+    CHECK(ctx.bus_error && ctx.configured);
+    /* El reinicio conserva sesgo, q0 y trayectoria: no se recalibra en vuelo. */
+    CHECK(near_vec(ctx.calibration.bias_dps, bias) && near_q(ctx.initial_q, initial_q));
+    CHECK(near_navigation_values(ctx.nav, retained));
+    CHECK(step(&ctx, IMU_NEW) && ctx.nav.valid && !ctx.data.calibration_pending);
+
+    /* Init fallido: se reintenta como mucho una vez por segundo. */
+    init_result = -EIO;
+    CHECK(step(&ctx, -EIO));
+    CHECK(step(&ctx, -EIO));
+    CHECK(step(&ctx, -EIO));
+    const int64_t previous_init = ctx.last_init_ticks;
+    while (!step(&ctx, IMU_NEW)) {
+        CHECK(init_count == 2); /* esperando: ni lee ni reinicia */
+    }
+    CHECK(init_count == 3 && !ctx.configured);
+    CHECK(ctx.last_init_ticks - previous_init >= 10000);
+    reads = read_count;
+    CHECK(!step(&ctx, IMU_NEW) && read_count == reads);
+    init_result = 0;
+    now_ticks += 10000;
+    CHECK(step(&ctx, IMU_NEW) && init_count == 4 && ctx.configured);
+
+    /* MPU mudo (reset silencioso: duerme y no da DATA_RDY): reinicio a los 500 ms. */
+    CHECK(step(&ctx, IMU_NEW) && ctx.data.quality.valid);
+    const int64_t last_new = ctx.sample_ticks;
+    while (!step(&ctx, IMU_NO_NEW)) {
+        CHECK(init_count == 4);
+    }
+    CHECK(init_count == 5 && now_ticks - last_new > 5000);
+
+    printf("PASS: %u acquisition IMU recovery checks\n", checks);
+    return 0;
+}
+
 int main(void)
 {
-    if (test_calibration() != 0 || test_motion() != 0 || test_navigation() != 0) {
+    if (test_calibration() != 0 || test_motion() != 0 || test_navigation() != 0 ||
+        test_navigation_relative_orientation() != 0) {
         return 1;
     }
-    return test_navigation_relative_orientation();
+    return test_recovery();
 }

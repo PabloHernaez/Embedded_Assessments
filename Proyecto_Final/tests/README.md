@@ -58,20 +58,14 @@ El [registro del 02/11/2026](board/acquisition/results/Ensayo_D4_20261102.md)
 incluye el fallo de aplazamiento de ENV detectado con IMU ausente, su ajuste
 minimo y la repeticion en placa, ademas de sesiones, luz y retomas individuales.
 
-El perfil D4_TIMING_ONLY del mismo ensayo usa configuracion de produccion,
-sin consola ni barrido de pilas. leer_tiempos.py captura por SWD los contadores
-privados y el estado del servicio. El [registro temporal](board/acquisition/results/Tiempos_Adquisicion_D4_20261102.md)
-contrasta el presupuesto nominal de 10 ms, la ausencia/retoma y una
-reinicializacion completa provocada mediante un indicador de RAM.
-
-El perfil D4_I2C_TEST añade un fixture GPIO y observacion de llamadas solo
-en el ensayo. Su [registro I2C](board/acquisition/results/I2C_D4_20261102.md)
-incluye reset/SLEEP reales, tres errores simulados con bus libre y SDA/SCL
-retenidas durante 60 ms/5 s. SCL ejercita el timeout de 5 ms y ambos sensores
-retoman; SDA breve reprodujo una falta de retoma del Si7021. El
-[diagnostico y ajuste del 03/11](board/acquisition/results/Si7021_Diagnostico_20261103.md)
-la corrige revalidando configuracion antes de F5, con regresion host y
-repeticion en placa sobre el modulo real.
+Los perfiles D4_TIMING_ONLY y D4_I2C_TEST se retiraron al simplificar el
+servicio (instrumentacion de tiempos y revision periodica de configuracion).
+Sus registros se conservan como historico de la version bc0797f:
+[tiempos](board/acquisition/results/Tiempos_Adquisicion_D4_20261102.md),
+[fallos I2C](board/acquisition/results/I2C_D4_20261102.md) y
+[diagnostico Si7021](board/acquisition/results/Si7021_Diagnostico_20261103.md).
+La correccion del Si7021 (revalidar tras un error de bus) se mantiene y tiene
+regresion host; los casos de fallo deben repetirse en placa en P4.
 
 ## Capturas de movimiento: 26/10/2026
 
@@ -130,39 +124,20 @@ de 90 grados desde una postura inicial inclinada, conservando q0 ante fallos.
 Las lecturas de estos casos son sinteticas; no son valores de calibracion
 nuevos para el montaje.
 
-test_acquisition_environment.c compila el modulo ambiental real y estadisticas,
-simulando driver y reloj. Verifica la cadencia, configuracion diferida, espera
-desde el final de F5 con ceil(40 ms) + 1 tick, recogida unica, retencion del par
-ante fallos, reconfiguracion en el siguiente vencimiento y cancelacion tras
-un error de lectura IMU. Una sesion estadistica iniciada durante la conversion
-rechaza el par anterior, conservando las fechas de la captura completa.
-Tambien reproduce las revisiones IMU fallidas cada 1 s: sin conversion pendiente
-no aplazan ENV, que puede iniciar y recoger en las siguientes vueltas permitidas.
+test_acquisition_imu.c incluye ademas la recuperacion: uno o dos errores
+invalidan sin reiniciar; tres errores seguidos o 500 ms sin muestras nuevas
+recuperan el bus y reinician el MPU, como mucho una vez por segundo, sin
+perder sesgo, q0 ni trayectoria.
 
-test_acquisition_statistics.c incluye el coordinador real para activar sus
-pasos privados, y compila IMU/ambiente/calibracion/movimiento/estimador/estadisticas
-reales. Su cabecera fakes_coordinator conserva la entrada del hilo sin
-arrancarlo y simula mutex, timer y reloj; luz queda fuera de este ensayo.
-No se añaden accesos de prueba al firmware de produccion.
+test_acquisition_environment.c compila el modulo ambiental real simulando
+driver y reloj. Verifica la cadencia de 2 s, la espera de 40 ms contada desde
+el final de F5, la retencion del par ante fallos, la revalidacion antes del
+siguiente F5 y el abandono de la conversion cuando la IMU acaba de fallar en
+el bus compartido (regresion del Si7021 del 03/11).
 
-Comprueba acumulacion postcalibracion, magnitudes con gravedad/sin sesgo,
-NO_NEW, getters repetidos, errores, saturacion y entradas no finitas. Una
-serie conocida verifica media/min/max/count; dos NEW iguales cuentan dos
-veces. Tambien verifica cierre sin muestras, ventana vacia, limite exacto
-por sample_ticks y salida/entrada de sesion durante una lectura simulada.
-El driver registra si se le llama con el mutex tomado. Este ensayo verifica
-el flujo determinista, sin sustituir pruebas de planificacion/tiempos en placa.
-Incluye cancelacion de ENV por fallo tardio de comprobacion IMU, bloqueo de
-la comprobacion opcional tras error ambiental y ausencia de acumulacion al revisar.
-Tambien verifica los contadores temporales, limites exactos de 10/20 ms,
-categorias nominal/mantenimiento, desborde uint32 y vencimientos multiples.
-
-test_acquisition_recovery.c usa el modulo IMU y los algoritmos reales con el
-driver simulado. Comprueba errores a 20/40/60 ms, revision a 80 ms y NEW a
-100 ms, revision fallida espaciada 1 s, configuracion perdida, init fallido
-sin rafagas, bus retenido y observacion GPIO fallida. Conserva trayectoria y
-sesgo a traves de los casos. Verifica comprobacion periodica tras NO_NEW y
-respeto de bus_allowed. No prueba fisicamente los pulsos GPIO ni el reset MPU.
+test_statistics.c prueba statistics.c en C puro: muestra anterior a la sesion,
+valores repetidos, muestra exactamente en el limite (va a la ventana
+siguiente), cierre sin muestras, n=0, ventanas perdidas y begin/end.
 
 ## Orientacion incremental
 

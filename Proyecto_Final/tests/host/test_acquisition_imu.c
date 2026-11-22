@@ -141,10 +141,10 @@ static int test_calibration(void)
 
     /* NO_NEW no repite ni interrumpe la muestra anterior. */
     ImuData retained = ctx.data;
-    Vec3f retained_sum = ctx.calibration_accel_sum;
+    Vec3f retained_sum = ctx.calibration.accel_sum_mps2;
     CHECK(!step(&ctx, IMU_NO_NEW));
     CHECK(ctx.calibration.count == 1);
-    CHECK(near_vec(ctx.calibration_accel_sum, retained_sum));
+    CHECK(near_vec(ctx.calibration.accel_sum_mps2, retained_sum));
     CHECK(ctx.data.quality.valid);
     CHECK(ctx.data.quality.last_good_ms == retained.quality.last_good_ms);
     CHECK(near_vec(ctx.data.gyro_dps, retained.gyro_dps));
@@ -152,7 +152,7 @@ static int test_calibration(void)
     /* Error y saturacion cancelan la secuencia, reteniendo el ultimo dato. */
     CHECK(step(&ctx, -EIO));
     CHECK(ctx.calibration.count == 0 && !ctx.calibration.ready);
-    CHECK(near_vec(ctx.calibration_accel_sum, zero));
+    CHECK(near_vec(ctx.calibration.accel_sum_mps2, zero));
     CHECK(!ctx.data.quality.valid && ctx.data.calibration_pending);
     CHECK(ctx.data.quality.last_good_ms == retained.quality.last_good_ms);
     CHECK(near_vec(ctx.data.gyro_dps, retained.gyro_dps));
@@ -162,7 +162,7 @@ static int test_calibration(void)
     next_reading.range_limited = true;
     CHECK(step(&ctx, IMU_NEW));
     CHECK(ctx.calibration.count == 0);
-    CHECK(near_vec(ctx.calibration_accel_sum, zero));
+    CHECK(near_vec(ctx.calibration.accel_sum_mps2, zero));
     CHECK(ctx.data.range_limited && !ctx.data.quality.valid);
     CHECK(ctx.data.quality.last_good_ms == retained.quality.last_good_ms);
 
@@ -172,14 +172,14 @@ static int test_calibration(void)
     next_reading.gyro_dps.x = 6.0f;
     CHECK(step(&ctx, IMU_NEW));
     CHECK(ctx.calibration.count == 0);
-    CHECK(near_vec(ctx.calibration_accel_sum, zero));
+    CHECK(near_vec(ctx.calibration.accel_sum_mps2, zero));
     CHECK(ctx.data.quality.valid && ctx.data.calibration_pending);
     next_reading.gyro_dps = (Vec3f){1.0f, -2.0f, 0.5f};
     CHECK(step(&ctx, IMU_NEW));
     next_reading.accel_mps2.z = 12.0f;
     CHECK(step(&ctx, IMU_NEW));
     CHECK(ctx.calibration.count == 0);
-    CHECK(near_vec(ctx.calibration_accel_sum, zero));
+    CHECK(near_vec(ctx.calibration.accel_sum_mps2, zero));
 
     /* Dos grupos distintos: inclinacion usa la media, no la ultima muestra. */
     Vec3f accel_sum = {0};
@@ -204,7 +204,7 @@ static int test_calibration(void)
     }
 
     CHECK(ctx.calibration.ready);
-    CHECK(near_vec(ctx.calibration.bias_dps, (Vec3f){2.0f, -1.0f, 0.0f}));
+    CHECK(near_vec(ctx.calibration.gyro_bias_dps, (Vec3f){2.0f, -1.0f, 0.0f}));
     CHECK(near_vec(ctx.data.gyro_dps, (Vec3f){1.0f, 1.0f, -0.5f}));
     Vec3f accel_mean = {
         accel_sum.x / TRACKER_GYRO_CALIBRATION_SAMPLES,
@@ -223,7 +223,7 @@ static int test_calibration(void)
 
     /* Tras calibrar, ni nuevas lecturas ni fallos recapturan q0 o el sesgo. */
     Quaternionf initial_q = ctx.initial_q;
-    Vec3f bias = ctx.calibration.bias_dps;
+    Vec3f bias = ctx.calibration.gyro_bias_dps;
     next_reading.gyro_dps = (Vec3f){4.0f, 3.0f, 2.0f};
     CHECK(step(&ctx, IMU_NEW));
     CHECK(near_vec(ctx.data.gyro_dps, (Vec3f){2.0f, 4.0f, 2.0f}));
@@ -236,7 +236,7 @@ static int test_calibration(void)
     CHECK(step(&ctx, IMU_NEW));
     CHECK(ctx.calibration.ready && !ctx.data.calibration_pending);
     CHECK(ctx.calibration.count == TRACKER_GYRO_CALIBRATION_SAMPLES);
-    CHECK(near_vec(ctx.calibration.bias_dps, bias));
+    CHECK(near_vec(ctx.calibration.gyro_bias_dps, bias));
     CHECK(near_q(ctx.initial_q, initial_q));
     CHECK(near_navigation_values(ctx.nav, retained_nav));
     CHECK(!ctx.nav.valid && !ctx.data.quality.valid);
@@ -261,7 +261,7 @@ static int test_calibration(void)
     }
     CHECK(!ctx.calibration.ready && ctx.calibration.count == 0);
     CHECK(ctx.data.calibration_pending);
-    CHECK(near_vec(ctx.calibration_accel_sum, zero));
+    CHECK(near_vec(ctx.calibration.accel_sum_mps2, zero));
     CHECK(near_q(ctx.initial_q, identity));
     CHECK(near_q(ctx.nav.q, identity));
     CHECK(near_vec(ctx.data.gyro_dps, next_reading.gyro_dps));
@@ -599,7 +599,7 @@ static int test_recovery(void)
     recover_count = 0;
     CHECK(prepare_navigation(&ctx) == 0);
     CHECK(init_count == 1 && recover_count == 1);
-    const Vec3f bias = ctx.calibration.bias_dps;
+    const Vec3f bias = ctx.calibration.gyro_bias_dps;
     const Quaternionf initial_q = ctx.initial_q;
 
     /* Uno o dos errores: dato invalido, bus marcado, sin reinicio. */
@@ -619,7 +619,7 @@ static int test_recovery(void)
     CHECK(init_count == 2 && recover_count == 2 && read_count == reads);
     CHECK(ctx.bus_error && ctx.configured);
     /* El reinicio conserva sesgo, q0 y trayectoria: no se recalibra en vuelo. */
-    CHECK(near_vec(ctx.calibration.bias_dps, bias) && near_q(ctx.initial_q, initial_q));
+    CHECK(near_vec(ctx.calibration.gyro_bias_dps, bias) && near_q(ctx.initial_q, initial_q));
     CHECK(near_navigation_values(ctx.nav, retained));
     CHECK(step(&ctx, IMU_NEW) && ctx.nav.valid && !ctx.data.calibration_pending);
 

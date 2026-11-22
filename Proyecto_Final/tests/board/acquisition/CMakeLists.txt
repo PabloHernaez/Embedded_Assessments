@@ -19,7 +19,7 @@ target_sources(app PRIVATE
     "${TRACKER_ROOT}/src/drivers/light.c"
     "${TRACKER_ROOT}/src/drivers/imu.c"
     "${TRACKER_ROOT}/src/drivers/environment.c"
-    "${TRACKER_ROOT}/src/algorithms/gyro_calibration.c"
+    "${TRACKER_ROOT}/src/algorithms/imu_calibration.c"
     "${TRACKER_ROOT}/src/algorithms/motion.c"
     "${TRACKER_ROOT}/src/algorithms/estimator.c"
     "${TRACKER_ROOT}/src/algorithms/statistics.c"

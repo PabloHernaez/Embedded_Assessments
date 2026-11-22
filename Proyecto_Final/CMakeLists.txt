@@ -16,7 +16,7 @@ target_sources(app PRIVATE
     src/drivers/light.c
     src/drivers/imu.c
     src/drivers/environment.c
-    src/algorithms/gyro_calibration.c
+    src/algorithms/imu_calibration.c
     src/algorithms/motion.c
     src/algorithms/estimator.c
     src/algorithms/statistics.c

@@ -2,7 +2,7 @@
 #define DRONE_TRACKER_ACQUISITION_IMU_H
 
 #include "model.h"
-#include "../algorithms/gyro_calibration.h"
+#include "../algorithms/imu_calibration.h"
 #include "../algorithms/motion.h"
 
 /* Estado privado de la IMU. Solo lo usa el hilo de adquisicion. */
@@ -23,8 +23,7 @@ typedef struct {
     int64_t sample_ticks;       /* instante de la ultima lectura */
 
     /* Calculo */
-    GyroCalibration calibration;
-    Vec3f calibration_accel_sum;
+    ImuCalibration calibration;
     Quaternionf initial_q;      /* q al terminar la calibracion: referencia de ROLL/PITCH/YAW */
     bool navigation_time_pending; /* la proxima muestra usa dt = 0 */
     int64_t previous_imu_ticks;

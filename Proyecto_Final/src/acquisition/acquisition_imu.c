@@ -30,45 +30,16 @@ static Vec3f accel_correct(Vec3f m)
     };
 }
 
-static void calibration_reset(AcquisitionImu *ctx)
-{
-    gyro_calibration_init(&ctx->calibration);
-    ctx->calibration_accel_sum = (Vec3f){0};
-}
-
-/*
- * Calibracion inicial: 100 muestras seguidas en reposo dan el sesgo del gyro,
- * y la media de la aceleracion de esas mismas muestras da la inclinacion inicial.
- */
+/* Calibracion inicial: sesgo del gyro y gravedad media de las mismas 100 muestras en reposo. */
 static void calibration_step(AcquisitionImu *ctx, Vec3f accel, Vec3f gyro)
 {
-    if (ctx->calibration.ready) {
+    if (ctx->calibration.ready || !imu_calibration_update(&ctx->calibration, &accel, &gyro)) {
         return;
     }
-
-    gyro_calibration_update(&ctx->calibration, &gyro, vector_norm(accel), vector_norm(gyro));
-    if (ctx->calibration.count == 0U) {
-        ctx->calibration_accel_sum = (Vec3f){0}; /* se movio: empezar de nuevo */
-        return;
-    }
-
-    ctx->calibration_accel_sum.x += accel.x;
-    ctx->calibration_accel_sum.y += accel.y;
-    ctx->calibration_accel_sum.z += accel.z;
-
-    if (ctx->calibration.ready) {
-        const float n = (float)ctx->calibration.count;
-        const Vec3f mean = {
-            ctx->calibration_accel_sum.x / n,
-            ctx->calibration_accel_sum.y / n,
-            ctx->calibration_accel_sum.z / n,
-        };
-
-        if (estimator_set_initial_tilt(&ctx->nav, &mean)) {
-            ctx->initial_q = ctx->nav.q;
-        } else {
-            calibration_reset(ctx); /* la media no es gravedad: repetir */
-        }
+    if (estimator_set_initial_tilt(&ctx->nav, &ctx->calibration.gravity_mps2)) {
+        ctx->initial_q = ctx->nav.q;
+    } else {
+        imu_calibration_init(&ctx->calibration); /* la media no es gravedad: repetir */
     }
 }
 
@@ -110,7 +81,7 @@ static void inertial_step(AcquisitionImu *ctx)
 static void imu_interrupt(AcquisitionImu *ctx)
 {
     if (!ctx->calibration.ready) {
-        calibration_reset(ctx);
+        imu_calibration_init(&ctx->calibration);
     }
     motion_interrupt(&ctx->motion);
     ctx->previous_imu_ticks = -1;
@@ -142,7 +113,7 @@ void acquisition_imu_init(AcquisitionImu *ctx)
         .previous_imu_ticks = -1,
         .sample_ticks = -1,
     };
-    calibration_reset(ctx);
+    imu_calibration_init(&ctx->calibration);
     motion_init(&ctx->motion);
     estimator_init(&ctx->nav);
     imu_restart(ctx);
@@ -190,7 +161,7 @@ bool acquisition_imu_update(AcquisitionImu *ctx)
     const Vec3f accel = accel_correct(reading.accel_mps2);
     calibration_step(ctx, accel, reading.gyro_dps);
 
-    const Vec3f bias = ctx->calibration.ready ? ctx->calibration.bias_dps : (Vec3f){0};
+    const Vec3f bias = ctx->calibration.ready ? ctx->calibration.gyro_bias_dps : (Vec3f){0};
     ctx->data = (ImuData){
         .accel_mps2 = accel,
         .gyro_dps = {

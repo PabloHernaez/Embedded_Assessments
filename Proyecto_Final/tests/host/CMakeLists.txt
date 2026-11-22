@@ -18,7 +18,7 @@ add_executable(orientation_tests
 add_executable(acquisition_imu_tests
     test_acquisition_imu.c
     ../../src/acquisition/acquisition_imu.c
-    ../../src/algorithms/gyro_calibration.c
+    ../../src/algorithms/imu_calibration.c
     ../../src/algorithms/motion.c
     ../../src/algorithms/estimator.c
 )

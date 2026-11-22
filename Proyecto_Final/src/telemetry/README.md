@@ -5,7 +5,7 @@ hardware, reloj ni estado.
 
 | Archivo | Qué genera |
 | --- | --- |
-| `simu_frame.c` | Trama `$SIMU1` de 221 bytes. Un solo `snprintf` cuya cadena de formato sigue la tabla 3 del enunciado campo a campo; cada valor se redondea y se acota antes para que el ancho sea exacto. Checksum XOR entre `$` y `*`. |
+| `simu_frame.c` | Trama `$SIMU1` de 221 bytes. Un solo `snprintf` cuya cadena de formato sigue la tabla 3 del enunciado campo a campo; cada valor se acota antes a su campo (y NaN pasa a 0) para que el ancho sea exacto; el redondeo lo hace `printf`. Checksum XOR entre `$` y `*`. |
 | `human_report.c` | Informe de TEST (cada 2 s) y NORMAL (cada 5 s, con estadísticas de 30 s). `N/D` cuando nunca hubo dato. |
 | `attitude.h` | ROLL/PITCH/YAW (ZYX) desde `nav.q`, sin ramas: recorte del seno antes de `asinf`. |
 

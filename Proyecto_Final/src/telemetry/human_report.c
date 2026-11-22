@@ -136,9 +136,9 @@ int human_report_format(AppMode mode, const HumanReportInput *in, char *buf, siz
     } else {
         append(&r, "RESET=0x%08" PRIX32 "\r\n", in->reset_cause);
         if (in->watchdog_error == 0) {
-            append(&r, "IWDG=ACTIVO\r\n");
+            append(&r, "WDT=ACTIVO\r\n");
         } else {
-            append(&r, "IWDG=ERROR %d\r\n", in->watchdog_error);
+            append(&r, "WDT=ERROR %d\r\n", in->watchdog_error);
         }
     }
 

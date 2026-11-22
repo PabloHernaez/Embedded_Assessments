@@ -37,10 +37,10 @@ int main(void)
     CHECK(strstr(output, "NMEA edad=50 ms UTC=12:00:01") != NULL);
     CHECK(strstr(output, "Luz=N/D % [aviso] Temp=N/D C HR=N/D % [invalido]") != NULL);
     CHECK(strstr(output, "RESET=0xFFFFFFFF") != NULL);
-    CHECK(strstr(output, "IWDG=ACTIVO") != NULL);
+    CHECK(strstr(output, "WDT=ACTIVO") != NULL);
     in.watchdog_error = -ENODEV;
     CHECK(human_report_format(APP_MODE_TEST, &in, output, sizeof(output)) > 0);
-    CHECK(strstr(output, "IWDG=ERROR -") != NULL);
+    CHECK(strstr(output, "WDT=ERROR -") != NULL);
 
     /* Sin fix efectivo (flag GPS_INVALID): fix=0 y SAT=0, posicion retenida. */
     status.flags |= TRACKER_FLAG_GPS_INVALID;

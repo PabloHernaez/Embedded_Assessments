@@ -46,10 +46,10 @@ int main(void)
     }
 
     /* Sin fix ni posicion previa: GF=0, SAT=00 y ceros. Valores acotados a su
-     * campo, -0.00 escrito como +, NaN como cero. */
+     * campo y NaN como cero; -0,001 se escribe -0000.00 (formato valido). */
     static const char edge_prefix[] =
         "$SIMU1,65535,9999999999,0,00,+00.000000,+000.000000,+00000.0,"
-        "+9999.99,-9999.99,+0000.00,+999.99,-000.01,+000.00,"
+        "+9999.99,-9999.99,-0000.00,+999.99,-000.01,+000.00,"
         "+000.00,+000.00,+000.00,+000.00,+000.00,+000.00,"
         "+0000.0,+0000.0,-9999.9,100.0,-040.0,000.0,PROBLEM_,0043*";
     const AcquisitionSnapshot extreme = {

@@ -7,20 +7,10 @@
 #include <math.h>
 #include <stdio.h>
 
-/*
- * Valor listo para un campo de ancho fijo: NaN/Inf -> 0, redondeo a los
- * decimales del campo y acotado a [lo, hi] para que printf no lo ensanche.
- * Sumar 0.0 convierte -0.0 en +0.0 (el campo muestra "+000.00").
- */
-static double fit(double value, double lo, double hi, int decimals)
+/* NaN/Inf -> 0 y acotado a [lo, hi]: asi printf (que ya redondea) nunca ensancha el campo. */
+static double fit(double value, double lo, double hi)
 {
-    const double scale = pow(10.0, decimals);
-
-    if (!isfinite(value)) {
-        value = 0.0;
-    }
-    value = round(value * scale) / scale;
-    return fmin(hi, fmax(lo, value)) + 0.0;
+    return isfinite(value) ? fmin(hi, fmax(lo, value)) : 0.0;
 }
 
 int simu_frame_encode(const SimuFrameInput *in, char buf[SIMU_FRAME_BUFFER_SIZE])
@@ -49,22 +39,22 @@ int simu_frame_encode(const SimuFrameInput *in, char buf[SIMU_FRAME_BUFFER_SIZE]
         "%05.1f,%+06.1f,%05.1f,%s,%04X",         /* LIGHT, TEMP, HUM, STATE, FLAGS */
         (unsigned int)in->seq, in->uptime_ms, fix ? '1' : '0',
         fix ? (g->satellites > 99U ? 99U : (unsigned int)g->satellites) : 0U,
-        fit(have_position ? g->lat_udeg / 1e6 : 0.0, -90.0, 90.0, 6),
-        fit(have_position ? g->lon_udeg / 1e6 : 0.0, -180.0, 180.0, 6),
-        fit(have_position ? g->alt_mm / 1e3 : 0.0, -99999.9, 99999.9, 1),
-        fit(p.x, -9999.99, 9999.99, 2), fit(p.y, -9999.99, 9999.99, 2),
-        fit(p.z, -9999.99, 9999.99, 2),
-        fit(v.x, -999.99, 999.99, 2), fit(v.y, -999.99, 999.99, 2),
-        fit(v.z, -999.99, 999.99, 2),
-        fit(rpy.x, -999.99, 999.99, 2), fit(rpy.y, -999.99, 999.99, 2),
-        fit(rpy.z, -999.99, 999.99, 2),
-        fit(acc.x, -999.99, 999.99, 2), fit(acc.y, -999.99, 999.99, 2),
-        fit(acc.z, -999.99, 999.99, 2),
-        fit(w.x, -9999.9, 9999.9, 1), fit(w.y, -9999.9, 9999.9, 1),
-        fit(w.z, -9999.9, 9999.9, 1),
-        fit(a->light.light_pct, 0.0, 100.0, 1),
-        fit(a->environment.temperature_c, -999.9, 999.9, 1),
-        fit(a->environment.humidity_pct, 0.0, 100.0, 1),
+        fit(have_position ? g->lat_udeg / 1e6 : 0.0, -90.0, 90.0),
+        fit(have_position ? g->lon_udeg / 1e6 : 0.0, -180.0, 180.0),
+        fit(have_position ? g->alt_mm / 1e3 : 0.0, -99999.9, 99999.9),
+        fit(p.x, -9999.99, 9999.99), fit(p.y, -9999.99, 9999.99),
+        fit(p.z, -9999.99, 9999.99),
+        fit(v.x, -999.99, 999.99), fit(v.y, -999.99, 999.99),
+        fit(v.z, -999.99, 999.99),
+        fit(rpy.x, -999.99, 999.99), fit(rpy.y, -999.99, 999.99),
+        fit(rpy.z, -999.99, 999.99),
+        fit(acc.x, -999.99, 999.99), fit(acc.y, -999.99, 999.99),
+        fit(acc.z, -999.99, 999.99),
+        fit(w.x, -9999.9, 9999.9), fit(w.y, -9999.9, 9999.9),
+        fit(w.z, -9999.9, 9999.9),
+        fit(a->light.light_pct, 0.0, 100.0),
+        fit(a->environment.temperature_c, -999.9, 999.9),
+        fit(a->environment.humidity_pct, 0.0, 100.0),
         state_text[in->status->state], (unsigned int)in->status->flags);
 
     if (len != (int)SIMU_FRAME_WIRE_SIZE - 5) {

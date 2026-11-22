@@ -19,7 +19,7 @@ arranque con un timeout absoluto:
 
 ## Watchdog
 
-`task_wdt` de Zephyr: main (1 s), adquisición (2 s) y GPS (3 s) tienen
+`task_wdt` de Zephyr: main (1 s), adquisición (1 s) y GPS (3 s) tienen
 cada uno su canal. Si un hilo deja de alimentarlo, el sistema se reinicia. El
 IWDG (2 s) respalda al propio `task_wdt`. La causa de reinicio (`hwinfo`) y
 el estado del watchdog salen en el informe de TEST.

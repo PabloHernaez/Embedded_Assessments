@@ -16,7 +16,7 @@
 #define ACQUISITION_PERIOD_MS  20
 #define ACQUISITION_STACK_SIZE 2048
 #define ACQUISITION_PRIORITY   3
-#define ACQUISITION_WDT_MS     2000 /* con el bus retenido cada transferencia I2C espera 500 ms */
+#define ACQUISITION_WDT_MS     1000 /* peor vuelta: reinicio de la IMU, ~150 ms */
 
 K_MUTEX_DEFINE(acquisition_lock);
 K_TIMER_DEFINE(acquisition_timer, NULL, NULL);

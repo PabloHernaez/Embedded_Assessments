@@ -51,7 +51,8 @@ west build -p auto -b nucleo_wl55jc . -d build -- -DCONF_FILE=confs/prj_nucleo_w
 - LPUART1 (VCP) a 115200 solo para los reportes: sin consola, printk, logs
   ni banner; `src/build_checks.c` lo comprueba al compilar (GR5/SM6).
 - USART1 a 9600 con RX en PB7 (pull-up) para el GPS; UART por interrupciones.
-- I2C2 a 100 kHz (PA12 SCL / PA11 SDA) con recuperación de bus por GPIO.
+- I2C2 a 100 kHz (PA12 SCL / PA11 SDA), timeout de 10 ms por transferencia
+  y recuperación de bus por GPIO.
 - ADC1 canal 5 (PB1), 12 bits, referencia interna, para el LDR.
 - RGB activo bajo en PB5/PB8/PB10; B1 de la placa.
 - SysTick tickless a 10 000 ticks/s y timeouts de 64 bits.

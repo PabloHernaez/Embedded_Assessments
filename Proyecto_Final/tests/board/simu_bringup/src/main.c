@@ -7,6 +7,10 @@
 
 #include "acquisition_api.h"
 #include "simu_frame.h"
+#include "gps_api.h"
+#include "gps.h"
+
+#define GPS_FIX_MAX_AGE_MS 3000
 
 K_TIMER_DEFINE(simu_timer, NULL, NULL);
 
@@ -18,14 +22,17 @@ static const GpsSnapshot gps_without_fix = {
     .last_fix_ms = -1,
 };
 
-static TrackerStatus status_from_snapshot(const AcquisitionSnapshot *snapshot)
+static TrackerStatus status_from_snapshot(const AcquisitionSnapshot *snapshot,
+                                          bool gps_fix_usable)
 {
     TrackerStatus status = {
         .state = snapshot->moving ? TRACKER_STATE_FLYING : TRACKER_STATE_IDLE,
-        .flags = TRACKER_FLAG_GPS_INVALID |
-                 TRACKER_FLAG_INERTIAL_ONLY |
-                 TRACKER_FLAG_YAW_UNRELIABLE,
+        .flags = TRACKER_FLAG_INERTIAL_ONLY | TRACKER_FLAG_YAW_UNRELIABLE,
     };
+
+    if (!gps_fix_usable) {
+        status.flags |= TRACKER_FLAG_GPS_INVALID;
+    }
 
     if (!snapshot->imu.quality.valid || snapshot->imu.range_limited) {
         status.flags |= TRACKER_FLAG_IMU_INVALID;
@@ -52,6 +59,8 @@ int main(void)
         return -ENODEV;
     }
 
+    (void)gps_init();
+
     k_timer_start(&simu_timer, K_MSEC(100), K_MSEC(100));
 
     while (true) {
@@ -60,13 +69,21 @@ int main(void)
         AcquisitionSnapshot snapshot;
         acquisition_snapshot_get(&snapshot);
 
-        const TrackerStatus status = status_from_snapshot(&snapshot);
+        GpsSnapshot gps;
+        gps_snapshot_get(&gps);
+
+        const int64_t now_ms = k_uptime_get();
+        const bool gps_fix_usable = gps.fix_valid &&
+            gps.last_fix_ms >= 0 &&
+            now_ms - gps.last_fix_ms < GPS_FIX_MAX_AGE_MS;
+
+        const TrackerStatus status = status_from_snapshot(&snapshot, gps_fix_usable);
         const SimuFrameInput input = {
             .acquisition = &snapshot,
-            .gps = &gps_without_fix,
+            .gps = &gps,
             .status = &status,
             .seq = seq,
-            .uptime_ms = (uint64_t)k_uptime_get(),
+            .uptime_ms = (uint64_t)now_ms,
         };
 
         size_t len;

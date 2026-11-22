@@ -1,5 +1,7 @@
 
 #include "gps.h"
+#include "gps_api.h"
+
 
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
@@ -10,6 +12,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 /* =====================================================
  * CONFIGURACION
@@ -26,10 +29,7 @@
 static const struct device *uart = DEVICE_DT_GET(UART_NODE);
 
 // Cola de NMEA
-K_MSGQ_DEFINE(gps_msgq,
-              GPS_LINE_MAX,
-              GPS_QUEUE_SIZE,
-              1);
+K_MSGQ_DEFINE(gps_msgq, GPS_LINE_MAX, GPS_QUEUE_SIZE, 1);
 
 // HIlo para el stack de GPS
 K_THREAD_STACK_DEFINE(gps_stack, GPS_THREAD_STACK_SIZE);
@@ -42,16 +42,18 @@ static bool rx_overflow = false;
 
 static GPS_Struct gps_data = {0};
 
-static struct k_mutex gps_mutex;
+static GpsSnapshot gps_snapshot = {
+    .last_nmea_ms = -1,
+    .last_fix_ms = -1,
+};
+
+K_MUTEX_DEFINE(gps_mutex);
 
 static bool gps_initialized = false;
 
-static void gps_uart_isr(const struct device *dev,
-                         void *user_data);
+static void gps_uart_isr(const struct device *dev, void *user_data);
 
-static void gps_thread(void *p1,
-                       void *p2,
-                       void *p3);
+static void gps_thread(void *p1, void *p2, void *p3);
 
 static void gps_process_sentence(char *sentence);
 
@@ -59,21 +61,17 @@ static void gps_process_gga(char *sentence);
 
 static bool gps_check_checksum(const char *sentence);
 
-static double gps_convert_coordinate(const char *coord,
-                                     char hemisphere);
-
 int gps_init(void)
 {
     if (gps_initialized) {
         return 0;
+        
     }
 
     if (!device_is_ready(uart)) {
         printk("GPS: UART no disponible\n");
         return -ENODEV;
     }
-
-    k_mutex_init(&gps_mutex);
 
     // Creamos el hilo
     k_thread_create(&gps_thread_data,
@@ -86,10 +84,7 @@ int gps_init(void)
                     K_NO_WAIT);
 
     // Registrar callback
-    int ret = uart_irq_callback_user_data_set(
-                  uart,
-                  gps_uart_isr,
-                  NULL);
+    int ret = uart_irq_callback_user_data_set(uart, gps_uart_isr, NULL);
 
     if (ret != 0) {
         printk("GPS: Error configurando UART IRQ\n");
@@ -105,9 +100,7 @@ int gps_init(void)
     return 0;
 }
 
-
-static void gps_uart_isr(const struct device *dev,
-                         void *user_data)
+static void gps_uart_isr(const struct device *dev, void *user_data)
 {
     ARG_UNUSED(user_data);
 
@@ -127,9 +120,7 @@ static void gps_uart_isr(const struct device *dev,
 
                 rx_line[rx_index] = '\0';
 
-                k_msgq_put(&gps_msgq,
-                           rx_line,
-                           K_NO_WAIT);
+                k_msgq_put(&gps_msgq, rx_line, K_NO_WAIT);
             }
 
             rx_index = 0;
@@ -152,9 +143,7 @@ static void gps_uart_isr(const struct device *dev,
 }
 
 
-static void gps_thread(void *p1,
-                       void *p2,
-                       void *p3)
+static void gps_thread(void *p1, void *p2, void *p3)
 {
     ARG_UNUSED(p1);
     ARG_UNUSED(p2);
@@ -164,9 +153,7 @@ static void gps_thread(void *p1,
 
     while (1) {
 
-        if (k_msgq_get(&gps_msgq,
-                       sentence,
-                       K_FOREVER) == 0) {
+        if (k_msgq_get(&gps_msgq, sentence, K_FOREVER) == 0) {
 
             gps_process_sentence(sentence);
         }
@@ -204,22 +191,44 @@ static bool gps_check_checksum(const char *sentence)
 }
 
 
-static double gps_convert_coordinate(const char *coord,
-                                     char hemisphere)
+static bool gps_parse_number(const char *field, double *out)
 {
-    double value = strtod(coord, NULL);
+    char *end;
+    double value = strtod(field, &end);
 
-    int degrees = (int)(value / 100.0);
-
-    double minutes = value - (degrees * 100.0);
-
-    double result = degrees + (minutes / 60.0);
-
-    if (hemisphere == 'S' || hemisphere == 'W') {
-        result = -result;
+    if (end == field || *end != '\0' || !isfinite(value)) {
+        return false;
     }
 
-    return result;
+    *out = value;
+    return true;
+}
+
+static bool gps_convert_coordinate(const char *coord, char hemisphere, double *out)
+{
+    const bool latitude = hemisphere == 'N' || hemisphere == 'S';
+    double value;
+
+    if ((!latitude && hemisphere != 'E' && hemisphere != 'W') ||
+        !gps_parse_number(coord, &value) || value < 0.0 || value > 18000.0) {
+        return false;
+    }
+
+    const int degrees = (int)(value / 100.0);
+    const double minutes = value - degrees * 100.0;
+    const double result = degrees + minutes / 60.0;
+
+    if (minutes >= 60.0 || result > (latitude ? 90.0 : 180.0)) {
+        return false;
+    }
+
+    *out = (hemisphere == 'S' || hemisphere == 'W') ? -result : result;
+    return true;
+}
+
+static int32_t gps_round_i32(double value)
+{
+    return (int32_t)(value < 0.0 ? value - 0.5 : value + 0.5);
 }
 
 
@@ -229,6 +238,10 @@ static void gps_process_sentence(char *sentence)
     if (!gps_check_checksum(sentence)) {
         return;
     }
+
+    k_mutex_lock(&gps_mutex, K_FOREVER);
+    gps_snapshot.last_nmea_ms = k_uptime_get();
+    k_mutex_unlock(&gps_mutex);
 
     // Unicamente accedemos a la parte de informacion GPS y satelital
     if (strncmp(sentence + 3, "GGA", 3) == 0) {
@@ -263,36 +276,37 @@ static void gps_process_gga(char *sentence)
         }
     }
 
-    if (field_count < 10) {
+    if (field_count < 10 || fields[6][0] < '0' || fields[6][0] > '9' ||
+        fields[6][1] != '\0') {
         return;
     }
 
-    uint8_t fix = (uint8_t)atoi(fields[6]);
+    const uint8_t fix = (uint8_t)(fields[6][0] - '0');
+    const bool valid = fix == 1U || fix == 2U;
 
-    uint8_t satellites = (uint8_t)atoi(fields[7]);
-
-    double altitude = strtod(fields[9], NULL);
-
+    char *end;
+    const long sats = strtol(fields[7], &end, 10);
+    const bool sats_ok = end != fields[7] && *end == '\0' && sats >= 0 && sats <= 99;
+    const uint8_t satellites = sats_ok ? (uint8_t)sats : 0U;
     double latitude = 0.0;
     double longitude = 0.0;
+    double altitude = 0.0;
+    double alt_mm = 0.0;
 
-    bool valid = false;
+    if (valid) {
+        if (field_count < 11 || !sats_ok || strcmp(fields[10], "M") != 0 ||
+            (strcmp(fields[3], "N") != 0 && strcmp(fields[3], "S") != 0) ||
+            (strcmp(fields[5], "E") != 0 && strcmp(fields[5], "W") != 0) ||
+            !gps_convert_coordinate(fields[2], fields[3][0], &latitude) ||
+            !gps_convert_coordinate(fields[4], fields[5][0], &longitude) ||
+            !gps_parse_number(fields[9], &altitude)) {
+            return;
+        }
 
-    if (fix > 0 &&
-        fields[2][0] != '\0' &&
-        fields[3][0] != '\0' &&
-        fields[4][0] != '\0' &&
-        fields[5][0] != '\0') {
-
-        latitude = gps_convert_coordinate(
-                       fields[2],
-                       fields[3][0]);
-
-        longitude = gps_convert_coordinate(
-                        fields[4],
-                        fields[5][0]);
-
-        valid = true;
+        alt_mm = altitude * 1000.0;
+        if (alt_mm < INT32_MIN || alt_mm > INT32_MAX) {
+            return;
+        }
     }
 
     k_mutex_lock(&gps_mutex, K_FOREVER);
@@ -300,11 +314,19 @@ static void gps_process_gga(char *sentence)
     gps_data.latitude = latitude;
     gps_data.longitude = longitude;
     gps_data.altitude = altitude;
-
     gps_data.satellites = satellites;
     gps_data.fix_quality = fix;
-
     gps_data.valid = valid;
+    gps_data.gga_count++;
+
+    gps_snapshot.fix_valid = valid;
+    if (valid) {
+        gps_snapshot.lat_udeg = gps_round_i32(latitude * 1000000.0);
+        gps_snapshot.lon_udeg = gps_round_i32(longitude * 1000000.0);
+        gps_snapshot.alt_mm = gps_round_i32(alt_mm);
+        gps_snapshot.satellites = satellites;
+        gps_snapshot.last_fix_ms = k_uptime_get();
+    }
 
     k_mutex_unlock(&gps_mutex);
 }
@@ -345,4 +367,11 @@ int gps_get_data(GPS_Struct *data)
     k_mutex_unlock(&gps_mutex);
 
     return 0;
+}
+
+void gps_snapshot_get(GpsSnapshot *out)
+{
+    k_mutex_lock(&gps_mutex, K_FOREVER);
+    *out = gps_snapshot;
+    k_mutex_unlock(&gps_mutex);
 }

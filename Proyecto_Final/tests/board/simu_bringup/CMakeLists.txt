@@ -11,7 +11,10 @@ set(DTC_OVERLAY_FILE "${TRACKER_ROOT}/boards/nucleo_wl55jc.overlay")
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(tracker_simu_bringup)
 
-target_include_directories(app PRIVATE "${TRACKER_ROOT}/include")
+target_include_directories(app PRIVATE
+    "${TRACKER_ROOT}/include"
+    "${TRACKER_ROOT}/src/drivers"
+)
 
 target_sources(app PRIVATE
     src/main.c
@@ -27,6 +30,7 @@ target_sources(app PRIVATE
     "${TRACKER_ROOT}/src/acquisition/acquisition_light.c"
     "${TRACKER_ROOT}/src/acquisition/acquisition_environment.c"
     "${TRACKER_ROOT}/src/telemetry/simu_frame.c"
+    "${TRACKER_ROOT}/src/drivers/gps.c"
 )
 
 target_link_libraries(app PRIVATE m)

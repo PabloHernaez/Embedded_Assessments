@@ -15,8 +15,11 @@ typedef struct {
     uint8_t fix_quality;
 
     bool valid;
+    // Cuenta de GGAs (debugging)
+    uint32_t gga_count;
 
 } GPS_Struct;
+
 
 // Inicializar el modulo GPS
 int gps_init(void);

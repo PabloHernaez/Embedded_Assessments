@@ -51,16 +51,4 @@ bool estimator_update(
     float dt_s
 );
 
-/* Obtener q_rel = initial^-1 * current.
- * Entradas: cuaterniones unitarios Hamilton sensor -> local.
- * Salida: sensor actual -> ejes del sensor en la postura inicial.
- * Exito: salida unitaria. Fallo: conserva la salida.
- * Todos los punteros deben ser validos.
- */
-bool estimator_relative_orientation(
-    Quaternionf *relative,
-    const Quaternionf *initial,
-    const Quaternionf *current
-);
-
 #endif

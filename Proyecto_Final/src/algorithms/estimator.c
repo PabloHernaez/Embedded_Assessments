@@ -50,11 +50,9 @@ static bool quaternion_normalize(Quaternionf *q)
     return true;
 }
 
-bool estimator_relative_orientation(
-    Quaternionf *relative,
-    const Quaternionf *initial,
-    const Quaternionf *current
-)
+/* Orientacion respecto a la postura inicial: sensor actual -> ejes iniciales. */
+static bool estimator_relative_orientation(Quaternionf *relative, const Quaternionf *initial,
+                                           const Quaternionf *current)
 {
     /* q_rel = q0^-1 * q; para un cuaternion unitario la inversa es el conjugado. */
     Quaternionf initial_inverse = {

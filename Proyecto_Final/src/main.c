@@ -1,75 +1,92 @@
-#include "acquisition_api.h"
-#include "drivers/gps.h"
-#include "simu_frame.h"
-#include "human_report.h"
-#include <zephyr/logging/log.h>
-
+#include <zephyr/drivers/hwinfo.h>
 #include <zephyr/kernel.h>
-#include <zephyr/drivers/gpio.h>
 
-static const struct gpio_dt_spec led =
-    GPIO_DT_SPEC_GET(DT_ALIAS(led0), gpios);
+#include "acquisition_api.h"
+#include "app/board_ui.h"
+#include "app/tracker_status.h"
+#include "drivers/gps.h"
+#include "gps_api.h"
+#include "app/output.h"
+
+#define APP_SLOT_MS 100
+
+static int64_t report_period_ms(AppMode mode)
+{
+    switch (mode) {
+    case APP_MODE_NORMAL:
+        return 5000;
+    case APP_MODE_SIMU:
+        return APP_SLOT_MS;
+    default:
+        return 2000;
+    }
+}
 
 int main(void)
 {
-    /*int ret;
-
-    if (!gpio_is_ready_dt(&led)) {
-        return 0;
+    int err = board_ui_init();
+    if (err != 0) {
+        return err;
     }
 
-    ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT_INACTIVE);
-    if (ret < 0) {
-        return 0;
+    uint32_t reset_cause = 0U;
+    if (hwinfo_get_reset_cause(&reset_cause) == 0) {
+        (void)hwinfo_clear_reset_cause();
+    } else {
+        reset_cause = 0U;
     }
 
-    while (1) {
-        gpio_pin_toggle_dt(&led);
-        k_msleep(500);
-    }*/
-    
-    GPS_Struct gps_data;
+    output_init();
+    (void)gps_init();
+    AppMode mode = APP_MODE_TEST;
+    AppMode requested = APP_MODE_TEST;
+    uint32_t omitted_reports = 0U;
+    const int64_t start_ms = k_uptime_get();
+    int64_t next_report_ms = start_ms + report_period_ms(mode);
 
-    int ret;
-
-    if (gps_init() != 0 ) {
-        printk("\n--- Error al inicializar el GPS ---\n");
-        return -1;
-    }
-
-    printk("\n--- INICIAMOS RECABADO GPS ---\n");
-
-    while (1) {
-
-
-            ret = gps_get_data(&gps_data);
-
-            if (ret == 0) {
-
-                printk("\n--- DATOS GPS ---\n");
-
-                printk("Latitud: %f\n", gps_data.latitude);
-                printk("Longitud: %f\n", gps_data.longitude);
-                printk("Altitud: %f\n", gps_data.altitude);
-
-                printk("Satellites: %d\n", gps_data.satellites);
-                printk("Fix quality: %d\n", gps_data.fix_quality);
-
-                printk("Valid: %d\n", gps_data.valid);
-
-            } else {
-                printk("ERROR: No se pudieron obtener los datos\n");
+    while (true) {
+        const bool tx_failed = output_service(k_uptime_get());
+        const unsigned int presses = board_ui_take_presses();
+        requested = (AppMode)(((unsigned int)requested + presses % 3U) % 3U);
+        if (requested != mode && !output_busy()) {
+            if (mode == APP_MODE_NORMAL) {
+                acquisition_stats_end();
             }
+            mode = requested;
+            if (mode == APP_MODE_NORMAL) {
+                acquisition_stats_begin();
+            }
+            next_report_ms = k_uptime_get();
+            if (mode != APP_MODE_SIMU) {
+                next_report_ms += report_period_ms(mode);
+            }
+        }
 
+        AcquisitionSnapshot acq;
+        GpsSnapshot gps;
+        acquisition_snapshot_get(&acq);
+        gps_snapshot_get(&gps);
 
-        k_msleep(1000);
+        const int64_t now_ms = k_uptime_get();
+        TrackerStatus status = tracker_status_from_snapshots(&acq, &gps, now_ms);
+        if (tx_failed) {
+            status.state = TRACKER_STATE_PROBLEM;
+        }
+        board_ui_show(mode, status.state);
+
+        if (requested == mode && now_ms >= next_report_ms) {
+            const int64_t period_ms = report_period_ms(mode);
+            const int64_t late_periods = (now_ms - next_report_ms) / period_ms;
+            next_report_ms += (late_periods + 1) * period_ms;
+            omitted_reports += (uint32_t)late_periods;
+            if (!output_report(mode, &acq, &gps, &status, now_ms,
+                               reset_cause, omitted_reports)) {
+                ++omitted_reports;
+            }
+        }
+
+        const int64_t elapsed_ms = k_uptime_get() - start_ms;
+        const int64_t next_slot_ms = start_ms + (elapsed_ms / APP_SLOT_MS + 1) * APP_SLOT_MS;
+        k_sleep(K_TIMEOUT_ABS_MS(next_slot_ms));
     }
-
-    return 0;
 }
-
-
-
-/*
-west build -p auto -b nucleo_wl55jc   /home/pablo_bee_keeper/Escritorio/Embedded_Assessments/Proyecto_Final   -d /home/pablo_bee_keeper/Escritorio/Embedded_Assessments/Proyecto_Final/build --   -DZephyr-sdk_DIR=/home/pablo_bee_keeper/zephyr-sdk-1.0.1/cmake   -DUSER_CACHE_DIR=/home/pablo_bee_keeper/Escritorio/Embedded_Assessments/Proyecto_Final/.zephyr-cache -DDTC_OVERLAY_FILE=/home/pablo_bee_keeper/Escritorio/Embedded_Assessments/Proyecto_Final/boards/nucleo_wl55jc.overlay -DCONF_FILE=/home/pablo_bee_keeper/Escritorio/Embedded_Assessments/Proyecto_Final/confs/prj_nucleo_wl55jc.conf   -DUSE_CCACHE=0
-*/

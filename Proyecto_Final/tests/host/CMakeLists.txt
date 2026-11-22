@@ -1,32 +1,107 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.20)
+project(drone_pure_tests C)
 
-get_filename_component(TRACKER_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../.." ABSOLUTE)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+enable_testing()
 
-set(CONF_FILE
-    "${TRACKER_ROOT}/confs/prj_nucleo_wl55jc.conf"
-    "${CMAKE_CURRENT_SOURCE_DIR}/prj.conf"
-)
-set(DTC_OVERLAY_FILE "${TRACKER_ROOT}/boards/nucleo_wl55jc.overlay")
-
-find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-project(tracker_simu_bringup)
-
-target_include_directories(app PRIVATE "${TRACKER_ROOT}/include")
-
-target_sources(app PRIVATE
-    src/main.c
-    "${TRACKER_ROOT}/src/drivers/light.c"
-    "${TRACKER_ROOT}/src/drivers/imu.c"
-    "${TRACKER_ROOT}/src/drivers/environment.c"
-    "${TRACKER_ROOT}/src/algorithms/gyro_calibration.c"
-    "${TRACKER_ROOT}/src/algorithms/motion.c"
-    "${TRACKER_ROOT}/src/algorithms/estimator.c"
-    "${TRACKER_ROOT}/src/algorithms/statistics.c"
-    "${TRACKER_ROOT}/src/acquisition/acquisition.c"
-    "${TRACKER_ROOT}/src/acquisition/acquisition_imu.c"
-    "${TRACKER_ROOT}/src/acquisition/acquisition_light.c"
-    "${TRACKER_ROOT}/src/acquisition/acquisition_environment.c"
-    "${TRACKER_ROOT}/src/telemetry/simu_frame.c"
+add_executable(motion_tests
+    test_motion.c
+    ../../src/algorithms/motion.c
 )
 
-target_link_libraries(app PRIVATE m)
+add_executable(orientation_tests
+    test_estimator.c
+    ../../src/algorithms/estimator.c
+)
+
+add_executable(acquisition_imu_tests
+    test_acquisition_imu.c
+    ../../src/acquisition/acquisition_imu.c
+    ../../src/algorithms/gyro_calibration.c
+    ../../src/algorithms/motion.c
+    ../../src/algorithms/estimator.c
+)
+target_include_directories(acquisition_imu_tests PRIVATE
+    fakes
+    ../../src/acquisition
+    ../../src/drivers
+)
+
+add_executable(acquisition_environment_tests
+    test_acquisition_environment.c
+    ../../src/acquisition/acquisition_environment.c
+    ../../src/algorithms/statistics.c
+)
+target_include_directories(acquisition_environment_tests PRIVATE
+    fakes
+    ../../src/acquisition
+    ../../src/drivers
+)
+
+add_executable(acquisition_statistics_tests
+    test_acquisition_statistics.c
+    ../../src/acquisition/acquisition_imu.c
+    ../../src/acquisition/acquisition_environment.c
+    ../../src/algorithms/gyro_calibration.c
+    ../../src/algorithms/motion.c
+    ../../src/algorithms/estimator.c
+    ../../src/algorithms/statistics.c
+)
+target_include_directories(acquisition_statistics_tests PRIVATE
+    fakes_coordinator
+    ../../src/acquisition
+    ../../src/drivers
+)
+
+add_executable(acquisition_recovery_tests
+    test_acquisition_recovery.c
+    ../../src/acquisition/acquisition_imu.c
+    ../../src/algorithms/gyro_calibration.c
+    ../../src/algorithms/motion.c
+    ../../src/algorithms/estimator.c
+)
+target_include_directories(acquisition_recovery_tests PRIVATE
+    fakes
+    ../../src/acquisition
+    ../../src/drivers
+)
+
+add_executable(simu_frame_tests
+    test_simu_frame.c
+    ../../src/telemetry/simu_frame.c
+)
+
+add_executable(human_report_tests
+    test_human_report.c
+    ../../src/telemetry/human_report.c
+)
+
+foreach(test_target IN ITEMS motion_tests orientation_tests acquisition_imu_tests acquisition_environment_tests acquisition_statistics_tests acquisition_recovery_tests simu_frame_tests human_report_tests)
+    target_include_directories(${test_target} PRIVATE
+        ../../include
+        ../../src/algorithms
+    )
+
+    if(MSVC)
+        target_compile_options(${test_target} PRIVATE /W4 /WX)
+    else()
+        target_compile_options(${test_target} PRIVATE -Wall -Wextra -Werror)
+        target_link_libraries(${test_target} PRIVATE m)
+    endif()
+endforeach()
+
+add_test(NAME motion_tests COMMAND motion_tests)
+
+add_test(NAME orientation_tests COMMAND orientation_tests)
+
+add_test(NAME acquisition_imu_tests COMMAND acquisition_imu_tests)
+
+add_test(NAME acquisition_environment_tests COMMAND acquisition_environment_tests)
+
+add_test(NAME acquisition_statistics_tests COMMAND acquisition_statistics_tests)
+
+add_test(NAME acquisition_recovery_tests COMMAND acquisition_recovery_tests)
+
+add_test(NAME simu_frame_tests COMMAND simu_frame_tests)
+add_test(NAME human_report_tests COMMAND human_report_tests)

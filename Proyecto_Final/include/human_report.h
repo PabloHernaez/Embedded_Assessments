@@ -26,6 +26,9 @@ typedef struct {
     uint64_t uptime_ms;
     uint32_t reset_cause;
     uint32_t simu_replaced_fields;
+    uint32_t tx_completed;
+    uint32_t tx_aborted;
+    uint32_t tx_omitted;
 } HumanReportInput;
 
 /*

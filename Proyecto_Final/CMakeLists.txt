@@ -7,6 +7,11 @@ project(upm_zephyr_project)
 target_include_directories(app PRIVATE include)
 target_sources(app PRIVATE
     src/main.c
+    src/app/tracker_status.c
+    src/app/board_ui.c
+    src/app/output.c
+    src/telemetry/human_report.c
+    src/telemetry/simu_frame.c
     src/build_checks.c
     src/drivers/light.c
     src/drivers/imu.c

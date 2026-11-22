@@ -14,10 +14,12 @@ project(tracker_simu_bringup)
 target_include_directories(app PRIVATE
     "${TRACKER_ROOT}/include"
     "${TRACKER_ROOT}/src/drivers"
+    "${TRACKER_ROOT}/src/app"
 )
 
 target_sources(app PRIVATE
     src/main.c
+    "${TRACKER_ROOT}/src/app/tracker_status.c"
     "${TRACKER_ROOT}/src/drivers/light.c"
     "${TRACKER_ROOT}/src/drivers/imu.c"
     "${TRACKER_ROOT}/src/drivers/environment.c"

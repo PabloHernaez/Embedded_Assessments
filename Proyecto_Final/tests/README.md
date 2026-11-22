@@ -33,6 +33,7 @@ consola en LPUART1 (115200 8N1). Producción no la tiene.
 | --- | --- | --- |
 | `board/light` | `west build -b nucleo_wl55jc tests/board/light -d build-light` | Códigos ADC brutos del LDR para calibrar (`capturar_ldr.py`). |
 | `board/gps` | `west build -b nucleo_wl55jc tests/board/gps -d build-gps` | Servicio GPS real: enlace, fix, posición y UTC cada segundo. |
+| `board/watchdog` | `west build -b nucleo_wl55jc tests/board/watchdog -d build-wdt -- -DWDT_CASE=acquisition` | Firmware de producción más un bloqueo de un hilo a los 10 s: comprueba el reinicio por `task_wdt` y por el IWDG ([resultados](board/watchdog/README.md)). |
 | `board/acquisition` | `west build -b nucleo_wl55jc tests/board/acquisition -d build-acquisition` | Servicio de adquisición real con un observador de snapshots y órdenes `b`/`e` de sesión. |
 
 ## Evidencia registrada
@@ -56,11 +57,12 @@ Firmware de producción, capturando LPUART1 desde el PC:
   saltos desde 00000 e intervalo de TMS de 100 ms exactos (mínimo y máximo),
   incluida la primera al entrar en el modo. GF = 0 y SAT = 00 sin fix, FLAGS 00C2.
 - GPS sin fix en interior: enlace vivo (NMEA cada ~0,4 s), UTC válida y estado IDLE.
+- Watchdog: suspendiendo adquisición, GPS o main se reinicia por `task_wdt`
+  (`RESET=0x3`); con las interrupciones bloqueadas reinicia el IWDG (`RESET=0x11`).
 
 ## Pendiente en placa (P4)
 
 - Desconexión de cada sensor, reset del MPU, SDA/SCL retenidas y retoma del Si7021.
-- Bloquear cada hilo y comprobar el reinicio por `task_wdt`.
 - 10 min de SIMU con DroneSIMU (parseo del simulador).
 - Deriva: 600 s en reposo sin tocar la placa.
 - Pilas reales (`.map` y margen observado) y consumo.

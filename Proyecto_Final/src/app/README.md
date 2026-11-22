@@ -13,7 +13,7 @@ arranque con un timeout absoluto:
 
 | Archivo | Qué hace |
 | --- | --- |
-| `board_ui.c` | B1 por interrupción (pulsación válida ≥ 30 ms al soltar) y LED RGB por GPIO: azul TEST; verde/amarillo/rojo IDLE/FLYING/PROBLEM en NORMAL; cian SIMU. |
+| `board_ui.c` | B1 mediante el subsistema `input` de Zephyr (nodo `gpio-keys` de la placa, antirrebote de 30 ms; cuenta al soltar) y LED RGB por GPIO: azul TEST; verde/amarillo/rojo IDLE/FLYING/PROBLEM en NORMAL; cian SIMU. |
 | `tracker_status.c` | Flags SIMU y estado. PROBLEM tiene prioridad: IMU 250 ms sin dato (tras 10 s de gracia), calibración pendiente tras 10 s, luz o ambiente 10 s sin dato, GPS 10 s sin NMEA (tras 30 s de gracia) o fallo de la TX. Sale de PROBLEM tras 2 s sin causas. La falta de fix no provoca PROBLEM. |
 | `output.c` | LPUART1 a 115200 8N1 con TX por interrupción; plazo de envío y fallo de enlace. |
 

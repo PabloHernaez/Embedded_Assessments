@@ -6,6 +6,7 @@
 #include "acquisition_api.h"
 
 #include <zephyr/kernel.h>
+#include <zephyr/task_wdt/task_wdt.h>
 
 #include "../algorithms/statistics.h"
 #include "acquisition_environment.h"
@@ -15,6 +16,7 @@
 #define ACQUISITION_PERIOD_MS  20
 #define ACQUISITION_STACK_SIZE 2048
 #define ACQUISITION_PRIORITY   3
+#define ACQUISITION_WDT_MS     2000 /* con el bus retenido cada transferencia I2C espera 500 ms */
 
 K_MUTEX_DEFINE(acquisition_lock);
 K_TIMER_DEFINE(acquisition_timer, NULL, NULL);
@@ -85,7 +87,6 @@ static void publish(bool light_new, bool imu_new, bool environment_new)
         }
     }
     statistics_advance(&stats, k_uptime_ticks()); /* cerrar la ventana aunque no haya muestras */
-    published.progress++;
 
     k_mutex_unlock(&acquisition_lock);
 }
@@ -101,9 +102,11 @@ static void acquisition_entry(void *p1, void *p2, void *p3)
     acquisition_imu_init(&imu);
     acquisition_environment_init(&environment);
 
+    const int wdt = task_wdt_add(ACQUISITION_WDT_MS, NULL, NULL);
     k_timer_start(&acquisition_timer, K_MSEC(ACQUISITION_PERIOD_MS), K_MSEC(ACQUISITION_PERIOD_MS));
 
     while (true) {
+        (void)task_wdt_feed(wdt);
         /* Si se perdieron vencimientos se hace una sola lectura actual. */
         (void)k_timer_status_sync(&acquisition_timer);
 

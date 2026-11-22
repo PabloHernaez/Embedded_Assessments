@@ -7,7 +7,6 @@ project(upm_zephyr_project)
 target_include_directories(app PRIVATE include)
 target_sources(app PRIVATE
     src/main.c
-    src/app/app_watchdog.c
     src/app/tracker_status.c
     src/app/board_ui.c
     src/app/output.c

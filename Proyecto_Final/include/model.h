@@ -146,8 +146,6 @@ typedef struct {
  *
  *  moving -> movimiento confirmado. Eso junto con la salud del 
  *      sistema decide IDLE, FLYING o PROBLEM
- *  progress -> Aumenta al completar una adquisición, aun si fallan los sensores
- *      Con esto se puede distinguir un hilo trabajando de uno bloqueado
  */
 typedef struct {
     ImuData imu;
@@ -158,7 +156,6 @@ typedef struct {
     bool moving;
 
     StatsResult stats;
-    uint32_t progress;
 } AcquisitionSnapshot;
 
 /** 
@@ -194,8 +191,6 @@ typedef struct {
     /* Tiempos desde el arranque; -1 si nunca hubo resultado. */
     int64_t last_nmea_ms;
     int64_t last_fix_ms;
-
-    uint32_t progress;
 } GpsSnapshot;
 
 /** 

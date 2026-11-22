@@ -29,7 +29,7 @@ ensayo aprobado: hay que revisar datos, fechas, condiciones y limitaciones.
 
 ## Lectura de los reportes
 
-- D4: uptime, progress y su incremento dp durante dt_ms; calidad/edad IMU,
+- D4: uptime y dt_ms desde el reporte anterior; calidad/edad IMU,
   calibracion, movimiento, saturacion y validez de navegacion.
 - IMU: aceleracion en m/s2 con gravedad y giro en grados/s, corregido de
   sesgo al terminar la calibracion inicial.
@@ -53,7 +53,7 @@ SESSION y su uptime; no reinicia los sensores ni la navegacion.
 1. Arranque en reposo durante unos 40 s, con los tres sensores conectados.
    La sesion inicial comienza en main antes de terminar la calibracion IMU.
    Esperar paso de cal=1 a cal=0 y nav_ok=1; giro corregido proximo a cero.
-   Comprobar fechas renovadas, progress cercano a 50 vueltas/s y ventana
+   Comprobar fechas renovadas, edad IMU menor de 40 ms y ventana
    end_ms-begin_ms=30000. Los conteos IMU excluyen la calibracion inicial;
    aceleracion y giro deben tener igual conteo, igual que temperatura y HR.
    Luz y ambiente aportan aproximadamente 15 muestras por ventana completa

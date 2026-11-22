@@ -13,12 +13,14 @@
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/uart.h>
 #include <zephyr/kernel.h>
+#include <zephyr/task_wdt/task_wdt.h>
 
 #define GPS_LINE_MAX      128 /* NMEA admite 82 caracteres; el resto se descarta */
 #define GPS_QUEUE_LINES   4
 #define GPS_STACK_SIZE    1536
 #define GPS_PRIORITY      5
-#define GPS_WAIT_MS       200
+#define GPS_WAIT_MS       1000 /* sin NMEA el hilo despierta igual para su watchdog */
+#define GPS_WDT_MS        3000
 #define GGA_FIELDS        15
 
 static const struct device *const gps_uart = DEVICE_DT_GET(DT_NODELABEL(usart1));
@@ -216,13 +218,13 @@ static void gps_entry(void *p1, void *p2, void *p3)
         uart_irq_rx_enable(gps_uart);
     }
 
+    const int wdt = task_wdt_add(GPS_WDT_MS, NULL, NULL);
+
     while (true) {
+        (void)task_wdt_feed(wdt);
         if (k_msgq_get(&gps_lines, line, K_MSEC(GPS_WAIT_MS)) == 0) {
             process_line(line);
         }
-        k_mutex_lock(&gps_lock, K_FOREVER);
-        published.progress++;
-        k_mutex_unlock(&gps_lock);
     }
 }
 

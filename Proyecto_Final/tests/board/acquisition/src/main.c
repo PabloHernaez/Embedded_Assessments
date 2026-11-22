@@ -1,6 +1,8 @@
 #include <zephyr/device.h>
 #include <zephyr/drivers/uart.h>
+#include <zephyr/init.h>
 #include <zephyr/kernel.h>
+#include <zephyr/task_wdt/task_wdt.h>
 #include <zephyr/sys/printk.h>
 
 #include "acquisition_api.h"
@@ -9,6 +11,13 @@
 extern const k_tid_t acquisition_tid;
 
 static const struct device *const console = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
+
+/* El servicio registra su canal de task_wdt; en produccion lo inicia main.c. */
+static int watchdog_init(void)
+{
+    return task_wdt_init(NULL);
+}
+SYS_INIT(watchdog_init, APPLICATION, 0);
 
 /**
  * Calcula la edad de la ultima medida utilizable de una familia.
@@ -28,11 +37,11 @@ static int64_t sample_age(int64_t now_ms, const SampleQuality *quality)
  * Modifica: escribe por consola; conserva el snapshot y no accede a sensores.
  */
 static void snapshot_print(const AcquisitionSnapshot *s, int64_t now_ms,
-                           int64_t report_dt_ms, uint32_t progress_delta)
+                           int64_t report_dt_ms)
 {
-    printk("D4 t_ms=%lld progress=%u dp=%u dt_ms=%lld cal=%d moving=%d "
+    printk("D4 t_ms=%lld dt_ms=%lld cal=%d moving=%d "
            "imu_ok=%d imu_age=%lld sat=%d nav_ok=%d\n",
-           (long long)now_ms, (unsigned)s->progress, (unsigned)progress_delta,
+           (long long)now_ms,
            (long long)report_dt_ms, s->imu.calibration_pending, s->moving,
            s->imu.quality.valid, (long long)sample_age(now_ms, &s->imu.quality),
            s->imu.range_limited, s->nav.valid);
@@ -125,7 +134,6 @@ int main(void)
     int64_t next_report_ms = 0;
     int64_t previous_report_ms = 0;
     int64_t last_window_end_ms = -1;
-    uint32_t previous_progress = 0;
 
     while (true) {
         unsigned char command;
@@ -151,10 +159,8 @@ int main(void)
             last_window_end_ms = snapshot.stats.end_ms;
         }
         if (now_ms >= next_report_ms) {
-            snapshot_print(&snapshot, now_ms, now_ms - previous_report_ms,
-                           snapshot.progress - previous_progress);
+            snapshot_print(&snapshot, now_ms, now_ms - previous_report_ms);
             stacks_print();
-            previous_progress = snapshot.progress;
             previous_report_ms = now_ms;
             next_report_ms = now_ms + 1000;
         }

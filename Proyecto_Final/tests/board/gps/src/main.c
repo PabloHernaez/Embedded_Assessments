@@ -1,7 +1,17 @@
+#include <zephyr/init.h>
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
 
+#include <zephyr/task_wdt/task_wdt.h>
+
 #include "gps_api.h"
+
+/* El servicio registra su canal de task_wdt; en produccion lo inicia main.c. */
+static int watchdog_init(void)
+{
+    return task_wdt_init(NULL);
+}
+SYS_INIT(watchdog_init, APPLICATION, 0);
 
 /* Ensayo del servicio GPS real: imprime el snapshot cada segundo por la consola. */
 int main(void)

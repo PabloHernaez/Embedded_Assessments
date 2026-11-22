@@ -44,10 +44,23 @@ consola en LPUART1 (115200 8N1). Producción no la tiene.
 | [Ensayo D4](board/acquisition/results/Ensayo_D4_20261102.md) | Arranque, movimiento, luz, sesiones y ausencia/retoma de cada sensor. |
 | [Tiempos D4](board/acquisition/results/Tiempos_Adquisicion_D4_20261102.md), [I2C](board/acquisition/results/I2C_D4_20261102.md), [Si7021](board/acquisition/results/Si7021_Diagnostico_20261103.md) | Medidos con la versión `bc0797f` (antes de simplificar la recuperación): vuelta nominal máx. 3,2 ms, bus retenido y la corrección del Si7021. |
 
+## Comprobado en placa con la versión actual (16/11/2026)
+
+Firmware de producción, capturando LPUART1 desde el PC:
+
+- TEST: 68 informes cada 2000 ms (TMS) en dos capturas, sin reinicios en 160 s.
+- B1: TEST → NORMAL → SIMU con el subsistema `input`.
+- NORMAL: informes cada 5000 ms; ventana de 30 s con n = 15 en luz, T y HR y
+  n = 1496 en |a| y |w| (de 1500 posibles a 50 Hz).
+- SIMU: 632 tramas seguidas, todas de 221 bytes, checksum correcto, SEQ sin
+  saltos desde 00000 e intervalo de TMS de 100 ms exactos (mínimo y máximo),
+  incluida la primera al entrar en el modo. GF = 0 y SAT = 00 sin fix, FLAGS 00C2.
+- GPS sin fix en interior: enlace vivo (NMEA cada ~0,4 s), UTC válida y estado IDLE.
+
 ## Pendiente en placa (P4)
 
-- Repetir con la versión actual: desconexión de cada sensor, reset del MPU,
-  SDA/SCL retenidas y retoma del Si7021.
+- Desconexión de cada sensor, reset del MPU, SDA/SCL retenidas y retoma del Si7021.
 - Bloquear cada hilo y comprobar el reinicio por `task_wdt`.
-- 10 min de SIMU con DroneSIMU: intervalo, jitter y omisiones.
+- 10 min de SIMU con DroneSIMU (parseo del simulador).
+- Deriva: 600 s en reposo sin tocar la placa.
 - Pilas reales (`.map` y margen observado) y consumo.

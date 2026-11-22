@@ -190,8 +190,17 @@ calibración.
   del estimador (las entradas son `int16 × constante` con `dt` acotado) y
   `NavigationView.valid`.
 
-**Pendiente:** repetir en placa la captura de 600 s en reposo y los giros de 90° para
-cuantificar la deriva con este diseño. No se atribuye una mejora sin medirla.
+**Primera medida en placa (16/11/2026, firmware de producción, informe NORMAL):**
+a los 622,7 s desde el arranque, |v| ≈ 333 m/s y |p| ≈ 74,5 km, con roll de 6,1°
+y yaw de 10,6° acumulados. No es un reposo limpio: la placa estaba inclinada
+unos 5° y se pulsó B1 sobre ella dos veces para cambiar de modo. El orden de
+magnitud es el mismo que con el diseño anterior (284 m/s y 55,6 km a 600 s): la
+deriva la domina el sesgo residual del giro (0,01-0,02 °/s), que inclina `q`
+y deja pasar parte de la gravedad. Restar `g0` cancela el error del acelerómetro
+en la postura inicial, pero no ese efecto. Conclusión: la simplificación no
+empeora la navegación y tampoco la mejora de forma apreciable a 10 minutos.
+
+**Pendiente:** captura de 600 s en reposo sin tocar la placa y giros de 90° conocidos.
 
 ## Pendientes para cerrar D3
 

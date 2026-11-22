@@ -40,7 +40,6 @@ int main(void)
     app_watchdog_start();
     AppMode mode = APP_MODE_TEST;
     AppMode requested = APP_MODE_TEST;
-    uint32_t omitted_reports = 0U;
     TrackerHealth health = { .healthy_since_ms = -1 };
     const int64_t start_ms = k_uptime_get();
     int64_t next_report_ms = start_ms + report_period_ms(mode);
@@ -75,14 +74,10 @@ int main(void)
         board_ui_show(mode, status.state);
 
         if (requested == mode && now_ms >= next_report_ms) {
+            /* Con retraso se envia un solo mensaje actual y se salta al siguiente periodo. */
             const int64_t period_ms = report_period_ms(mode);
-            const int64_t late_periods = (now_ms - next_report_ms) / period_ms;
-            next_report_ms += (late_periods + 1) * period_ms;
-            omitted_reports += (uint32_t)late_periods;
-            if (!output_report(mode, &acq, &gps, &status, now_ms,
-                               reset_cause, omitted_reports, watchdog_error)) {
-                ++omitted_reports;
-            }
+            next_report_ms += ((now_ms - next_report_ms) / period_ms + 1) * period_ms;
+            (void)output_report(mode, &acq, &gps, &status, now_ms, reset_cause, watchdog_error);
         }
 
         const int64_t elapsed_ms = k_uptime_get() - start_ms;

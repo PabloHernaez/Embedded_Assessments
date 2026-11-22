@@ -3,152 +3,79 @@
 #include "attitude.h"
 
 #include <errno.h>
+#include <inttypes.h>
 #include <math.h>
-#include <string.h>
+#include <stdio.h>
 
-static const char hex[] = "0123456789ABCDEF";
-
-static char *digits(char *out, uint64_t value, size_t width)
+/*
+ * Valor listo para un campo de ancho fijo: NaN/Inf -> 0, redondeo a los
+ * decimales del campo y acotado a [lo, hi] para que printf no lo ensanche.
+ * Sumar 0.0 convierte -0.0 en +0.0 (el campo muestra "+000.00").
+ */
+static double fit(double value, double lo, double hi, int decimals)
 {
-    for (size_t i = width; i > 0U; --i) {
-        out[i - 1U] = (char)('0' + value % 10U);
-        value /= 10U;
-    }
-    return out + width;
-}
+    const double scale = pow(10.0, decimals);
 
-static int32_t power_of_ten(size_t width)
-{
-    int32_t value = 1;
-    for (size_t i = 0U; i < width; ++i) {
-        value *= 10;
-    }
-    return value;
-}
-
-static char *fixed(char *out, int32_t value, size_t whole,
-                   size_t decimals, bool signed_field)
-{
-    const int32_t scale = power_of_ten(decimals);
-    const int32_t limit = signed_field ? power_of_ten(whole + decimals) - 1
-                                       : 100 * scale;
-    const int32_t low = signed_field ? -limit : 0;
-
-    if (value < low) {
-        value = low;
-    } else if (value > limit) {
-        value = limit;
-    }
-
-    if (signed_field) {
-        *out++ = value < 0 ? '-' : '+';
-    }
-
-    const uint32_t magnitude = (uint32_t)(value < 0 ? -value : value);
-    out = digits(out, magnitude / (uint32_t)scale, whole);
-    *out++ = '.';
-    out = digits(out, magnitude % (uint32_t)scale, decimals);
-    *out++ = ',';
-    return out;
-}
-
-static char *real_field(char *out, float value, size_t whole, size_t decimals,
-                        bool signed_field, uint16_t *replacements)
-{
     if (!isfinite(value)) {
-        ++*replacements;
-        value = 0.0f;
+        value = 0.0;
     }
-
-    /* Acotar antes de convertir a entero. fixed() ajusta el ultimo digito. */
-    const float edge = signed_field ? (float)power_of_ten(whole) : 100.0f;
-    value = fminf(edge, fmaxf(signed_field ? -edge : 0.0f, value));
-    const int32_t scaled = (int32_t)roundf(value * (float)power_of_ten(decimals));
-
-    return fixed(out, scaled, whole, decimals, signed_field);
+    value = round(value * scale) / scale;
+    return fmin(hi, fmax(lo, value)) + 0.0;
 }
 
-static char *vector_fields(char *out, Vec3f vector, size_t whole,
-                           size_t decimals, uint16_t *replacements)
+int simu_frame_encode(const SimuFrameInput *in, char buf[SIMU_FRAME_BUFFER_SIZE])
 {
-    out = real_field(out, vector.x, whole, decimals, true, replacements);
-    out = real_field(out, vector.y, whole, decimals, true, replacements);
-    return real_field(out, vector.z, whole, decimals, true, replacements);
-}
+    static const char *const state_text[] = { "IDLE____", "FLYING__", "PROBLEM_" };
 
-int simu_frame_encode(const SimuFrameInput *in, char *buf, size_t cap,
-                      size_t *len, uint16_t *replacements)
-{
-    static const char *const state_text[] = {"IDLE____", "FLYING__", "PROBLEM_"};
+    const AcquisitionSnapshot *a = in->acquisition;
+    const GpsSnapshot *g = in->gps;
+    const bool fix = (in->status->flags & TRACKER_FLAG_GPS_INVALID) == 0U;
+    const bool have_position = g->last_fix_ms >= 0; /* si nunca hubo fix: ceros */
+    const Vec3f rpy = euler_degrees(a->nav.relative_q);
+    const Vec3f p = a->nav.position_m;
+    const Vec3f v = a->nav.velocity_mps;
+    const Vec3f acc = a->imu.accel_mps2;
+    const Vec3f w = a->imu.gyro_dps;
 
-    *len = 0U;
-    *replacements = 0U;
+    /* Tabla 3 del enunciado: un especificador por campo, en el mismo orden. */
+    int len = snprintf(buf, SIMU_FRAME_BUFFER_SIZE,
+        "$SIMU1,%05u,%010" PRIu64 ",%c,%02u,"   /* SEQ, TMS, GF, SAT */
+        "%+010.6f,%+011.6f,%+08.1f,"             /* LAT, LON, ALT */
+        "%+08.2f,%+08.2f,%+08.2f,"               /* X, Y, Z */
+        "%+07.2f,%+07.2f,%+07.2f,"               /* VX, VY, VZ */
+        "%+07.2f,%+07.2f,%+07.2f,"               /* ROLL, PITCH, YAW */
+        "%+07.2f,%+07.2f,%+07.2f,"               /* AX, AY, AZ */
+        "%+07.1f,%+07.1f,%+07.1f,"               /* GX, GY, GZ */
+        "%05.1f,%+06.1f,%05.1f,%s,%04X",         /* LIGHT, TEMP, HUM, STATE, FLAGS */
+        (unsigned int)in->seq, in->uptime_ms, fix ? '1' : '0',
+        fix ? (g->satellites > 99U ? 99U : (unsigned int)g->satellites) : 0U,
+        fit(have_position ? g->lat_udeg / 1e6 : 0.0, -90.0, 90.0, 6),
+        fit(have_position ? g->lon_udeg / 1e6 : 0.0, -180.0, 180.0, 6),
+        fit(have_position ? g->alt_mm / 1e3 : 0.0, -99999.9, 99999.9, 1),
+        fit(p.x, -9999.99, 9999.99, 2), fit(p.y, -9999.99, 9999.99, 2),
+        fit(p.z, -9999.99, 9999.99, 2),
+        fit(v.x, -999.99, 999.99, 2), fit(v.y, -999.99, 999.99, 2),
+        fit(v.z, -999.99, 999.99, 2),
+        fit(rpy.x, -999.99, 999.99, 2), fit(rpy.y, -999.99, 999.99, 2),
+        fit(rpy.z, -999.99, 999.99, 2),
+        fit(acc.x, -999.99, 999.99, 2), fit(acc.y, -999.99, 999.99, 2),
+        fit(acc.z, -999.99, 999.99, 2),
+        fit(w.x, -9999.9, 9999.9, 1), fit(w.y, -9999.9, 9999.9, 1),
+        fit(w.z, -9999.9, 9999.9, 1),
+        fit(a->light.light_pct, 0.0, 100.0, 1),
+        fit(a->environment.temperature_c, -999.9, 999.9, 1),
+        fit(a->environment.humidity_pct, 0.0, 100.0, 1),
+        state_text[in->status->state], (unsigned int)in->status->flags);
 
-    if (cap < SIMU_FRAME_BUFFER_SIZE) {
-        return -EMSGSIZE;
-    }
-    if (in->uptime_ms > UINT64_C(9999999999)) {
-        return -ERANGE;
-    }
-
-    const unsigned int state = (unsigned int)in->status->state;
-    const uint16_t flags = in->status->flags;
-    if (state >= sizeof(state_text) / sizeof(state_text[0]) || (flags & 0xFF00U)) {
-        return -EINVAL;
-    }
-
-    const AcquisitionSnapshot *acq = in->acquisition;
-    const GpsSnapshot *gps = in->gps;
-    const bool fix = (flags & TRACKER_FLAG_GPS_INVALID) == 0U;
-    const bool have_position = gps->last_fix_ms >= 0;
-    const int64_t altitude_mm = have_position ? gps->alt_mm : 0;
-    const int32_t altitude_dm =
-        (int32_t)((altitude_mm + (altitude_mm < 0 ? -50 : 50)) / 100);
-    const unsigned int satellites = gps->satellites > 99U ? 99U : gps->satellites;
-
-    memcpy(buf, "$SIMU1,", 7U);
-    char *out = digits(buf + 7U, in->seq, 5U);
-    *out++ = ',';
-    out = digits(out, in->uptime_ms, 10U);
-    *out++ = ',';
-    *out++ = fix ? '1' : '0';
-    *out++ = ',';
-    out = digits(out, fix ? satellites : 0U, 2U);
-    *out++ = ',';
-
-    out = fixed(out, have_position ? gps->lat_udeg : 0, 2U, 6U, true);
-    out = fixed(out, have_position ? gps->lon_udeg : 0, 3U, 6U, true);
-    out = fixed(out, altitude_dm, 5U, 1U, true);
-
-    out = vector_fields(out, acq->nav.position_m, 4U, 2U, replacements);
-    out = vector_fields(out, acq->nav.velocity_mps, 3U, 2U, replacements);
-    out = vector_fields(out, euler_degrees(acq->nav.relative_q, replacements),
-                        3U, 2U, replacements);
-    out = vector_fields(out, acq->imu.accel_mps2, 3U, 2U, replacements);
-    out = vector_fields(out, acq->imu.gyro_dps, 4U, 1U, replacements);
-    out = real_field(out, acq->light.light_pct, 3U, 1U, false, replacements);
-    out = real_field(out, acq->environment.temperature_c, 3U, 1U, true, replacements);
-    out = real_field(out, acq->environment.humidity_pct, 3U, 1U, false, replacements);
-
-    memcpy(out, state_text[state], 8U);
-    out += 8U;
-    *out++ = ',';
-    for (unsigned int shift = 16U; shift > 0U; shift -= 4U) {
-        *out++ = hex[(flags >> (shift - 4U)) & 0x0FU];
+    if (len != (int)SIMU_FRAME_WIRE_SIZE - 5) {
+        return -EIO; /* algun campo no cabe: TMS de mas de 10 cifras */
     }
 
-    uint8_t checksum = 0U;
-    for (const char *p = buf + 1U; p < out; ++p) {
-        checksum ^= (uint8_t)*p;
+    /* Checksum: XOR de los caracteres entre '$' y '*', excluidos ambos. */
+    uint8_t checksum = 0;
+    for (int i = 1; i < len; i++) {
+        checksum ^= (uint8_t)buf[i];
     }
-
-    *out++ = '*';
-    *out++ = hex[checksum >> 4];
-    *out++ = hex[checksum & 0x0FU];
-    *out++ = '\r';
-    *out++ = '\n';
-    *out = '\0';
-
-    *len = (size_t)(out - buf);
+    snprintf(buf + len, SIMU_FRAME_BUFFER_SIZE - (size_t)len, "*%02X\r\n", checksum);
     return 0;
 }

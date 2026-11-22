@@ -1,22 +1,19 @@
-# Formatos de salida
+# Formatos de salida (P2)
 
-Este bloque corresponde a Pablo en P2. Los contratos publicos estan en
-include/simu_frame.h e include/human_report.h; los formateadores puros y
-su validacion de trama siguen pendientes.
+Funciones puras: reciben copias de los snapshots y escriben texto; no tocan
+hardware, reloj ni estado.
 
-## Entrada de orientacion para SR4
+| Archivo | Qué genera |
+| --- | --- |
+| `simu_frame.c` | Trama `$SIMU1` de 221 bytes. Un solo `snprintf` cuya cadena de formato sigue la tabla 3 del enunciado campo a campo; cada valor se redondea y se acota antes para que el ancho sea exacto. Checksum XOR entre `$` y `*`. |
+| `human_report.c` | Informe de TEST (cada 2 s) y NORMAL (cada 5 s, con estadísticas de 30 s). `N/D` cuando nunca hubo dato. |
+| `attitude.h` | ROLL/PITCH/YAW (ZYX) desde `nav.relative_q`, con la rama de ±90°. |
 
-- acquisition->nav.relative_q: cuaternion Hamilton sensor actual -> ejes
-  iniciales del sensor. Empieza en identidad y es la entrada de ROLL/PITCH/YAW.
-- acquisition->nav.q: sensor -> marco local con Z arriba; se usa en navegacion.
-- Velocidad y posicion siguen expresadas en el marco local alineado con gravedad.
-- nav.valid conserva el significado de actualizacion numericamente aceptada;
-  no garantiza precision fisica ni ausencia de deriva.
+Reglas de la trama (§2.4.9): sin fix, GF = 0 y SAT = 00 y se conserva la
+última posición (ceros si nunca la hubo); NaN/Inf se escriben como cero;
+los valores fuera de rango se recortan al máximo del campo. La validez la
+indican STATE y FLAGS, que decide `src/app/tracker_status.c`.
 
-Adquisicion conserva q0 privado y prepara relative_q; los formateadores no
-recalibran ni conservan estado. P2 convierte el cuaternion relativo a Euler
-ZYX en grados y aplica las reglas de valores no finitos y formato fijo.
-La trama sigue siendo de 221 bytes. La integracion con el getter de D4 y la
-validacion de Euler/trama real quedan pendientes.
-
-El [registro D3](../../docs/D3_ESTIMACION.md) contiene las capturas y limites.
+`printf` con coma flotante viene de picolibc (`CONFIG_REQUIRES_FLOAT_PRINTF`).
+`tests/host/test_simu_frame.c` comprueba el vector oficial (XOR 3F) y los
+límites; también se ha ejecutado en `qemu_cortex_m3` con picolibc.

@@ -47,15 +47,12 @@ int main(void)
             .uptime_ms = (uint64_t)now_ms,
         };
 
-        size_t len;
-        uint16_t replacements;
-        int err = simu_frame_encode(&input, frame, sizeof(frame),
-                                    &len, &replacements);
-        if (err != 0 || len != SIMU_FRAME_WIRE_SIZE) {
-            return err != 0 ? err : -EIO;
+        int err = simu_frame_encode(&input, frame);
+        if (err != 0) {
+            return err;
         }
 
-        for (size_t i = 0U; i < len; ++i) {
+        for (size_t i = 0U; i < SIMU_FRAME_WIRE_SIZE; ++i) {
             uart_poll_out(simu_uart, (unsigned char)frame[i]);
         }
         ++seq;

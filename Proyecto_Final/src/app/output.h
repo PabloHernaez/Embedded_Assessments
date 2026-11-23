@@ -4,17 +4,14 @@
 #include "model.h"
 
 /*
- * LPUART1 (ST-LINK VCP) a 115200 8N1 con TX por interrupcion.
+ * LPUART1 (ST-LINK VCP) a 115200 8N1 con TX por DMA (API asincrona de UART).
  * reset_cause y watchdog_status solo se muestran en el informe de TEST.
  */
 void output_init(uint32_t reset_cause, int watchdog_status);
 
-/* true mientras la IRQ transmite el ultimo mensaje. */
+/* true mientras se transmite el ultimo mensaje. Si un envio supera su plazo,
+ * el driver lo aborta: la salida nunca se queda ocupada. */
 bool output_busy(void);
-
-/* Llamar en cada vuelta: si el envio supera su plazo se aborta, para que la
- * salida nunca se quede ocupada y bloquee el cambio de modo. */
-void output_service(int64_t now_ms);
 
 /* Formatea y empieza a enviar el mensaje del modo (trama SIMU o informe
  * TEST/NORMAL). Si la UART sigue ocupada, ese mensaje se omite. */

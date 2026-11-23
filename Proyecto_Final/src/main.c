@@ -77,7 +77,6 @@ int main(void)
         /* Si main se retrasa, los vencimientos perdidos se atienden en una sola vuelta. */
         (void)k_timer_status_sync(&app_timer);
         (void)task_wdt_feed(wdt);
-        output_service(k_uptime_get());
 
         /* B1 avanza TEST -> NORMAL -> SIMU -> TEST; el cambio espera a que acabe el envio. */
         requested = (AppMode)((requested + board_ui_take_presses()) % APP_MODE_COUNT);

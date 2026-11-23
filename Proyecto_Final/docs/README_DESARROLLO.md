@@ -50,6 +50,7 @@ west build -p auto -b nucleo_wl55jc . -d build -- -DCONF_FILE=confs/prj_nucleo_w
 
 - LPUART1 (VCP) a 115200 solo para los reportes: sin consola, printk, logs
   ni banner; `src/build_checks.c` lo comprueba al compilar (GR5/SM6).
+  TX con la API asíncrona de UART por DMA (DMAMUX canal 0, petición 22).
 - USART1 a 9600 con RX en PB7 (pull-up) para el GPS; UART por interrupciones.
 - I2C2 a 100 kHz (PA12 SCL / PA11 SDA), timeout de 10 ms por transferencia
   y recuperación de bus por GPIO.
@@ -66,7 +67,7 @@ west build -p auto -b nucleo_wl55jc . -d build -- -DCONF_FILE=confs/prj_nucleo_w
 - **Bajo consumo (GR6).** `CONFIG_PM=n`: los modos STOP pararían SysTick y la
   RX del GPS. El consumo se reduce sin ellos: los hilos bloquean en el pin
   INT del MPU, un timer o una cola y el idle ejecuta WFI; no hay esperas activas
-  (TX por IRQ, Si7021 sin hold); la adquisición despierta solo cuando hay
+  (TX por DMA, Si7021 sin hold); la adquisición despierta solo cuando hay
   muestra nueva, el sensor de temperatura del MPU está apagado y el calentador
   del Si7021 también; no hay hilo de logs.
 - **Orientación y navegación.** Un solo marco: los ejes del sensor al terminar la

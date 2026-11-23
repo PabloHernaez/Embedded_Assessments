@@ -10,7 +10,7 @@ Tres hilos, cada uno con su canal de `task_wdt` (respaldado por el IWDG):
 
 | Hilo | Prioridad | Despierta | Hace |
 | --- | --- | --- | --- |
-| Adquisición (`src/acquisition`) | 3 | `k_timer` de 20 ms | IMU a 50 Hz, luz y ambiente cada 2 s, calibración, movimiento, navegación y estadísticas de 30 s. |
+| Adquisición (`src/acquisition`) | 3 | Pin INT del MPU6050 (DATA_RDY, 50 Hz), máx. 30 ms | IMU a 50 Hz, luz y ambiente cada 2 s, calibración, movimiento, navegación y estadísticas de 30 s. |
 | main (`src/main.c`, `src/app`) | 4 | `k_timer` de 100 ms | Modo (B1), estado IDLE/FLYING/PROBLEM, LED y envío por LPUART1. |
 | GPS (`src/gps`) | 5 | Línea NMEA de la ISR (`k_msgq`), máx. 1 s | Checksum, GGA, enlace, fix y UTC. |
 

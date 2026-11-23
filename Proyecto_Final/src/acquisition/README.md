@@ -1,11 +1,14 @@
 # Servicio de adquisición (D4)
 
-Un hilo estático (prioridad 3, pila de 2048 B) que despierta con un `k_timer`
-de 20 ms. Cada vuelta:
+Un hilo estático (prioridad 3, pila de 2048 B) que despierta con cada muestra
+nueva del MPU6050: el pin INT (DATA_RDY, D8/PC2) da un semáforo a 50 Hz. Si no
+llega el pulso (cable suelto, IMU caída), el hilo despierta igual a los 30 ms y
+sigue sondeando, así que la recuperación y la luz y el ambiente no dependen del
+pin. Cada vuelta:
 
 1. **Luz** cada 2 s: ADC y porcentaje (`acquisition_light.c`).
 2. **IMU** en cada vuelta (`acquisition_imu.c`): lectura, calibración inicial,
-   movimiento y navegación. NO_NEW no hace nada.
+   movimiento y navegación. NO_NEW (solo en el sondeo de respaldo) no hace nada.
 3. **Ambiente** cada 2 s (`acquisition_environment.c`): lanza F5 y recoge el par
    40 ms después, en otra vuelta, sin bloquear.
 4. **Publicación**: copia lo que cambió y acumula las estadísticas de NORMAL
@@ -29,5 +32,5 @@ La aplicación solo usa `include/acquisition_api.h`: `acquisition_snapshot_get`,
 desde `acquisition_stats_begin`, con media/mín/máx/n de luz, T, HR, |a| y |ω|.
 La ventana se cierra a su hora aunque no haya muestras; n = 0 se muestra N/D.
 Cada vuelta primero cierra la ventana vencida y luego suma las muestras nuevas,
-así que una muestra puede caer en la ventana siguiente con un error de 20 ms
-como mucho.
+así que una muestra puede caer en la ventana siguiente con un error de una
+vuelta (20 ms) como mucho.

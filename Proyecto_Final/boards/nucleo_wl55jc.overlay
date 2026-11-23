@@ -32,6 +32,8 @@
 
     zephyr,user {
         io-channels = <&adc1 5>;
+        /* INT del MPU6050 (DATA_RDY) en D8: despierta la adquisicion en cada muestra. */
+        imu-int-gpios = <&gpioc 2 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
     };
 };
 

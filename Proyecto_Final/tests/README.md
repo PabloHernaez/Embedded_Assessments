@@ -53,6 +53,12 @@ Firmware de producción, capturando LPUART1 desde el PC:
 - B1: TEST → NORMAL → SIMU con el subsistema `input`.
 - NORMAL: informes cada 5000 ms; ventana de 30 s con n = 15 en luz, T y HR y
   n = 1496 en |a| y |w| (de 1500 posibles a 50 Hz).
+- Pin INT del MPU6050 en D8 (despertar por DATA_RDY): con el cable, n = 1498 en
+  |a| por ventana de 30 s. Al soltarlo en marcha, la ventana de transición da
+  1327 y las siguientes 940 (sondeo de respaldo cada ~32 ms: 30 ms de espera más
+  la vuelta), con `IMU=OK`, FLAGS 00C2 y sin reinicios. PC2 leído por SWD:
+  entrada con pull-down y EXTI2 en flanco de subida. Las demás pruebas de esta
+  lista se hicieron con el `k_timer` de 20 ms anterior.
 - SIMU: 632 tramas seguidas, todas de 221 bytes, checksum correcto, SEQ sin
   saltos desde 00000 e intervalo de TMS de 100 ms exactos (mínimo y máximo),
   incluida la primera al entrar en el modo. GF = 0 y SAT = 00 sin fix, FLAGS 00C2.

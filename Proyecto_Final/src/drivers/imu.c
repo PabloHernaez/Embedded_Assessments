@@ -56,8 +56,8 @@ static const struct {
     { MPU_REG_CONFIG, MPU_DLPF_20HZ },
     { MPU_REG_GYRO_CONFIG, MPU_GYRO_500DPS },
     { MPU_REG_ACCEL_CONFIG, MPU_ACCEL_4G },
-    { MPU_REG_INT_PIN_CFG, 0x00 },            /* DATA_RDY se borra al leer INT_STATUS */
-    { MPU_REG_INT_ENABLE, MPU_DATA_RDY },
+    { MPU_REG_INT_PIN_CFG, 0x00 },            /* pin INT: pulso de 50 us activo alto, push-pull */
+    { MPU_REG_INT_ENABLE, MPU_DATA_RDY },     /* un pulso por muestra nueva; INT_STATUS lo confirma */
     { MPU_REG_FIFO_EN, 0x00 },                /* sin FIFO */
 };
 

@@ -54,6 +54,8 @@ west build -p auto -b nucleo_wl55jc . -d build -- -DCONF_FILE=confs/prj_nucleo_w
 - I2C2 a 100 kHz (PA12 SCL / PA11 SDA), timeout de 10 ms por transferencia
   y recuperación de bus por GPIO.
 - ADC1 canal 5 (PB1), 12 bits, referencia interna, para el LDR.
+- INT del MPU6050 (DATA_RDY, pulso activo alto) en D8/PC2, flanco de subida.
+  Sin ese cable la adquisición sigue sondeando cada 30 ms.
 - RGB activo bajo en PB5/PB8/PB10; B1 de la placa.
 - SysTick tickless a 10 000 ticks/s y timeouts de 64 bits.
 - `task_wdt` con IWDG de respaldo (2 s), `hwinfo` para la causa de reinicio.
@@ -62,11 +64,11 @@ west build -p auto -b nucleo_wl55jc . -d build -- -DCONF_FILE=confs/prj_nucleo_w
 ## Decisiones y limitaciones
 
 - **Bajo consumo (GR6).** `CONFIG_PM=n`: los modos STOP pararían SysTick y la
-  RX del GPS. El consumo se reduce sin ellos: los hilos bloquean en timer,
-  cola o timeout absoluto y el idle ejecuta WFI; no hay esperas activas
-  (TX por IRQ, Si7021 sin hold); el sensor de temperatura del MPU está
-  apagado y el calentador del Si7021 también; no hay hilo de logs.
-  Mejora posible: usar el pin INT del MPU en lugar de sondear `INT_STATUS`.
+  RX del GPS. El consumo se reduce sin ellos: los hilos bloquean en el pin
+  INT del MPU, un timer o una cola y el idle ejecuta WFI; no hay esperas activas
+  (TX por IRQ, Si7021 sin hold); la adquisición despierta solo cuando hay
+  muestra nueva, el sensor de temperatura del MPU está apagado y el calentador
+  del Si7021 también; no hay hilo de logs.
 - **Orientación y navegación.** Un solo marco: los ejes del sensor al terminar la
   calibración. `q` empieza en identidad (SR4) y se integra con Euler; la aceleración
   se rota con `q` y se le resta `g0`, la gravedad medida en reposo. Z es altura si

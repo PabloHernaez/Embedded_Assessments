@@ -3,7 +3,8 @@
 Esta aplicacion enlaza las cuatro fuentes reales de acquisition, sus drivers
 y sus algoritmos. Solo sustituye el main de produccion por un observador de
 la API publica. No hace lecturas directas ni duplica el procesamiento.
-El hilo real conserva prioridad 3, pila solicitada de 2048 B y timer de 20 ms.
+El hilo real conserva prioridad 3, pila solicitada de 2048 B y el despertar por
+el pin INT del MPU6050 (D8/PC2), con sondeo de respaldo cada 30 ms.
 
 ## Construccion y captura
 

@@ -34,6 +34,7 @@ consola en LPUART1 (115200 8N1). Producción no la tiene.
 | `board/light` | `west build -b nucleo_wl55jc tests/board/light -d build-light` | Códigos ADC brutos del LDR para calibrar (`capturar_ldr.py`). |
 | `board/gps` | `west build -b nucleo_wl55jc tests/board/gps -d build-gps` | Servicio GPS real: enlace, fix, posición y UTC cada segundo. |
 | `board/watchdog` | `west build -b nucleo_wl55jc tests/board/watchdog -d build-wdt -- -DWDT_CASE=acquisition` | Firmware de producción más un bloqueo de un hilo a los 10 s: comprueba el reinicio por `task_wdt` y por el IWDG ([resultados](board/watchdog/README.md)). |
+| `board/stacks` | Producción con `-DEXTRA_CONF_FILE=tests/board/stacks/stacks.conf` y `tests/tools/read_stacks.py` | Margen real de cada pila leído por SWD con el firmware en marcha ([resultados](board/stacks/README.md)). |
 | `board/acquisition` | `west build -b nucleo_wl55jc tests/board/acquisition -d build-acquisition` | Servicio de adquisición real con un observador de snapshots y órdenes `b`/`e` de sesión. |
 
 ## Evidencia registrada
@@ -73,6 +74,9 @@ Firmware de producción, capturando LPUART1 desde el PC:
   `tests/tools/check_dronesimu.py`. En la interfaz de `DroneSIMU.exe` sobre COM5:
   tramas válidas, sin errores de parser ni timeouts, y toda la telemetría y las
   vistas del dron ([captura](../docs/img/DroneSIMU_placa_20261116.png)).
+- Pilas tras recorrer los tres modos y una recuperación del MPU: main 54 % libre
+  (1420 de 3072 B), adquisición 77 %, GPS 64 %, workqueue 80 %, interrupciones 90 %
+  e idle 75 % ([detalle](board/stacks/README.md)).
 - Giros de 90°: yaw +89,9° (error < 0,1° al volver); de canto −88,9° y −91,3° frente
   a 89,5° y 92,1° medidos con el acelerómetro; error al volver ~1,2° (tabla en
   [D3](../docs/D3_ESTIMACION.md)).
@@ -96,4 +100,4 @@ través de las resistencias pull-up del bus.
 ## Pendiente en placa (P4)
 
 - Reset del MPU y SDA/SCL retenidas con fixture (bus compartido).
-- Pilas reales (`.map` y margen observado) y consumo.
+- Consumo.

@@ -190,17 +190,37 @@ calibración.
   del estimador (las entradas son `int16 × constante` con `dt` acotado) y
   `NavigationView.valid`.
 
-**Primera medida en placa (16/11/2026, firmware de producción, informe NORMAL):**
-a los 622,7 s desde el arranque, |v| ≈ 333 m/s y |p| ≈ 74,5 km, con roll de 6,1°
-y yaw de 10,6° acumulados. No es un reposo limpio: la placa estaba inclinada
-unos 5° y se pulsó B1 sobre ella dos veces para cambiar de modo. El orden de
-magnitud es el mismo que con el diseño anterior (284 m/s y 55,6 km a 600 s): la
-deriva la domina el sesgo residual del giro (0,01-0,02 °/s), que inclina `q`
-y deja pasar parte de la gravedad. Restar `g0` cancela el error del acelerómetro
-en la postura inicial, pero no ese efecto. Conclusión: la simplificación no
-empeora la navegación y tampoco la mejora de forma apreciable a 10 minutos.
+**Medida en placa, 600 s en reposo sin tocar la placa (16/11/2026, firmware
+`bfb1eb9`).** Captura de los informes TEST (cada 2 s) desde el arranque; la
+calibración termina entre 2 y 4 s y los tiempos se cuentan desde ~2,3 s. La placa
+estaba inclinada unos 4,4° (aceleración media 0,746 / 0,132 / 9,827 m/s²). Sin
+reinicios y siempre en IDLE.
 
-**Pendiente:** captura de 600 s en reposo sin tocar la placa y giros de 90° conocidos.
+| t (s) | \|v\| anterior (m/s) | \|v\| actual (m/s) | \|p\| anterior (m) | \|p\| actual (m) |
+| ---: | ---: | ---: | ---: | ---: |
+| 10 | 0,963 | 0,070 | 4,785 | 0,26 |
+| 15 | 1,447 | 0,163 | 10,806 | 0,93 |
+| 30 | 2,942 | 0,579 | 43,581 | 5,88 |
+| 60 | 6,327 | 1,934 | 180,200 | 41,61 |
+| 120 | 15,796 | 8,134 | 809,808 | 314,20 |
+| 300 | 71,330 | 74,340 | 8 040,128 | 6 387,43 |
+| 600 | 284,242 | 435,223 | 55 567,650 | 73 727,79 |
+
+- **Primeros minutos:** restar `g0` elimina el error de norma del acelerómetro y la
+  deriva es mucho menor: 18 veces menos posición a 10 s, 7 a 30 s y 4 a 60 s.
+- **A partir de ~5 min:** domina el sesgo residual del giro, que inclina `q` y deja
+  pasar gravedad (`a_err ≈ g·θ`). Al final, roll +9,1°, pitch −6,0° y yaw +1,6°, con
+  un giro corregido medio de +0,014 / −0,009 / +0,002 °/s, mayor en X que en la sesión
+  anterior (+0,007). A 600 s la deriva vuelve al mismo orden que antes.
+- Una medida anterior del mismo día con la placa tocada para pulsar B1 dio 333 m/s y
+  74,5 km a 623 s: coherente con esta.
+
+Conclusión: el diseño de un solo marco mejora claramente la navegación en las
+demostraciones cortas (decenas de segundos) y no la cambia a 10 minutos, donde
+la limita el giróscopo. Captura original: fuera del repositorio (scratchpad de la
+sesión); los valores de la tabla salen de sus informes TEST.
+
+**Pendiente:** giros de 90° conocidos para contrastar los ángulos.
 
 ## Pendientes para cerrar D3
 

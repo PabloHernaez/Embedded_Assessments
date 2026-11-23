@@ -67,6 +67,9 @@ Firmware de producción, capturando LPUART1 desde el PC:
   `tests/tools/check_dronesimu.py`. En la interfaz de `DroneSIMU.exe` sobre COM5:
   tramas válidas, sin errores de parser ni timeouts, y toda la telemetría y las
   vistas del dron ([captura](../docs/img/DroneSIMU_placa_20261116.png)).
+- Deriva en 600 s de reposo sin tocar la placa: 0,26 m a 10 s, 41,6 m a 60 s y
+  73,7 km a 600 s, sin reinicios ni movimiento falso (tabla en
+  [D3](../docs/D3_ESTIMACION.md)).
 
 ### Desconexión de sensores (informes TEST cada 2 s, sin reinicios)
 
@@ -84,5 +87,4 @@ través de las resistencias pull-up del bus.
 ## Pendiente en placa (P4)
 
 - Reset del MPU y SDA/SCL retenidas con fixture (bus compartido).
-- Deriva: 600 s en reposo sin tocar la placa.
 - Pilas reales (`.map` y margen observado) y consumo.

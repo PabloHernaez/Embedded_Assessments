@@ -73,9 +73,9 @@ west build -p auto -b nucleo_wl55jc . -d build -- -DCONF_FILE=confs/prj_nucleo_w
   la placa arranca nivelada ([DEC-D3-02](D3_ESTIMACION.md)).
 - **Deriva.** Velocidad y posición se integran sin corrección (FLAGS 0x0040)
   y el yaw no tiene referencia absoluta (0x0080). Con el diseño anterior, en
-  600 s en reposo: |v| = 284 m/s, |p| = 55,6 km ([D3](D3_ESTIMACION.md)). Con el
-  actual, a 623 s (placa tocada para pulsar B1): |v| ≈ 333 m/s, |p| ≈ 74,5 km.
-  La domina el sesgo residual del giro.
+  600 s en reposo: |v| = 284 m/s, |p| = 55,6 km. Con el actual: 0,26 m a 10 s,
+  42 m a 60 s y 73,7 km a 600 s ([D3](D3_ESTIMACION.md)). Mucho mejor en los
+  primeros minutos; a 10 min la domina el sesgo residual del giro.
 - **LDR.** Referencias medidas con el montaje actual (3,3 V, sin pull-down
   de 47 kΩ); hay que repetirlas si cambia el montaje. No mide lux.
 - **Recuperación de la IMU.** Tras 3 errores seguidos o 500 ms sin muestra

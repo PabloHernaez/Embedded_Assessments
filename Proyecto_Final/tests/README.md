@@ -94,10 +94,17 @@ Firmware de producción, capturando LPUART1 desde el PC:
 | LDR (VCC suelto) | ~20 s | Luz recortada a 100 %, `[aviso]` y flag 0x0004; sin PROBLEM (la lectura es válida) | Valor normal en el siguiente intento (2 s) |
 | LDR (señal suelta) | ~10 s | No se distingue: la entrada queda flotando y da valores intermedios | Limitación conocida del montaje sin pull-down |
 
+| Bus I2C retenido (SDA o SCL a GND, ~25–30 s cada una) | IMU inválida (0x0001) en la primera trama, PROBLEM a los 250 ms y ambiente inválido (0x0008) en su siguiente medida | Al soltar, IMU y ambiente válidos en ~1 s sin recalibrar; PROBLEM se quita 2 s después |
+
+Durante las retenciones las tramas SIMU siguieron saliendo cada 100 ms (1345 tramas,
+intervalo máximo 100 ms) y no hubo ningún reinicio: con el timeout I2C de 10 ms la
+vuelta de adquisición sigue acotada y ningún hilo deja de alimentar su watchdog.
+
 Soltar solo el VCC del Si7021 no basta para verlo fallar: puede seguir alimentado a
 través de las resistencias pull-up del bus.
 
 ## Pendiente en placa (P4)
 
-- Reset del MPU y SDA/SCL retenidas con fixture (bus compartido).
+- Retenciones breves (< 1 s) del bus y reset silencioso del MPU (sin errores, solo deja de
+  dar muestras); están cubiertos por los ensayos de host, no en placa.
 - Consumo.

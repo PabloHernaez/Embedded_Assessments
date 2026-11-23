@@ -1,247 +1,117 @@
 # Ensayos
 
-Las pruebas de placa se ejecutan en una aplicacion separada del main de
-produccion. Los modulos puros y la adquisicion IMU tambien disponen de pruebas
-de host con CMake y CTest, sin hardware ni una instalacion de Zephyr.
+## Host (sin placa)
 
-## Placa: MPU6050, calibracion, movimiento y Si7021
-
-La aplicacion de board/sensors comparte los drivers y algoritmos reales.
-Aplica primero la configuracion comun y despues su perfil de consola
-LPUART1 a 115200 8N1. Produccion conserva las restricciones de build_checks.c.
-
-El main coordina funciones privadas para inicializar, leer, calibrar,
-procesar movimiento y navegacion, atender ambiente y mostrar el resumen. Un temporizador
-periodico da una oportunidad de lectura de IMU cada 20 ms. NO_NEW no repite
-una medida. Tras calibrar se resta el sesgo antes de calcular el giro usado
-por movimiento y navegacion. Errores, saturacion e intervalos mayores de 50 ms cancelan
-la confirmacion pendiente conservando el estado de movimiento confirmado.
-
-Movimiento se confirma tras 300 ms con desviacion de aceleracion >0.8 m/s2
-o giro >8 grados/s. Reposo exige 2 s con desviacion <0.3 m/s2 y giro
-<3 grados/s. Los umbrales quedan en algorithm_config.h.
-
-El Si7021 inicia una conversion aproximadamente cada 2 s y recoge su
-resultado en una vuelta posterior. La fecha de recogida se toma despues
-de F5 y conserva ceil(40 ms) + 1 tick. No bloquea el hilo durante conversion.
-Los mensajes de estado se limitan a uno por segundo, mas cambios de estado
-y resultados ambientales.
-
-Usamos las tareas locales West Build (sensores), Flash (Sensores) y Serial
-Monitor. Tambien puede construirse por terminal desde el entorno Zephyr:
-
-    west build -b nucleo_wl55jc Proyecto_Final/tests/board/sensors -d Proyecto_Final/build-sensors
-
-Las rutas del ejemplo son relativas a la raiz del repositorio; las rutas
-personales y las tareas locales no se incorporan a Git.
-
-## Placa: lectura bruta del LDR
-
-tests/board/light usa el driver real light.c con el ADC comun de produccion.
-Entrega una conversion cada 500 ms por la consola del ensayo. No enlaza
-adquisicion ni calcula promedios o porcentajes en el microcontrolador.
-
-    west build -p auto -b nucleo_wl55jc tests/board/light -d build-light
-
-capturar_ldr.py guarda tomas breves por condicion y muestra su rango/media
-en el PC. El [procedimiento](board/light/README.md) distingue las referencias
-provisionales sin pull-down de 47 kohm de la calibracion del montaje definitivo.
-
-## Placa: servicio integrado de adquisicion D4
-
-board/acquisition enlaza el servicio real con un main observador de snapshots.
-Muestra medidas/calidad/edades, navegacion, progreso, margen observado de pila
-y las cinco metricas al cerrar cada ventana de 30 s. Las ordenes b/e ejercitan
-begin/end sin reiniciar sensores. El [procedimiento](board/acquisition/README.md)
-describe las fases fisicas, la captura y el alcance de las comprobaciones.
-El [registro del 02/11/2026](board/acquisition/results/Ensayo_D4_20261102.md)
-incluye el fallo de aplazamiento de ENV detectado con IMU ausente, su ajuste
-minimo y la repeticion en placa, ademas de sesiones, luz y retomas individuales.
-
-El perfil D4_TIMING_ONLY del mismo ensayo usa configuracion de produccion,
-sin consola ni barrido de pilas. leer_tiempos.py captura por SWD los contadores
-privados y el estado del servicio. El [registro temporal](board/acquisition/results/Tiempos_Adquisicion_D4_20261102.md)
-contrasta el presupuesto nominal de 10 ms, la ausencia/retoma y una
-reinicializacion completa provocada mediante un indicador de RAM.
-
-El perfil D4_I2C_TEST añade un fixture GPIO y observacion de llamadas solo
-en el ensayo. Su [registro I2C](board/acquisition/results/I2C_D4_20261102.md)
-incluye reset/SLEEP reales, tres errores simulados con bus libre y SDA/SCL
-retenidas durante 60 ms/5 s. SCL ejercita el timeout de 5 ms y ambos sensores
-retoman; SDA breve reprodujo una falta de retoma del Si7021. El
-[diagnostico y ajuste del 03/11](board/acquisition/results/Si7021_Diagnostico_20261103.md)
-la corrige revalidando configuracion antes de F5, con regresion host y
-repeticion en placa sobre el modulo real.
-
-## Capturas de movimiento: 26/10/2026
-
-Los archivos originales se conservan en board/sensors/results/.
-
-| Captura | Tramo posterior a calibracion | NEW | NO_NEW | ERR | SAT | GAP |
-| --- | --- | --- | --- | --- | --- | --- |
-| Ensayo_motion_1.txt | 42 s | 2074 | 5 | 0 | 22 | 0 |
-| Ensayo_motion_2.txt | 68 s | 3394 | 7 | 0 | 0 | 0 |
-
-La primera captura registra cambios a movimiento en 19.294 s y a reposo en
-29.674 s desde arranque; hubo 22 saturaciones. La segunda registra movimiento
-en 13.134 s y reposo en 67.594 s, sin saturacion. En esta segunda prueba
-mantuvimos el sensor en movimiento hasta el final y despues lo dejamos quieto.
-
-En ambas capturas los contadores son coherentes con 50 consultas/s.
-Se obtuvieron 22 y 35 pares ambientales respectivamente, sin errores
-ambientales registrados. GAP cuenta discontinuidades con referencia previa
-activa; saturacion y error rompen esa referencia y se cuentan por separado.
-
-Estas capturas respaldan el ciclo nominal reposo-movimiento-reposo. No
-registran el comienzo de cada condicion candidata, por lo que no miden
-directamente los 300 ms y 2 s de confirmacion.
-
-## Host: movimiento, orientacion y adquisicion IMU/ambiente
-
-Desde Proyecto_Final:
+Código C puro y módulos de adquisición con el driver y el reloj simulados.
+Desde `Proyecto_Final`:
 
     cmake -S tests/host -B build-host
     cmake --build build-host --config Debug
     ctest --test-dir build-host -C Debug --output-on-failure
 
-Se necesita un compilador C de host. En el entorno Windows utilizado ya
-estan instalados MSVC Build Tools y CMake/CTest; no se anade un framework.
+| Suite | Qué comprueba |
+| --- | --- |
+| `test_motion.c` | Confirmación de movimiento (300 ms) y reposo (2 s), histéresis y cancelación. |
+| `test_estimator.c` | Reposo con la placa inclinada sin deriva (resta de g0), giros de 90° en cada eje y su composición, Euler explícito (p = 0,49 m tras 1 s a 1 m/s²) y dt = 0. |
+| `test_acquisition_imu.c` | Calibración (100 muestras: sesgo y g0 como medias), NO_NEW, errores, saturación, huecos > 50 ms, navegación con dt reales desde una postura inclinada y recuperación (3 errores o 500 ms sin muestra → reinicio, máx. 1/s, sin perder sesgo, g0 ni trayectoria). |
+| `test_acquisition_environment.c` | Cadencia de 2 s, 40 ms desde el final de F5, retención del par, revalidación tras fallos y tras un error de bus de la IMU (regresión Si7021 del 03/11). |
+| `test_statistics.c` | Ventanas `[t0, t1)` en ms, cierre a los 30 s exactos, valores repetidos, n = 0, cierre sin muestras y begin/end. |
+| `test_nmea.c` | Parser NMEA puro (`src/gps/nmea.c`): checksum, GGA con fix, GP/GN, hemisferios S/W, sin fix con campos vacíos, campos corruptos ignorados y frases que no son GGA. |
+| `test_simu_frame.c` | Vector oficial del enunciado (XOR 3F), sin fix, valores fuera de rango, NaN y TMS de 11 cifras. |
+| `test_human_report.c` | Informe TEST/NORMAL, N/D, estadísticas y falta de espacio. |
+| `test_tracker_status.c` | Flags, gracias iniciales, prioridad de PROBLEM y recuperación tras 2 s. |
 
-test_motion.c comprueba tiempos de confirmacion, cancelacion, histeresis,
-condiciones OR/AND, limites estrictos de giro, NO_NEW omitido por el
-llamador e interrupcion explicita de continuidad. Las comprobaciones
-siguen activas con NDEBUG.
+Las suites de formato también se han ejecutado en `qemu_cortex_m3` con
+picolibc (el `printf` que usa la placa).
 
-test_acquisition_imu.c compila el modulo real de adquisicion IMU con los
-algoritmos reales de calibracion, movimiento y estimacion, simulando solo
-el driver y el reloj. Comprueba la transicion en la muestra 100, la media de aceleracion de
-las muestras aceptadas, la resta del sesgo, NO_NEW, reinicios por movimiento,
-error y saturacion, rechazo de inclinacion y conservacion de sesgo/q0 tras
-calibrar. Tambien comprueba movimiento tras calibrar, uso del giro corregido,
-confirmaciones de 300 ms y 2 s, NO_NEW, error, saturacion y los limites de
-continuidad de 50 ms exactos y 50 ms mas un tick. Las cabeceras de fakes solo
-se incluyen en este ejecutable host.
+## Placa
 
-Los casos de navegacion verifican primera muestra con dt=0, compensacion de
-gravedad, integracion Euler de v/p con dt reales de 20, 40 y 50 ms, avance
-con moving=false, NO_NEW y retoma sin integrar huecos ni borrar v/p. Se
-comprueban rechazo atomico del candidato, retoma tras rechazo y giro relativo
-de 90 grados desde una postura inicial inclinada, conservando q0 ante fallos.
-Las lecturas de estos casos son sinteticas; no son valores de calibracion
-nuevos para el montaje.
+Cada ensayo es una aplicación aparte que reutiliza las fuentes reales y abre
+consola en LPUART1 (115200 8N1). Producción no la tiene.
 
-test_acquisition_environment.c compila el modulo ambiental real y estadisticas,
-simulando driver y reloj. Verifica la cadencia, configuracion diferida, espera
-desde el final de F5 con ceil(40 ms) + 1 tick, recogida unica, retencion del par
-ante fallos, reconfiguracion en el siguiente vencimiento y cancelacion tras
-un error de lectura IMU. Una sesion estadistica iniciada durante la conversion
-rechaza el par anterior, conservando las fechas de la captura completa.
-Tambien reproduce las revisiones IMU fallidas cada 1 s: sin conversion pendiente
-no aplazan ENV, que puede iniciar y recoger en las siguientes vueltas permitidas.
-
-test_acquisition_statistics.c incluye el coordinador real para activar sus
-pasos privados, y compila IMU/ambiente/calibracion/movimiento/estimador/estadisticas
-reales. Su cabecera fakes_coordinator conserva la entrada del hilo sin
-arrancarlo y simula mutex, timer y reloj; luz queda fuera de este ensayo.
-No se añaden accesos de prueba al firmware de produccion.
-
-Comprueba acumulacion postcalibracion, magnitudes con gravedad/sin sesgo,
-NO_NEW, getters repetidos, errores, saturacion y entradas no finitas. Una
-serie conocida verifica media/min/max/count; dos NEW iguales cuentan dos
-veces. Tambien verifica cierre sin muestras, ventana vacia, limite exacto
-por sample_ticks y salida/entrada de sesion durante una lectura simulada.
-El driver registra si se le llama con el mutex tomado. Este ensayo verifica
-el flujo determinista, sin sustituir pruebas de planificacion/tiempos en placa.
-Incluye cancelacion de ENV por fallo tardio de comprobacion IMU, bloqueo de
-la comprobacion opcional tras error ambiental y ausencia de acumulacion al revisar.
-Tambien verifica los contadores temporales, limites exactos de 10/20 ms,
-categorias nominal/mantenimiento, desborde uint32 y vencimientos multiples.
-
-test_acquisition_recovery.c usa el modulo IMU y los algoritmos reales con el
-driver simulado. Comprueba errores a 20/40/60 ms, revision a 80 ms y NEW a
-100 ms, revision fallida espaciada 1 s, configuracion perdida, init fallido
-sin rafagas, bus retenido y observacion GPIO fallida. Conserva trayectoria y
-sesgo a traves de los casos. Verifica comprobacion periodica tras NO_NEW y
-respeto de bus_allowed. No prueba fisicamente los pulsos GPIO ni el reset MPU.
-
-## Orientacion incremental
-
-estimator_init prepara NavigationView con q y relative_q identidad, v/p
-cero y valid=false. estimator_set_initial_tilt prepara q usando la media
-de aceleracion corregida de las 100 muestras aceptadas para calibrar gyro.
-La referencia q0 se fija entonces una vez; relative_q empieza en identidad.
-El limite inicial gyro es 5 grados/s sin corregir, separado del de reposo
-posterior de 3 grados/s. Los umbrales no certifican inmovilidad fisica.
-
-estimator_orientation_update integra el giro corregido en grados/s mediante
-Euler y normaliza el candidato Hamilton sensor -> local. estimator_update
-calcula q, relative_q=q0^-1*q, rota aceleracion, resta 9.80665 m/s2 en Z y
-avanza v/p con Euler explicito: la posicion usa la velocidad anterior.
-El candidato se confirma completo; ante rechazo se conservan esos valores
-y valid pasa a false. Se admiten dt entre 0 y 50 ms inclusive.
-
-Los algoritmos son C puro. El llamador omite NO_NEW, rompe continuidad ante
-error/saturacion/hueco y entrega dt=0 en la primera utilizable posterior.
-El ensayo y el servicio de D4 consumen ahora el mismo estimador. El servicio
-publica NavigationView completo; los formateadores de P2 siguen pendientes.
-
-test_estimator.c cubre reposo, giros positivos/negativos en los tres ejes,
-composicion de giros en ejes del sensor, norma unitaria, intervalos de 0,
-20, 40 y 50 ms, intervalos rechazados y conservacion del estado ante
-NaN, infinito, desbordamiento o cuaternion degenerado.
-## Verificacion de los incrementos
-
-CTest de movimiento paso en Debug. Tambien se compilaron 12 objetos ARM de
-aplicacion con las configuraciones vigentes de produccion y ensayo, usando
--Wextra -Werror. Las cabeceras generadas proceden de los builds configurados
-del proyecto original; esta comprobacion no es un enlace ELF completo.
-
-El incremento de orientacion paso ambos ejecutables de CTest en Debug y
-Release, y compilo 14 objetos ARM de aplicacion con los mismos perfiles.
-Las pruebas se ejecutaron sobre las fuentes que forman estos commits.
-Los intentos de build completo de ambos perfiles en la copia aislada se
-detuvieron al arrancar el DTC de Windows con codigo 0xc0000142, antes de
-compilar las fuentes. Al importar los commits en el repositorio original
-el 27/10/2026, los builds completos de produccion y sensores terminaron
-con codigo 0 y generaron sus ELF/HEX. CTest tambien paso en Debug y Release
-desde esa ubicacion. No hicimos otro ensayo de placa durante la importacion.
-## Verificacion del incremento de navegacion y SR4: 02/11/2026
-
-En la copia preparada para este commit pasaron los dos ejecutables de CTest
-(movimiento y orientacion) en Debug y Release. Una comprobacion nativa
-temporal verifico identidad inicial, inclinacion, giro relativo de 90 grados,
-integracion v/p, referencia inmutable y rechazo atomico ante entradas no
-finitas, referencia degenerada e intervalo superior a 50 ms.
-
-Se comprobaron tambien 14 fuentes de aplicacion con GCC ARM, -Wall -Wextra
--Werror y -fsyntax-only, usando las configuraciones generadas existentes de
-produccion y sensores. Esta comprobacion no es un nuevo enlace ELF/HEX.
-Las capturas de placa fueron realizadas por el usuario con sus builds; no
-se archivaron los ELF exactos para reconstruir cada imagen historica.
-La suite versionada sigue cubriendo movimiento y orientacion; la comprobacion
-adicional de navegacion fue temporal, junto con la evidencia real de placa.
-
-## Capturas D3 del 02/11/2026
-
-El [registro D3](../docs/D3_ESTIMACION.md) detalla procedimiento y limites.
-Los originales estan en board/sensors/results/ y el capturador de PC en
-board/sensors/capturar_deriva.py (requiere pyserial).
-
-| Captura | Duracion | Evidencia |
+| Ensayo | Comando | Para qué |
 | --- | --- | --- |
-| Ensayo_deriva_600s_20261102_165247_571741.txt | 600 s | 601 reportes, norma(v)=284,24 m/s y norma(p)=55 567,65 m al final. |
-| Ensayo_deriva_30s_20261102_172320_736933.txt | 30 s | Giro Z, pausa a yaw estimado 90,79 grados, regreso a -3,25 grados; sin patron angular independiente. |
-| Ensayo_deriva_10s_20261102_174455_612323.txt | 10 s | Orientacion relativa inicial identidad calculada para diagnostico. |
-| Ensayo_deriva_10s_20261102_181219_304185.txt | 10 s | relative_q calculado por el estimador y leido desde NavigationView. |
+| `board/light` | `west build -b nucleo_wl55jc tests/board/light -d build-light` | Códigos ADC brutos del LDR para calibrar (`capturar_ldr.py`). |
+| `board/gps` | `west build -b nucleo_wl55jc tests/board/gps -d build-gps` | Servicio GPS real: enlace, fix, posición y UTC cada segundo. |
+| `board/watchdog` | `west build -b nucleo_wl55jc tests/board/watchdog -d build-wdt -- -DWDT_CASE=acquisition` | Firmware de producción más un bloqueo de un hilo a los 10 s: comprueba el reinicio por `task_wdt` y por el IWDG ([resultados](board/watchdog/README.md)). |
+| `board/stacks` | Producción con `-DEXTRA_CONF_FILE=tests/board/stacks/stacks.conf` y `tests/tools/read_stacks.py` | Margen real de cada pila leído por SWD con el firmware en marcha ([resultados](board/stacks/README.md)). |
+| `board/acquisition` | `west build -b nucleo_wl55jc tests/board/acquisition -d build-acquisition` | Servicio de adquisición real con un observador de snapshots y órdenes `b`/`e` de sesión. |
 
-Las cuatro capturas tienen ERR/SAT/GAP/NAV_ERR a cero durante navegacion.
-No prueban errores fisicos exactos, tiempos de confirmacion sin registrar
-condiciones candidatas ni rutas de fallo no ejecutadas. NAV=1 indica
-aceptacion numerica y no precision espacial. La publicacion de Euler
-relativo y la trama real se comprobaran con P2 y D4.
+## Evidencia registrada
 
-## Pendientes
+| Registro | Contenido |
+| --- | --- |
+| [Deriva D3](../docs/D3_ESTIMACION.md) y `board/sensors/results/` (firmware de ensayo retirado) | 600 s en reposo: \|v\| = 284,24 m/s y \|p\| = 55 567,65 m al final; giro de 90° en Z; orientación relativa. |
+| [Calibración LDR](board/light/results/Calibracion_LDR_20261102.md) | Referencias 4062 (oscuridad) y 128 (linterna a 5 cm), 3,3 V sin pull-down. |
+| [Ensayo D4](board/acquisition/results/Ensayo_D4_20261102.md) | Arranque, movimiento, luz, sesiones y ausencia/retoma de cada sensor. |
+| [Tiempos D4](board/acquisition/results/Tiempos_Adquisicion_D4_20261102.md), [I2C](board/acquisition/results/I2C_D4_20261102.md), [Si7021](board/acquisition/results/Si7021_Diagnostico_20261103.md) | Medidos con la versión `bc0797f` (antes de simplificar la recuperación): vuelta nominal máx. 3,2 ms, bus retenido y la corrección del Si7021. |
 
-Quedan las pruebas de error/recuperacion en placa, la validacion y calibracion
-final del LDR y la integracion de adquisicion, formateadores y servicios definitivos.
-La aceptacion completa de D2 y D3 sigue abierta.
+## Comprobado en placa con la versión actual (16/11/2026)
+
+Firmware de producción, capturando LPUART1 desde el PC:
+
+- TEST: 68 informes cada 2000 ms (TMS) en dos capturas, sin reinicios en 160 s.
+- B1: TEST → NORMAL → SIMU con el subsistema `input`.
+- NORMAL: informes cada 5000 ms; ventana de 30 s con n = 15 en luz, T y HR y
+  n = 1496 en |a| y |w| (de 1500 posibles a 50 Hz).
+- Pin INT del MPU6050 en D8 (despertar por DATA_RDY): con el cable, n = 1498 en
+  |a| por ventana de 30 s. Al soltarlo en marcha, la ventana de transición da
+  1327 y las siguientes 940 (sondeo de respaldo cada ~32 ms: 30 ms de espera más
+  la vuelta), con `IMU=OK`, FLAGS 00C2 y sin reinicios. PC2 leído por SWD:
+  entrada con pull-down y EXTI2 en flanco de subida. Las demás pruebas de esta
+  lista se hicieron con el `k_timer` de 20 ms anterior.
+- TX de LPUART1 con la API asíncrona de UART y DMA: TEST 45 informes cada
+  2000 ms; SIMU 1178 tramas de 221 bytes, checksum y SEQ correctos, TMS a
+  100 ms exactos, sin reinicios; NORMAL 15 informes, los 9 con ventana completos
+  (541–544 bytes, n = 1498 en |a| y |w| y 15 en luz, T y HR).
+- Impacto: dos golpes secos contra la mesa dan FLAGS 00D2 y PROBLEM en el
+  siguiente informe TEST; el flag se quita a los 5 s y PROBLEM 2 s después.
+  Moviéndola a mano pasa a FLYING sin 0x0010. Sin reinicios.
+- SIMU: 632 tramas seguidas, todas de 221 bytes, checksum correcto, SEQ sin
+  saltos desde 00000 e intervalo de TMS de 100 ms exactos (mínimo y máximo),
+  incluida la primera al entrar en el modo. GF = 0 y SAT = 00 sin fix, FLAGS 00C2.
+- GPS sin fix en interior: enlace vivo (NMEA cada ~0,4 s), UTC válida y estado IDLE.
+- Watchdog: suspendiendo adquisición, GPS o main se reinicia por `task_wdt`
+  (`RESET=0x3`); con las interrupciones bloqueadas reinicia el IWDG (`RESET=0x11`).
+- DroneSIMU v0.3: su parser (versión reconstruida y verificada contra el bytecode)
+  acepta todas las tramas de la placa, 632 de una captura y 201 en vivo, con 0
+  errores y SEQ sin saltos; en vivo llegan 10,01 tramas/s al PC (intervalo TMS
+  100 ms; llegada al PC entre 78 y 125 ms por el buffer USB). Las líneas TEST y
+  NORMAL se ignoran, como hace el simulador. Se repite con
+  `tests/tools/check_dronesimu.py`. En la interfaz de `DroneSIMU.exe` sobre COM5:
+  tramas válidas, sin errores de parser ni timeouts, y toda la telemetría y las
+  vistas del dron ([captura](../docs/img/DroneSIMU_placa_20261116.png)).
+- Pilas tras recorrer los tres modos y una recuperación del MPU: main 54 % libre
+  (1420 de 3072 B), adquisición 77 %, GPS 64 %, workqueue 80 %, interrupciones 90 %
+  e idle 75 % ([detalle](board/stacks/README.md)).
+- Giros de 90°: yaw +89,9° (error < 0,1° al volver); de canto −88,9° y −91,3° frente
+  a 89,5° y 92,1° medidos con el acelerómetro; error al volver ~1,2° (tabla en
+  [D3](../docs/D3_ESTIMACION.md)).
+- Deriva en 600 s de reposo sin tocar la placa: 0,26 m a 10 s, 41,6 m a 60 s y
+  73,7 km a 600 s, sin reinicios ni movimiento falso (tabla en
+  [D3](../docs/D3_ESTIMACION.md)).
+
+### Desconexión de sensores (informes TEST cada 2 s, sin reinicios)
+
+| Sensor | Desconexión | Detección | Recuperación |
+| --- | --- | --- | --- |
+| MPU6050 | ~12 s | `IMU=invalida`, flag 0x0001 y PROBLEM en el primer informe; posición congelada en el último valor | `IMU=OK` sin recalibrar y la posición sigue desde donde estaba; PROBLEM se quita 2 s después. El Si7021 sigue válido |
+| GPS | ~10 s | La edad del NMEA sube y a los 10 s hay PROBLEM; el flag 0x0002 ya estaba por falta de fix | NMEA de nuevo a ~0,8 s y PROBLEM se quita 2 s después |
+| Si7021 (SDA suelto) | ~30 s | Temp/HR `[invalido]`, flag 0x0008 y PROBLEM a los 10 s sin dato bueno; se conserva el último par | Par válido nuevo al reconectar (se revalida el sensor) y PROBLEM se quita 2 s después |
+| LDR (VCC suelto) | ~20 s | Luz recortada a 100 %, `[aviso]` y flag 0x0004; sin PROBLEM (la lectura es válida) | Valor normal en el siguiente intento (2 s) |
+| LDR (señal suelta) | ~10 s | No se distingue: la entrada queda flotando y da valores intermedios | Limitación conocida del montaje sin pull-down |
+
+| Bus I2C retenido (SDA o SCL a GND, ~25–30 s cada una) | IMU inválida (0x0001) en la primera trama, PROBLEM a los 250 ms y ambiente inválido (0x0008) en su siguiente medida | Al soltar, IMU y ambiente válidos en ~1 s sin recalibrar; PROBLEM se quita 2 s después |
+
+Durante las retenciones las tramas SIMU siguieron saliendo cada 100 ms (1345 tramas,
+intervalo máximo 100 ms) y no hubo ningún reinicio: con el timeout I2C de 10 ms la
+vuelta de adquisición sigue acotada y ningún hilo deja de alimentar su watchdog.
+
+Soltar solo el VCC del Si7021 no basta para verlo fallar: puede seguir alimentado a
+través de las resistencias pull-up del bus.
+
+## Pendiente en placa (P4)
+
+- Retenciones breves (< 1 s) del bus y reset silencioso del MPU (sin errores, solo deja de
+  dar muestras); están cubiertos por los ensayos de host, no en placa.
+- Consumo.

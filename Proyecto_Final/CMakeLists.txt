@@ -7,12 +7,16 @@ project(upm_zephyr_project)
 target_include_directories(app PRIVATE include)
 target_sources(app PRIVATE
     src/main.c
+    src/app/tracker_status.c
+    src/app/board_ui.c
+    src/app/output.c
+    src/telemetry/human_report.c
+    src/telemetry/simu_frame.c
     src/build_checks.c
     src/drivers/light.c
     src/drivers/imu.c
     src/drivers/environment.c
-    src/algorithms/gyro_calibration.c
-    src/drivers/gps.c
+    src/algorithms/imu_calibration.c
     src/algorithms/motion.c
     src/algorithms/estimator.c
     src/algorithms/statistics.c
@@ -20,6 +24,8 @@ target_sources(app PRIVATE
     src/acquisition/acquisition_imu.c
     src/acquisition/acquisition_light.c
     src/acquisition/acquisition_environment.c
+    src/gps/gps.c
+    src/gps/nmea.c
 )
 
 target_link_libraries(app PRIVATE m)

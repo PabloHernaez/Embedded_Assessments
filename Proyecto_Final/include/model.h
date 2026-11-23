@@ -4,69 +4,51 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/**
- *  model.h incluye todas las estructuras de datos que se van a usar para transmitir los datos
- *  a través de todo el firmware
- */
+/* Tipos compartidos entre adquisicion, GPS, aplicacion y formatos. */
 
-/** 
- *  Calidad del ultimo resultado de una familia de medidas.
- *  last_good_ms = -1 : Nunca hubo medida usable
- *  valid = true / last_good_ms = ts : calidad correcta con ts
- *  valid = false / last_good_ms = ts_anterior : Falló una lectura posterior
+/*
+ * Calidad de la ultima medida de una familia:
+ *   last_good_ms = -1           nunca hubo una medida utilizable
+ *   valid = true                la ultima lectura es buena y es de last_good_ms
+ *   valid = false               la ultima lectura fallo; el valor y la fecha son los de la ultima buena
  */
 typedef struct {
     bool valid;
     int64_t last_good_ms;
 } SampleQuality;
 
-/** 
- *  Vector de tres componentes; la unidad la indica el campo que lo usa
- */
+/* Vector de tres componentes; la unidad la da el nombre del campo. */
 typedef struct {
     float x;
     float y;
     float z;
 } Vec3f;
 
-/** 
- *  Aceleracion con gravedad y giro expresado en grados por segundo. 
- *  range_limited indica alcanzar el umbral de saturación
- *  calibration_pending indica que aún falta la calibración inicial del giroscopio
- */
+/* Aceleracion con gravedad (m/s2) y giro sin sesgo (grados/s), ejes del sensor. */
 typedef struct {
     Vec3f accel_mps2;
     Vec3f gyro_dps;
-
     SampleQuality quality;
-    bool range_limited;
-    bool calibration_pending;
+    bool range_limited;       /* algun eje saturado */
+    bool calibration_pending; /* aun no hay sesgo del giroscopio */
+    int64_t last_impact_ms;   /* ultima muestra con |a| >= 3 g o saturada; 0 = ninguna */
 } ImuData;
 
-/** 
- *  Luz relativa a la calibracion del montaje
- *  clipped: Hubo que recortar la luz al rango 0-100%
- */
+/* Luz relativa a la calibracion del montaje, 0-100 %. */
 typedef struct {
     float light_pct;
-
     SampleQuality quality;
-    bool clipped;
+    bool clipped;             /* el codigo ADC salio de las referencias y se recorto */
 } LightData;
 
-/** 
- *  Temperatura y humedad obtenidas en una misma operacion completa
- */
+/* Temperatura y humedad de una misma medida del Si7021. */
 typedef struct {
     float temperature_c;
     float humidity_pct;
-
     SampleQuality quality;
 } EnvironmentData;
 
-/* Cuaternion Hamilton [w, x, y, z].
- * El campo que lo contiene especifica los marcos de referencia.
- */
+/* Cuaternion Hamilton [w, x, y, z]; el campo que lo contiene dice entre que marcos. */
 typedef struct {
     float w;
     float x;
@@ -75,54 +57,26 @@ typedef struct {
 } Quaternionf;
 
 /*
- * Resultado del estimador.
- *
- * q: sensor actual -> marco local con Z hacia arriba.
- *    Se utiliza para compensar gravedad.
- *
- * relative_q: sensor actual -> referencia inicial del sensor.
- *             Se utiliza para obtener ROLL/PITCH/YAW de SR4.
- *
- * velocity_mps y position_m: expresados en el marco local.
- * valid: la ultima actualizacion completa fue aceptada.
- *
- * Al inicializar: ambos cuaterniones identidad, v/p cero,
- * valid=false.
+ * Navegacion inercial, toda en los ejes del sensor al terminar la calibracion
+ * (orientacion inicial cero, SR4). Z es altura si la placa arranca nivelada.
+ *   q   sensor actual -> ejes iniciales; de aqui salen ROLL/PITCH/YAW
  */
 typedef struct {
     Quaternionf q;
-    Quaternionf relative_q;
-
     Vec3f velocity_mps;
     Vec3f position_m;
-
-    bool valid;
 } NavigationView;
 
-/** 
- *  Enum para acceder al array!
- *      Ej: snapshot.stats.metric[STATS_TEMP].mean
- *
- *  Orden para las cinco metricas de NORMAL
- *  STATS_LIGHT -> Luz en porcentaje
- *  STATS_TEMP -> Temperatura en °C
- *  STATS_RH -> Humedad relativa en porcentaje
- *  STATS_ACCEL_NORM -> magnitud de aceleracion en m/s2
- *  STATS_GYRO_NORM -> magnitud de giro en grados/s
- *  STATS_METRIC_COUNT -> 5, determina el tamaño del array
- */
+/* Indices de las cinco metricas de NORMAL: stats.metric[STATS_TEMP].mean, ... */
 typedef enum {
-    STATS_LIGHT = 0,
-    STATS_TEMP,
-    STATS_RH,
-    STATS_ACCEL_NORM,
-    STATS_GYRO_NORM,
+    STATS_LIGHT = 0,  /* % */
+    STATS_TEMP,       /* grados C */
+    STATS_RH,         /* % */
+    STATS_ACCEL_NORM, /* |a| en m/s2 */
+    STATS_GYRO_NORM,  /* |w| en grados/s */
     STATS_METRIC_COUNT
 } StatsMetric;
 
-/** 
- *  Estadisticas finales de una metrica.
- */
 typedef struct {
     float mean;
     float min;
@@ -130,114 +84,68 @@ typedef struct {
     uint32_t count;
 } MetricStats;
 
-/**
- * Ultima ventana completa de estadisticas.
- */
+/* Ultima ventana completa de 30 s; ready = false hasta cerrar la primera. */
 typedef struct {
     bool ready;
     int64_t begin_ms;
     int64_t end_ms;
-
     MetricStats metric[STATS_METRIC_COUNT];
 } StatsResult;
 
-/** 
- *  Copia coherente que acquisition entrega a sus consumidores. Incluye estadísticas
- *
- *  moving -> movimiento confirmado. Eso junto con la salud del 
- *      sistema decide IDLE, FLYING o PROBLEM
- *  progress -> Aumenta al completar una adquisición, aun si fallan los sensores
- *      Con esto se puede distinguir un hilo trabajando de uno bloqueado
- */
+/* Copia coherente que entrega acquisition_snapshot_get(). */
 typedef struct {
     ImuData imu;
     LightData light;
     EnvironmentData environment;
-
     NavigationView nav;
-    bool moving;
-
+    bool moving;              /* movimiento confirmado (FLYING si no hay PROBLEM) */
     StatsResult stats;
-    uint32_t progress;
 } AcquisitionSnapshot;
 
-/** 
- *  Datos publicados por el servicio GPS. 
- *   
- *  lat_udeg, lon_udeg -> enteros en microgrados (latitud y longitud)
- *  alt_mm -> entero en milímetros (altura)
- *  utc_ms_of_day -> hora del gps desde medianoche
- *  last_nmea_ms, last_fix_ms -> instantes de reloj del MCU, desde el arranque
- *      (-1 en el arranque)
- *
- *  Indicadores de mensaje correcto:
- *      last_nmea_ms actualizado
- *      Posición usable -> fix_valid = true, se actualiza last_fix_ms
- *      Ultima GGA con hora válida -> utc_valid = true
- *
- *      Ojo! Puede haber comunicación pero no posición. Entonces fix_valid = false
- *      no genera un reporte de daño en el enlace
- *   
+/*
+ * Copia que entrega gps_snapshot_get(). Enlace, fix y hora son independientes:
+ * puede haber NMEA sin posicion, y eso no es un fallo del enlace.
  */
 typedef struct {
-    int32_t lat_udeg;
+    int32_t lat_udeg;         /* microgrados */
     int32_t lon_udeg;
     int32_t alt_mm;
     uint8_t satellites;
-
-    /* Hora UTC: milisegundos desde medianoche. */
-    uint32_t utc_ms_of_day;
+    uint32_t utc_ms_of_day;   /* ms desde medianoche UTC */
     bool utc_valid;
-
-    bool fix_valid;
-
-    /* Tiempos desde el arranque; -1 si nunca hubo resultado. */
-    int64_t last_nmea_ms;
-    int64_t last_fix_ms;
-
-    uint32_t progress;
+    bool fix_valid;           /* ultima GGA con calidad 1 o 2 */
+    int64_t last_nmea_ms;     /* ultima NMEA valida; -1 si ninguna */
+    int64_t last_fix_ms;      /* ultima posicion valida; -1 si ninguna */
 } GpsSnapshot;
 
-/** 
-    Modo de funcionamiento seleccionado por el usuario. 
-    El modo determina el funcionamiento y el formato de los reportes de la aplicacion.
-*/
+/* Modos de B1, en orden circular. */
 typedef enum {
     APP_MODE_TEST = 0,
     APP_MODE_NORMAL,
-    APP_MODE_SIMU
+    APP_MODE_SIMU,
+    APP_MODE_COUNT
 } AppMode;
 
-/** 
-    Estado global decidido por la aplicacion.
-    En qué situación está el sistema
-*/
+/* Estado del tracker (SR7). */
 typedef enum {
     TRACKER_STATE_IDLE = 0,
     TRACKER_STATE_FLYING,
     TRACKER_STATE_PROBLEM
 } TrackerState;
 
-/** 
- *  Bits definidos por el protocolo SIMU. 
- *  Los flags permiten establecer varias condiciones simultaneamente.
- *  Para combinarlas, se debe utilizar el operador | (OR de bits)
- *  ej: uint16_t flags = TRACKER_FLAG_INERTIAL_ONLY | TRACKER_FLAG_YAW_UNRELIABLE;
- */
+/* Bits del campo FLAGS de la trama SIMU (tabla 5). */
 typedef enum {
     TRACKER_FLAG_IMU_INVALID         = 0x0001,
     TRACKER_FLAG_GPS_INVALID         = 0x0002,
     TRACKER_FLAG_LIGHT_WARNING       = 0x0004,
     TRACKER_FLAG_ENV_INVALID         = 0x0008,
-    TRACKER_FLAG_IMPACT              = 0x0010,
+    TRACKER_FLAG_IMPACT              = 0x0010, /* impacto en los ultimos 5 s (tambien PROBLEM) */
     TRACKER_FLAG_CALIBRATION_PENDING = 0x0020,
     TRACKER_FLAG_INERTIAL_ONLY       = 0x0040,
     TRACKER_FLAG_YAW_UNRELIABLE      = 0x0080
 } TrackerFlag;
 
-/**
- * Decision final que comparten LED y formateadores.
- */
+/* Decision unica que usan el LED y los dos formatos. */
 typedef struct {
     TrackerState state;
     uint16_t flags;

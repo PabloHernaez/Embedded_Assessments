@@ -8,50 +8,21 @@
 
 #define HUMAN_REPORT_BUFFER_SIZE 1024U
 
-/*
- *  Los punteros apuntan a copias del llamador.
- *  Deben permanecer validos durante la llamada.
- *  uptime_ms -> Tiempo desde arranque
- *  reset_cause -> causa de reinicio obtenida por la aplicación
- *  simu_replaced_fields -> contador de campos sustituidos en SIMU
- *
- * ROLL/PITCH/YAW se obtienen de acquisition->nav.relative_q.
- * acquisition->nav.q conserva la orientacion de navegacion.
- */
+/* Copias del llamador. ROLL/PITCH/YAW salen de acquisition->nav.q. */
 typedef struct {
     const AcquisitionSnapshot *acquisition;
     const GpsSnapshot *gps;
     const TrackerStatus *status;
-
     uint64_t uptime_ms;
-    uint32_t reset_cause;
-    uint32_t simu_replaced_fields;
+    uint32_t reset_cause;   /* hwinfo, solo en TEST */
+    int watchdog_error;     /* 0 si el watchdog esta activo, solo en TEST */
 } HumanReportInput;
 
 /*
- * mode debe ser APP_MODE_TEST o APP_MODE_NORMAL.
- * Todos los punteros son obligatorios y deben ser validos.
- *
- * Al entrar: *len = 0.
- *
- * Exito: retorna 0 y termina el texto con '\0'.
- * *len indica los bytes del reporte, excluyendo ese terminador.
- *
- * Capacidad insuficiente: retorna -EMSGSIZE y deja *len = 0.
- * El llamador solo transmite cuando la funcion retorna 0.
- *
- * Funcion pura: no accede a hardware/reloj, no modifica las entradas
- * ni conserva sus punteros.
- * 
- *  in  -> Datos de entrada que el formateador consulta
- *  buf -> Memoria donde escribe el mensaje
- *  cap -> Capacidad real de la memoria en bytes
- *  len -> dirección de donde devolverá la longitud escrita
+ * Informe legible de TEST (cada 2 s) o NORMAL (cada 5 s, con estadisticas).
+ * Funcion pura. Retorna la longitud escrita (sin '\0'), o -EMSGSIZE si no
+ * cabe en cap; en ese caso no se debe transmitir nada.
  */
-int human_report_format(AppMode mode,
-                        const HumanReportInput *in,
-                        char *buf,
-                        size_t cap,
-                        size_t *len);
+int human_report_format(AppMode mode, const HumanReportInput *in, char *buf, size_t cap);
 
 #endif

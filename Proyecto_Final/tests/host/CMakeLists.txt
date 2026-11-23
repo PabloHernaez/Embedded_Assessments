@@ -10,7 +10,7 @@ add_executable(motion_tests
     ../../src/algorithms/motion.c
 )
 
-add_executable(orientation_tests
+add_executable(estimator_tests
     test_estimator.c
     ../../src/algorithms/estimator.c
 )
@@ -18,7 +18,7 @@ add_executable(orientation_tests
 add_executable(acquisition_imu_tests
     test_acquisition_imu.c
     ../../src/acquisition/acquisition_imu.c
-    ../../src/algorithms/gyro_calibration.c
+    ../../src/algorithms/imu_calibration.c
     ../../src/algorithms/motion.c
     ../../src/algorithms/estimator.c
 )
@@ -31,7 +31,6 @@ target_include_directories(acquisition_imu_tests PRIVATE
 add_executable(acquisition_environment_tests
     test_acquisition_environment.c
     ../../src/acquisition/acquisition_environment.c
-    ../../src/algorithms/statistics.c
 )
 target_include_directories(acquisition_environment_tests PRIVATE
     fakes
@@ -39,35 +38,35 @@ target_include_directories(acquisition_environment_tests PRIVATE
     ../../src/drivers
 )
 
-add_executable(acquisition_statistics_tests
-    test_acquisition_statistics.c
-    ../../src/acquisition/acquisition_imu.c
-    ../../src/acquisition/acquisition_environment.c
-    ../../src/algorithms/gyro_calibration.c
-    ../../src/algorithms/motion.c
-    ../../src/algorithms/estimator.c
+add_executable(statistics_tests
+    test_statistics.c
     ../../src/algorithms/statistics.c
 )
-target_include_directories(acquisition_statistics_tests PRIVATE
-    fakes_coordinator
-    ../../src/acquisition
-    ../../src/drivers
+
+add_executable(nmea_tests
+    test_nmea.c
+    ../../src/gps/nmea.c
+)
+target_include_directories(nmea_tests PRIVATE ../../src/gps)
+
+add_executable(simu_frame_tests
+    test_simu_frame.c
+    ../../src/telemetry/simu_frame.c
+)
+target_include_directories(simu_frame_tests PRIVATE ../../src/telemetry)
+
+add_executable(human_report_tests
+    test_human_report.c
+    ../../src/telemetry/human_report.c
 )
 
-add_executable(acquisition_recovery_tests
-    test_acquisition_recovery.c
-    ../../src/acquisition/acquisition_imu.c
-    ../../src/algorithms/gyro_calibration.c
-    ../../src/algorithms/motion.c
-    ../../src/algorithms/estimator.c
+add_executable(tracker_status_tests
+    test_tracker_status.c
+    ../../src/app/tracker_status.c
 )
-target_include_directories(acquisition_recovery_tests PRIVATE
-    fakes
-    ../../src/acquisition
-    ../../src/drivers
-)
+target_include_directories(tracker_status_tests PRIVATE ../../src/app)
 
-foreach(test_target IN ITEMS motion_tests orientation_tests acquisition_imu_tests acquisition_environment_tests acquisition_statistics_tests acquisition_recovery_tests)
+foreach(test_target IN ITEMS motion_tests estimator_tests acquisition_imu_tests acquisition_environment_tests statistics_tests nmea_tests simu_frame_tests human_report_tests tracker_status_tests)
     target_include_directories(${test_target} PRIVATE
         ../../include
         ../../src/algorithms
@@ -83,12 +82,15 @@ endforeach()
 
 add_test(NAME motion_tests COMMAND motion_tests)
 
-add_test(NAME orientation_tests COMMAND orientation_tests)
+add_test(NAME estimator_tests COMMAND estimator_tests)
 
 add_test(NAME acquisition_imu_tests COMMAND acquisition_imu_tests)
 
 add_test(NAME acquisition_environment_tests COMMAND acquisition_environment_tests)
 
-add_test(NAME acquisition_statistics_tests COMMAND acquisition_statistics_tests)
+add_test(NAME statistics_tests COMMAND statistics_tests)
 
-add_test(NAME acquisition_recovery_tests COMMAND acquisition_recovery_tests)
+add_test(NAME nmea_tests COMMAND nmea_tests)
+add_test(NAME simu_frame_tests COMMAND simu_frame_tests)
+add_test(NAME human_report_tests COMMAND human_report_tests)
+add_test(NAME tracker_status_tests COMMAND tracker_status_tests)

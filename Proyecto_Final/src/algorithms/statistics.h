@@ -3,7 +3,11 @@
 
 #include "model.h"
 
-/* Acumulacion de una metrica durante una ventana. */
+/*
+ * Estadisticas de NORMAL en ventanas consecutivas de 30 s, [inicio, fin).
+ * Codigo C puro: los tiempos llegan en ms desde el arranque.
+ */
+
 typedef struct {
     float sum;
     float min;
@@ -13,48 +17,22 @@ typedef struct {
 
 typedef struct {
     bool active;
-
-    int64_t ticks_per_second;
-    int64_t session_begin_ticks;
-    int64_t window_begin_ticks;
-    int64_t window_end_ticks;
-
+    int64_t window_begin_ms;
+    int64_t window_end_ms;
     MetricAccumulator metric[STATS_METRIC_COUNT];
-    StatsResult result;
+    StatsResult result; /* ultima ventana completa */
 } StatsCtx;
 
-void statistics_metric_reset(MetricAccumulator *acc);
+/* Empieza una sesion (al entrar en NORMAL) descartando todo lo anterior. */
+void statistics_begin(StatsCtx *ctx, int64_t now_ms);
 
-/* Incorporar una muestra nueva, utilizable y finita. */
-void statistics_metric_add(MetricAccumulator *acc, float value);
-
-/* Obtener el resultado sin modificar el acumulador. */
-MetricStats statistics_metric_result(const MetricAccumulator *acc);
-
-/*
- * Iniciar una sesion nueva.
- * now_ticks: instante actual del kernel.
- * ticks_per_second: frecuencia del reloj de ticks, positiva.
- */
-void statistics_begin(StatsCtx *ctx, int64_t now_ticks, int64_t ticks_per_second);
-
-/* Desactivar y descartar acumuladores y resultados anteriores. */
+/* Termina la sesion (al salir de NORMAL) y oculta el resultado. */
 void statistics_end(StatsCtx *ctx);
 
-/* Atender el vencimiento aunque no haya muestras nuevas. */
-void statistics_advance(StatsCtx *ctx, int64_t now_ticks);
+/* Si la ventana ya vencio, publica su resultado y abre la siguiente. */
+void statistics_advance(StatsCtx *ctx, int64_t now_ms);
 
-/*
- * Incorporar un valor nuevo, utilizable y finito.
- * metric debe ser una de las cinco metricas de StatsMetric.
- *
- * capture_begin_ticks: instante anterior a iniciar la lectura.
- * sample_ticks: instante en que se obtuvo el resultado.
- */
-void statistics_add(StatsCtx *ctx,
-                    StatsMetric metric,
-                    float value,
-                    int64_t capture_begin_ticks,
-                    int64_t sample_ticks);
+/* Anade una muestra nueva y valida a la ventana abierta. */
+void statistics_add(StatsCtx *ctx, StatsMetric metric, float value);
 
 #endif

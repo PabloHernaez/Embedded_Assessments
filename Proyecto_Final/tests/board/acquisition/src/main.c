@@ -1,6 +1,8 @@
 #include <zephyr/device.h>
 #include <zephyr/drivers/uart.h>
+#include <zephyr/init.h>
 #include <zephyr/kernel.h>
+#include <zephyr/task_wdt/task_wdt.h>
 #include <zephyr/sys/printk.h>
 
 #include "acquisition_api.h"
@@ -10,42 +12,37 @@ extern const k_tid_t acquisition_tid;
 
 static const struct device *const console = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
 
-/**
- * Calcula la edad de la ultima medida utilizable de una familia.
- * Entradas: now_ms posterior al snapshot; quality apunta a su calidad valida.
- * Retorno: edad en ms, o -1 si nunca hubo una medida utilizable.
- * Modifica: nada; no cambia calidad ni lee hardware.
- */
+/* El servicio registra su canal de task_wdt; en produccion lo inicia main.c. */
+static int watchdog_init(void)
+{
+    return task_wdt_init(NULL);
+}
+SYS_INIT(watchdog_init, APPLICATION, 0);
+
+/* Edad en ms de la ultima medida utilizable, o -1 si nunca la hubo. */
 static int64_t sample_age(int64_t now_ms, const SampleQuality *quality)
 {
     return quality->last_good_ms < 0 ? -1 : now_ms - quality->last_good_ms;
 }
 
-/**
- * Muestra las medidas publicadas, sus edades, navegacion y avance del hilo.
- * Entradas: snapshot coherente, ahora en ms y diferencias desde el reporte previo.
- * Retorno: ninguno (void).
- * Modifica: escribe por consola; conserva el snapshot y no accede a sensores.
- */
+/* Una linea por familia: IMU, navegacion y sensores lentos. */
 static void snapshot_print(const AcquisitionSnapshot *s, int64_t now_ms,
-                           int64_t report_dt_ms, uint32_t progress_delta)
+                           int64_t report_dt_ms)
 {
-    printk("D4 t_ms=%lld progress=%u dp=%u dt_ms=%lld cal=%d moving=%d "
-           "imu_ok=%d imu_age=%lld sat=%d nav_ok=%d\n",
-           (long long)now_ms, (unsigned)s->progress, (unsigned)progress_delta,
+    printk("D4 t_ms=%lld dt_ms=%lld cal=%d moving=%d "
+           "imu_ok=%d imu_age=%lld sat=%d\n",
+           (long long)now_ms,
            (long long)report_dt_ms, s->imu.calibration_pending, s->moving,
            s->imu.quality.valid, (long long)sample_age(now_ms, &s->imu.quality),
-           s->imu.range_limited, s->nav.valid);
+           s->imu.range_limited);
     printk("IMU a=%.5f,%.5f,%.5f gyro=%.5f,%.5f,%.5f\n",
            (double)s->imu.accel_mps2.x, (double)s->imu.accel_mps2.y,
            (double)s->imu.accel_mps2.z, (double)s->imu.gyro_dps.x,
            (double)s->imu.gyro_dps.y, (double)s->imu.gyro_dps.z);
-    printk("NAV q=%.6f,%.6f,%.6f,%.6f rel=%.6f,%.6f,%.6f,%.6f "
+    printk("NAV q=%.6f,%.6f,%.6f,%.6f "
            "v=%.5f,%.5f,%.5f p=%.5f,%.5f,%.5f\n",
            (double)s->nav.q.w, (double)s->nav.q.x,
            (double)s->nav.q.y, (double)s->nav.q.z,
-           (double)s->nav.relative_q.w, (double)s->nav.relative_q.x,
-           (double)s->nav.relative_q.y, (double)s->nav.relative_q.z,
            (double)s->nav.velocity_mps.x, (double)s->nav.velocity_mps.y,
            (double)s->nav.velocity_mps.z, (double)s->nav.position_m.x,
            (double)s->nav.position_m.y, (double)s->nav.position_m.z);
@@ -59,12 +56,7 @@ static void snapshot_print(const AcquisitionSnapshot *s, int64_t now_ms,
            (double)s->environment.humidity_pct, s->stats.ready);
 }
 
-/**
- * Muestra una ventana completa con las cinco metricas originales de D4.
- * Entradas: result apunta a un resultado ready del snapshot.
- * Retorno: ninguno (void).
- * Modifica: escribe limites, conteos y resumen por consola; no recalcula estadisticas.
- */
+/* Imprime una ventana completa de 30 s con las cinco metricas. */
 static void statistics_print(const StatsResult *result)
 {
     static const char *const names[STATS_METRIC_COUNT] = {
@@ -85,13 +77,7 @@ static void statistics_print(const StatsResult *result)
     }
 }
 
-/**
- * Consulta el espacio de pila que permanece sin usar en los dos hilos del ensayo.
- * Entradas: ninguna explicita; utiliza acquisition_tid y el hilo main actual.
- * Retorno: ninguno (void).
- * Modifica: consulta las marcas de pila de Zephyr y escribe bytes libres o error.
- *           No cambia prioridades ni la pila solicitada por adquisicion (2048 B).
- */
+/* Bytes de pila sin usar en adquisicion y main. */
 static void stacks_print(void)
 {
     size_t acquisition_free = 0;
@@ -104,14 +90,7 @@ static void stacks_print(void)
            main_ret, (unsigned)main_free);
 }
 
-/**
- * Observa el servicio real y permite abrir/cerrar sesiones estadisticas por UART.
- * Entradas: ninguna explicita; recibe 'b' (begin) o 'e' (end) por LPUART1.
- * Retorno: 0 si la consola no esta disponible; no retorna durante el ensayo.
- * Modifica: abre una sesion inicial, consulta snapshots y emite reportes de 1 s;
- *           b/e llaman a las APIs publicas y reinician la deteccion de ventanas.
- *           No lee sensores directamente ni procesa navegacion o movimiento.
- */
+/* Observador del servicio real: un reporte por segundo; b/e abren y cierran la sesion. */
 int main(void)
 {
     if (!device_is_ready(console)) {
@@ -125,7 +104,6 @@ int main(void)
     int64_t next_report_ms = 0;
     int64_t previous_report_ms = 0;
     int64_t last_window_end_ms = -1;
-    uint32_t previous_progress = 0;
 
     while (true) {
         unsigned char command;
@@ -151,10 +129,8 @@ int main(void)
             last_window_end_ms = snapshot.stats.end_ms;
         }
         if (now_ms >= next_report_ms) {
-            snapshot_print(&snapshot, now_ms, now_ms - previous_report_ms,
-                           snapshot.progress - previous_progress);
+            snapshot_print(&snapshot, now_ms, now_ms - previous_report_ms);
             stacks_print();
-            previous_progress = snapshot.progress;
             previous_report_ms = now_ms;
             next_report_ms = now_ms + 1000;
         }

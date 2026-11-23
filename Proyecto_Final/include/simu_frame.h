@@ -1,54 +1,28 @@
 #ifndef DRONE_TRACKER_SIMU_FRAME_H
 #define DRONE_TRACKER_SIMU_FRAME_H
 
-#include <stddef.h>
 #include <stdint.h>
 
 #include "model.h"
 
-/**
- *  221 bytes es la trama incluyendo CRLF.
- *  El buffer reserva un byte mas para '\0' y permite usarla como cadena C.
- */
+/* 221 bytes en el cable, CRLF incluido; el buffer reserva uno mas para '\0'. */
 #define SIMU_FRAME_WIRE_SIZE   221U
 #define SIMU_FRAME_BUFFER_SIZE (SIMU_FRAME_WIRE_SIZE + 1U)
 
-
-/*
- * ROLL/PITCH/YAW se obtienen de acquisition->nav.relative_q.
- * acquisition->nav.q conserva la orientacion de navegacion.
- *
- * Los punteros apuntan a copias del llamador.
- * Deben permanecer validos durante la llamada.
- */
+/* Copias del llamador. ROLL/PITCH/YAW salen de acquisition->nav.q. */
 typedef struct {
     const AcquisitionSnapshot *acquisition;
     const GpsSnapshot *gps;
     const TrackerStatus *status;
-
     uint16_t seq;
     uint64_t uptime_ms;
 } SimuFrameInput;
 
-/**
- * Todos los punteros son obligatorios y deben ser validos.
- * uptime_ms debe caber en las diez cifras del protocolo.
- *
- * Al entrar: *len = 0 y *replacements = 0.
- *
- * Exito: retorna 0, *len = 221 y buf[*len] = '\0'.
- * *replacements cuenta campos no finitos sustituidos en esta llamada.
- *
- * Capacidad menor que SIMU_FRAME_BUFFER_SIZE:
- * retorna -EMSGSIZE y mantiene ambas salidas a cero.
- *
- * Funcion pura: no accede a hardware/reloj, no modifica las entradas
- * ni conserva sus punteros.
+/*
+ * Escribe una trama $SIMU1 completa en buf. Funcion pura.
+ * Cada valor se redondea y se acota a su campo; NaN/Inf se escriben como cero.
+ * Retorna 0, o -EIO si la trama no mide 221 bytes (uptime de mas de 10 cifras).
  */
-int simu_frame_encode(const SimuFrameInput *in,
-                      char *buf,
-                      size_t cap,
-                      size_t *len,
-                      uint16_t *replacements);
+int simu_frame_encode(const SimuFrameInput *in, char buf[SIMU_FRAME_BUFFER_SIZE]);
 
 #endif

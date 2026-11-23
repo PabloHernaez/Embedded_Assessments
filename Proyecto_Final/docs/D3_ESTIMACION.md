@@ -2,7 +2,7 @@
 
 **Fecha:** 2 de noviembre de 2026.
 **Responsable del desarrollo:** David. **Revisión cruzada con Pablo:** pendiente.
-**Alcance:** aplicación de ensayo `tests/board/sensors`; evidencia para D3-14/T10 y decisión inicial de D3-15. No constituye el cierre completo de D3 ni la aceptación de producción.
+**Alcance:** aplicación de ensayo `tests/board/sensors` (retirada después; quedan sus capturas); evidencia para D3-14/T10 y decisión inicial de D3-15. No constituye el cierre completo de D3 ni la aceptación de producción.
 
 ## Resultado
 
@@ -164,9 +164,87 @@ ZUPT, congelación o retroceso de posición, sesgo gyro adaptativo, gravedad ada
 
 En P2 se debe conservar el recorte de los campos emitidos, sin limitar artificialmente el estado del estimador: posición `±9999.99 m` y velocidad `±999.99 m/s`. En esta captura el primer reporte con alguna componente de posición fuera del rango del formato aparece a los 357 s. Los flags `0x0040` y `0x0080` siguen correspondiendo a la base sin corrección GPS y sin referencia fiable de yaw.
 
+## Decisión DEC-D3-02: un único marco, el de la postura inicial (16/11/2026)
+
+Las capturas anteriores se tomaron con el diseño de dos cuaterniones (`q` al
+marco local con Z arriba e inclinación inicial por `atan2`, y `relative_q = q0⁻¹ ⊗ q`
+para SR4). Se conservan tal cual como evidencia de ese diseño.
+
+Desde `e8c0dd2` el estimador usa un solo marco: los ejes del sensor al terminar la
+calibración.
+
+- `q` empieza en identidad, que es la orientación inicial cero de SR4, y de él
+  salen ROLL/PITCH/YAW.
+- La gravedad que se resta es `g0`, la aceleración media de las mismas 100
+  muestras en reposo que dan el sesgo del giróscopo: `a = rotar(q, a_medida) − g0`.
+  Es exacta con cualquier inclinación de arranque.
+- En la postura inicial, `g0` cancela el error de norma del acelerómetro
+  (0,0947 m/s² en Z en la tabla anterior). Al girar la placa reaparece el error
+  del offset, que rota con el sensor (`R·b − b`); la corrección de seis
+  posturas lo reduce. La deriva por el giro residual no cambia:
+  `a_err ≈ g·θ(t)`.
+- **Hipótesis:** X/Y/Z están en los ejes iniciales, así que Z es altura si la placa
+  arranca aproximadamente nivelada. Con los 3,6° medidos aquí, el error es
+  despreciable frente a la deriva.
+- Se eliminan la inclinación inicial, `q0`, `relative_q`, la validación numérica
+  del estimador (las entradas son `int16 × constante` con `dt` acotado) y
+  `NavigationView.valid`.
+
+**Medida en placa, 600 s en reposo sin tocar la placa (16/11/2026, firmware
+`bfb1eb9`).** Captura de los informes TEST (cada 2 s) desde el arranque; la
+calibración termina entre 2 y 4 s y los tiempos se cuentan desde ~2,3 s. La placa
+estaba inclinada unos 4,4° (aceleración media 0,746 / 0,132 / 9,827 m/s²). Sin
+reinicios y siempre en IDLE.
+
+| t (s) | \|v\| anterior (m/s) | \|v\| actual (m/s) | \|p\| anterior (m) | \|p\| actual (m) |
+| ---: | ---: | ---: | ---: | ---: |
+| 10 | 0,963 | 0,070 | 4,785 | 0,26 |
+| 15 | 1,447 | 0,163 | 10,806 | 0,93 |
+| 30 | 2,942 | 0,579 | 43,581 | 5,88 |
+| 60 | 6,327 | 1,934 | 180,200 | 41,61 |
+| 120 | 15,796 | 8,134 | 809,808 | 314,20 |
+| 300 | 71,330 | 74,340 | 8 040,128 | 6 387,43 |
+| 600 | 284,242 | 435,223 | 55 567,650 | 73 727,79 |
+
+- **Primeros minutos:** restar `g0` elimina el error de norma del acelerómetro y la
+  deriva es mucho menor: 18 veces menos posición a 10 s, 7 a 30 s y 4 a 60 s.
+- **A partir de ~5 min:** domina el sesgo residual del giro, que inclina `q` y deja
+  pasar gravedad (`a_err ≈ g·θ`). Al final, roll +9,1°, pitch −6,0° y yaw +1,6°, con
+  un giro corregido medio de +0,014 / −0,009 / +0,002 °/s, mayor en X que en la sesión
+  anterior (+0,007). A 600 s la deriva vuelve al mismo orden que antes.
+- Una medida anterior del mismo día con la placa tocada para pulsar B1 dio 333 m/s y
+  74,5 km a 623 s: coherente con esta.
+
+Conclusión: el diseño de un solo marco mejora claramente la navegación en las
+demostraciones cortas (decenas de segundos) y no la cambia a 10 minutos, donde
+la limita el giróscopo. Captura original: fuera del repositorio (scratchpad de la
+sesión); los valores de la tabla salen de sus informes TEST.
+
+**Giros de 90° en placa (16/11/2026, firmware `bfb1eb9`).** Reinicio y calibración
+en plano; giros a mano contra una referencia recta, mantenidos ~10 s; ROLL/PITCH/YAW
+de los informes TEST (cada 2 s). Como referencia independiente de los giros de canto
+se usa el ángulo entre la gravedad medida antes y durante el giro (solo acelerómetro).
+
+| Giro | Estimador (respecto a la postura previa) | Referencia | Error al volver |
+| --- | --- | --- | --- |
+| Yaw 90° sobre la mesa | yaw +89,9° | 90° (escuadra) | < 0,1° |
+| Sobre el canto largo (gravedad a +X del sensor) | pitch −88,9° | 89,5° (acelerómetro) | ~1,2° |
+| Sobre el canto corto (gravedad a −Y del sensor) | roll −91,3° | 92,1° (acelerómetro) | ~1,2° |
+
+- En reposo los ángulos derivan unos 0,01 °/s (0,4° en 36 s), como en la medida de 600 s.
+- Al girar el yaw aparecen también roll +4,2° y pitch −3,3°: el MPU está inclinado
+  ~4,4° respecto a la base de la placa (la gravedad sigue en su eje X tras el giro),
+  y los ángulos son respecto a los ejes iniciales del sensor, no respecto a la vertical.
+- Con pitch cerca de −90°, roll y yaw por separado no significan nada (bloqueo de
+  cardán, propio de los ángulos de Euler) pero su suma es estable (~2°); el cuaternión
+  no sufre la singularidad.
+- Los errores al volver (~1°) se deben a la integración durante giros rápidos a mano.
+
+
+
 ## Pendientes para cerrar D3
 
-1. **Integración de SR4.** El cálculo relativo y su campo en el modelo están implementados y contrastados en el ensayo. Queda revisar el contrato con Pablo y verificar la conversión y emisión de ROLL/PITCH/YAW desde `relative_q` en P2, junto con el snapshot real de D4. El cuaternión de navegación no debe convertirse directamente para esos campos.
+1. **Integración de SR4.** Con DEC-D3-02, ROLL/PITCH/YAW salen de `nav.q`, que empieza en identidad al calibrar. Queda revisar el contrato con Pablo y comprobar en placa los ángulos de la trama SIMU con giros conocidos.
 2. **D3-15.** Completar la demostración integrada y explicar el comportamiento aceptado de posición/velocidad. La captura dinámica alrededor de Z y la decisión de conservar la base están registradas; no se acredita precisión angular metrológica, trayectoria precisa ni toda la demo integrada.
 3. **Trazabilidad.** Asociar fuentes y build a un commit del incremento completo y conservar las capturas. La actualización de `tests/README.md`, `docs/README_DESARROLLO.md` y el contrato de telemetría se incluye en la preparación del commit. No se archivaron los ELF exactos de cada captura y no se atribuye retroactivamente su compilación a un hash nuevo.
 4. **Revisión cruzada y pruebas restantes.** Pablo debe revisar y explicar la actualización y la compensación de gravedad. Conservar como pendientes las pruebas de fallos, recuperación e integración no respaldadas por esta captura. No se marca todo D3 ni T07–T10 como aprobado por haber realizado el ensayo de deriva.

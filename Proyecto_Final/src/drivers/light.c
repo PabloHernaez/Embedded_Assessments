@@ -1,108 +1,58 @@
 #include "light.h"
 
 #include <errno.h>
-#include <stdbool.h>
 
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/adc.h>
+#include <zephyr/sys/util.h>
 
-/** 
- *   ADC1, canal 5, PB1
+/*
+ * Referencias medidas el 02/11/2026: KY-018 a 3,3 V sin pull-down adicional;
+ * oscuridad y linterna del movil al maximo a 5 cm. Repetir si cambia el montaje.
+ * Registro: tests/board/light/results/Calibracion_LDR_20261102.md.
+ * El divisor esta invertido: mas luz da un codigo menor.
  */
-static const struct adc_dt_spec light_adc =
-    ADC_DT_SPEC_GET(DT_PATH(zephyr_user));
+#define LIGHT_RAW_DARK   4062
+#define LIGHT_RAW_BRIGHT 128
 
-static int16_t raw_sample;
+BUILD_ASSERT(LIGHT_RAW_DARK != LIGHT_RAW_BRIGHT, "Referencias LDR iguales");
 
-/**
- * sequence es la petición de conversión. Se almacena en .buffer 
- */
-static struct adc_sequence sequence = {
-    .buffer = &raw_sample,
-    .buffer_size = sizeof(raw_sample),
-};
+/* ADC1 canal 5 (PB1), 12 bits y referencia interna: ver el overlay. */
+static const struct adc_dt_spec light_adc = ADC_DT_SPEC_GET(DT_PATH(zephyr_user));
 
-static bool configured;
-
-/**
- *  Configuración de canal y preparación de petición con resolución cuadrada en overlay
- *  Básicamente inicialización del ADC
- */
 int light_init(void)
 {
-    int ret;
-
-    configured = false;
-
     if (!adc_is_ready_dt(&light_adc)) {
         return -ENODEV;
     }
-
-    ret = adc_channel_setup_dt(&light_adc);
-    if (ret < 0) {
-        return ret;
-    }
-
-    ret = adc_sequence_init_dt(&light_adc, &sequence);
-    if (ret < 0) {
-        return ret;
-    }
-
-    configured = true;
-    return 0;
+    return adc_channel_setup_dt(&light_adc);
 }
 
-/**
- *  Realiza una conversión y entrega el resultado solo cuando es correcto.
- *  Se espera un valor entre 0-4095
- */
-
-int light_read_raw(int16_t *out)
+int light_read_raw(int16_t *raw)
 {
-    int ret;
-    // configured está como variable estática privada del driver de luz
-    if (!configured) {
-        return -EAGAIN;
-    }
-
-    ret = adc_read_dt(&light_adc, &sequence);
-    if (ret < 0) {
-        return ret;
-    }
-
-    *out = raw_sample;
-    return 0;
-}
-
-/**
- *  Operación de conversión del valor crudo de tensión de 0-4095 a un rango de 0-100%
- */
-int light_raw_to_percent(int16_t raw, int16_t raw_dark, int16_t raw_bright, LightReading *out)
-{
-    // Chequeo de que el valor no esté fuera de límites para los tres valores
-    if (raw < 0 || raw > 4095 ||
-        raw_dark < 0 || raw_dark > 4095 ||
-        raw_bright < 0 || raw_bright > 4095 ||
-        raw_dark == raw_bright) {
-        return -EINVAL;
-    }
-
-    //Construcción del objeto que se va a transmitir con los datos
-    LightReading result = {
-        .light_pct = 100.0f * (float)(raw - raw_dark) / (float)(raw_bright - raw_dark),
-        .clipped = false,
+    int16_t sample;
+    struct adc_sequence sequence = {
+        .buffer = &sample,
+        .buffer_size = sizeof(sample),
     };
 
-    // Corrección de objeto de lectura en caso que la operación resulte fuera de rangos
-    if (result.light_pct < 0.0f) {
-        result.light_pct = 0.0f;
-        result.clipped = true;
-    } else if (result.light_pct > 100.0f) {
-        result.light_pct = 100.0f;
-        result.clipped = true;
+    int ret = adc_sequence_init_dt(&light_adc, &sequence);
+    if (ret == 0) {
+        ret = adc_read_dt(&light_adc, &sequence);
     }
+    if (ret == 0) {
+        *raw = sample;
+    }
+    return ret;
+}
 
-    // Manda a esa memoria out el LightReading result
-    *out = result;
-    return 0;
+LightReading light_from_raw(int16_t raw)
+{
+    const float pct = 100.0f * (float)(raw - LIGHT_RAW_DARK) /
+                      (float)(LIGHT_RAW_BRIGHT - LIGHT_RAW_DARK);
+
+    return (LightReading){
+        .light_pct = CLAMP(pct, 0.0f, 100.0f),
+        .clipped = pct < 0.0f || pct > 100.0f,
+    };
 }

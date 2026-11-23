@@ -3,13 +3,7 @@
 
 #include "light.h"
 
-/**
- * Muestra una conversion ADC bruta cada 500 ms para caracterizar el LDR.
- * Entradas: ninguna explicita; usa el montaje ADC1/canal 5/PB1 del overlay comun.
- * Retorno: 0 si falla la inicializacion; en funcionamiento mantiene el bucle.
- * Modifica: configura el ADC, lee una conversion por vuelta y escribe por consola
- *           la fecha y raw o el error. No convierte a porcentaje ni cambia calibracion.
- */
+/* Codigo ADC bruto del LDR cada 500 ms para medir las referencias de calibracion. */
 int main(void)
 {
     k_msleep(100);

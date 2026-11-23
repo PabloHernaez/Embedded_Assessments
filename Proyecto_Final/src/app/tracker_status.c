@@ -5,6 +5,7 @@
 #define SLOW_SENSOR_MAX_MS  10000 /* luz y ambiente leen cada 2 s */
 #define GPS_LINK_MAX_MS     10000 /* el GPS emite NMEA cada segundo, con o sin fix */
 #define GPS_FIX_MAX_AGE_MS  3000
+#define IMPACT_HOLD_MS      5000  /* un golpe marca 0x0010 y PROBLEM durante 5 s */
 #define PROBLEM_RECOVERY_MS 2000  /* sin causas durante 2 s para salir de PROBLEM */
 
 /* Edad de un dato en ms; si nunca lo hubo, se cuenta desde el arranque. */
@@ -18,6 +19,8 @@ TrackerStatus tracker_status_from_snapshots(TrackerHealth *health,
                                             const GpsSnapshot *gps, int64_t now_ms)
 {
     const int64_t imu_age = age_ms(now_ms, acq->imu.quality.last_good_ms);
+    const bool impact = acq->imu.last_impact_ms > 0 &&
+                        now_ms - acq->imu.last_impact_ms < IMPACT_HOLD_MS;
     TrackerStatus status = {
         /* Posicion solo inercial y yaw sin referencia absoluta: siempre. */
         .flags = TRACKER_FLAG_INERTIAL_ONLY | TRACKER_FLAG_YAW_UNRELIABLE,
@@ -25,6 +28,9 @@ TrackerStatus tracker_status_from_snapshots(TrackerHealth *health,
 
     if (!acq->imu.quality.valid || acq->imu.range_limited || imu_age >= IMU_MAX_AGE_MS) {
         status.flags |= TRACKER_FLAG_IMU_INVALID;
+    }
+    if (impact) {
+        status.flags |= TRACKER_FLAG_IMPACT;
     }
     if (acq->imu.calibration_pending) {
         status.flags |= TRACKER_FLAG_CALIBRATION_PENDING;
@@ -39,8 +45,8 @@ TrackerStatus tracker_status_from_snapshots(TrackerHealth *health,
         status.flags |= TRACKER_FLAG_GPS_INVALID; /* sin fix: flag, pero nunca PROBLEM */
     }
 
-    /* PROBLEM: fallos persistentes. La falta de fix GPS no cuenta. */
-    const bool fault =
+    /* PROBLEM: un golpe (accidente) o fallos persistentes. La falta de fix GPS no cuenta. */
+    const bool fault = impact ||
         (now_ms >= START_GRACE_MS && (imu_age >= IMU_MAX_AGE_MS || acq->imu.calibration_pending)) ||
         age_ms(now_ms, acq->light.quality.last_good_ms) >= SLOW_SENSOR_MAX_MS ||
         age_ms(now_ms, acq->environment.quality.last_good_ms) >= SLOW_SENSOR_MAX_MS ||

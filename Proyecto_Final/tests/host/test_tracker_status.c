@@ -125,9 +125,46 @@ static int slow_sensor_tests(void)
     return 0;
 }
 
+static int impact_tests(void)
+{
+    TrackerHealth health = { .healthy_since_ms = -1 };
+    GpsSnapshot gps = { .last_nmea_ms = 20000, .last_fix_ms = 20000, .fix_valid = true };
+    AcquisitionSnapshot acq = present_sensors(20000);
+
+    /* 0 = ningun golpe: ni flag ni PROBLEM, tambien en el arranque. */
+    TrackerStatus s = tracker_status_from_snapshots(&health, &acq, &gps, 20000);
+    CHECK(s.state == TRACKER_STATE_IDLE && !(s.flags & TRACKER_FLAG_IMPACT));
+    AcquisitionSnapshot boot = present_sensors(100);
+    GpsSnapshot boot_gps = { .last_nmea_ms = 100, .last_fix_ms = 100, .fix_valid = true };
+    CHECK(state_at(&health, &boot, &boot_gps, 100) == TRACKER_STATE_IDLE);
+
+    /* Golpe: flag 0x0010 y PROBLEM durante 5 s, aunque el dron este volando. */
+    acq.imu.last_impact_ms = 20000;
+    acq.moving = true;
+    s = tracker_status_from_snapshots(&health, &acq, &gps, 20000);
+    CHECK(s.state == TRACKER_STATE_PROBLEM && (s.flags & TRACKER_FLAG_IMPACT));
+    acq = present_sensors(24999);
+    acq.imu.last_impact_ms = 20000;
+    gps.last_nmea_ms = gps.last_fix_ms = 24999;
+    s = tracker_status_from_snapshots(&health, &acq, &gps, 24999);
+    CHECK(s.state == TRACKER_STATE_PROBLEM && (s.flags & TRACKER_FLAG_IMPACT));
+
+    /* A los 5 s se quita el flag; PROBLEM sigue 2 s mas (recuperacion comun). */
+    acq = present_sensors(25000);
+    acq.imu.last_impact_ms = 20000;
+    gps.last_nmea_ms = gps.last_fix_ms = 25000;
+    s = tracker_status_from_snapshots(&health, &acq, &gps, 25000);
+    CHECK(s.state == TRACKER_STATE_PROBLEM && !(s.flags & TRACKER_FLAG_IMPACT));
+    acq = present_sensors(27000);
+    acq.imu.last_impact_ms = 20000;
+    gps.last_nmea_ms = gps.last_fix_ms = 27000;
+    CHECK(state_at(&health, &acq, &gps, 27000) == TRACKER_STATE_IDLE);
+    return 0;
+}
+
 int main(void)
 {
-    if (imu_tests() || gps_tests() || slow_sensor_tests()) {
+    if (imu_tests() || gps_tests() || slow_sensor_tests() || impact_tests()) {
         return 1;
     }
     puts("Salud: edades, gracia, flags y recuperacion OK");

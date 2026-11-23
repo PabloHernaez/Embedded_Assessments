@@ -85,7 +85,13 @@ west build -p auto -b nucleo_wl55jc . -d build -- -DCONF_FILE=confs/prj_nucleo_w
   nueva se recupera el bus y se reinicializa, como mucho una vez por
   segundo, conservando sesgo, g0 y trayectoria. El Si7021 se revalida tras
   cualquier error del bus compartido.
-- **Impactos.** No se detectan; el flag 0x0010 siempre vale 0.
+- **Impactos (ampliación ADVANCED).** La adquisición marca cada muestra con
+  |a| ≥ 3 g o con un eje saturado (fondo de escala 4 g); se mira en cada
+  muestra a 50 Hz porque un golpe dura una o dos, y main solo ve una cada 100 ms.
+  `tracker_status` activa el flag 0x0010 y PROBLEM («drone accident» en la
+  tabla 4) durante 5 s, y luego los 2 s de recuperación. Manejada a mano la
+  placa no lo dispara; un golpe seco contra la mesa sí. La guía v1.5 dejaba
+  este bit a cero: es una decisión del grupo.
 
 ## Pendientes
 

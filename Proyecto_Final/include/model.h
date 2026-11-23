@@ -31,6 +31,7 @@ typedef struct {
     SampleQuality quality;
     bool range_limited;       /* algun eje saturado */
     bool calibration_pending; /* aun no hay sesgo del giroscopio */
+    int64_t last_impact_ms;   /* ultima muestra con |a| >= 3 g o saturada; 0 = ninguna */
 } ImuData;
 
 /* Luz relativa a la calibracion del montaje, 0-100 %. */
@@ -138,7 +139,7 @@ typedef enum {
     TRACKER_FLAG_GPS_INVALID         = 0x0002,
     TRACKER_FLAG_LIGHT_WARNING       = 0x0004,
     TRACKER_FLAG_ENV_INVALID         = 0x0008,
-    TRACKER_FLAG_IMPACT              = 0x0010, /* no se detectan impactos: siempre 0 */
+    TRACKER_FLAG_IMPACT              = 0x0010, /* impacto en los ultimos 5 s (tambien PROBLEM) */
     TRACKER_FLAG_CALIBRATION_PENDING = 0x0020,
     TRACKER_FLAG_INERTIAL_ONLY       = 0x0040,
     TRACKER_FLAG_YAW_UNRELIABLE      = 0x0080

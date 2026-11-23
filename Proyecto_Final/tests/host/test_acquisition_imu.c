@@ -481,9 +481,42 @@ static int test_recovery(void)
     return 0;
 }
 
+/* Impacto: |a| >= 3 g o un eje saturado marcan la muestra; si no, se conserva la marca. */
+static int test_impact(void)
+{
+    unsigned int checks = 0;
+    AcquisitionImu ctx;
+
+    init_result = 0;
+    read_result = IMU_NEW;
+    now_ticks = 0;
+    acquisition_imu_init(&ctx);
+    CHECK(ctx.data.last_impact_ms == 0);
+
+    next_reading = (ImuReading){ .accel_mps2 = sensor_accel_for((Vec3f){0.0f, 0.0f, 2.9f * TRACKER_GRAVITY_MPS2}) };
+    CHECK(step(&ctx, IMU_NEW) && ctx.data.quality.valid && ctx.data.last_impact_ms == 0);
+
+    next_reading.accel_mps2 = sensor_accel_for((Vec3f){2.2f * TRACKER_GRAVITY_MPS2, 0.0f, 2.2f * TRACKER_GRAVITY_MPS2});
+    CHECK(step(&ctx, IMU_NEW) && ctx.data.last_impact_ms == now_ticks / 10);
+    const int64_t first = ctx.data.last_impact_ms;
+
+    next_reading.accel_mps2 = sensor_accel_for((Vec3f){0.0f, 0.0f, TRACKER_GRAVITY_MPS2});
+    CHECK(step(&ctx, IMU_NEW) && ctx.data.last_impact_ms == first);
+    CHECK(step(&ctx, -EIO) && ctx.data.last_impact_ms == first);
+
+    next_reading.range_limited = true;
+    CHECK(step(&ctx, IMU_NEW) && ctx.data.range_limited && !ctx.data.quality.valid);
+    CHECK(ctx.data.last_impact_ms == now_ticks / 10 && ctx.data.last_impact_ms > first);
+    next_reading.range_limited = false;
+
+    printf("PASS: %u acquisition IMU impact checks\n", checks);
+    return 0;
+}
+
 int main(void)
 {
-    if (test_calibration() != 0 || test_motion() != 0 || test_navigation() != 0) {
+    if (test_calibration() != 0 || test_motion() != 0 || test_navigation() != 0 ||
+        test_impact() != 0) {
         return 1;
     }
     return test_recovery();

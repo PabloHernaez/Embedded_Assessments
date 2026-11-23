@@ -128,15 +128,18 @@ bool acquisition_imu_update(AcquisitionImu *ctx)
 
     ctx->consecutive_errors = 0U;
     ctx->last_new_ticks = ctx->sample_ticks;
+    const int64_t sample_ms = k_ticks_to_ms_floor64(ctx->sample_ticks);
 
     if (reading.range_limited) {
         imu_interrupt(ctx);
         ctx->data.range_limited = true;
+        ctx->data.last_impact_ms = sample_ms; /* un eje pasa de 4 g: golpe */
         return true;
     }
 
     /* Hasta tener 100 muestras en reposo no hay sesgo ni g0: solo se calibra. */
     const Vec3f accel = accel_correct(reading.accel_mps2);
+    const bool impact = vector_norm(accel) >= TRACKER_IMPACT_ACCEL_MPS2;
     imu_calibration_update(&ctx->calibration, &accel, &reading.gyro_dps);
 
     const Vec3f bias = ctx->calibration.ready ? ctx->calibration.gyro_bias_dps : (Vec3f){0};
@@ -147,8 +150,9 @@ bool acquisition_imu_update(AcquisitionImu *ctx)
             reading.gyro_dps.y - bias.y,
             reading.gyro_dps.z - bias.z,
         },
-        .quality = { .valid = true, .last_good_ms = k_ticks_to_ms_floor64(ctx->sample_ticks) },
+        .quality = { .valid = true, .last_good_ms = sample_ms },
         .calibration_pending = !ctx->calibration.ready,
+        .last_impact_ms = impact ? sample_ms : ctx->data.last_impact_ms,
     };
 
     if (ctx->calibration.ready) {

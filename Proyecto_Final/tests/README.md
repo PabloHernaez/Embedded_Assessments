@@ -64,6 +64,9 @@ Firmware de producción, capturando LPUART1 desde el PC:
   2000 ms; SIMU 1178 tramas de 221 bytes, checksum y SEQ correctos, TMS a
   100 ms exactos, sin reinicios; NORMAL 15 informes, los 9 con ventana completos
   (541–544 bytes, n = 1498 en |a| y |w| y 15 en luz, T y HR).
+- Impacto: dos golpes secos contra la mesa dan FLAGS 00D2 y PROBLEM en el
+  siguiente informe TEST; el flag se quita a los 5 s y PROBLEM 2 s después.
+  Moviéndola a mano pasa a FLYING sin 0x0010. Sin reinicios.
 - SIMU: 632 tramas seguidas, todas de 221 bytes, checksum correcto, SEQ sin
   saltos desde 00000 e intervalo de TMS de 100 ms exactos (mínimo y máximo),
   incluida la primera al entrar en el modo. GF = 0 y SAT = 00 sin fix, FLAGS 00C2.

@@ -15,7 +15,7 @@
 | Archivo | Qué hace |
 | --- | --- |
 | `board_ui.c` | B1 mediante el subsistema `input` de Zephyr (nodo `gpio-keys` de la placa, antirrebote de 30 ms; cuenta al soltar) y LED RGB por GPIO: azul TEST; verde/amarillo/rojo IDLE/FLYING/PROBLEM en NORMAL; cian SIMU. |
-| `tracker_status.c` | Flags SIMU y estado con un solo criterio: la edad del último dato bueno (desde el arranque si nunca lo hubo). PROBLEM tiene prioridad: IMU 250 ms sin dato o calibración pendiente (tras 10 s de arranque), luz o ambiente 10 s sin dato, o GPS 10 s sin NMEA. Sale de PROBLEM tras 2 s sin causas. La falta de fix solo activa el flag 0x0002. |
+| `tracker_status.c` | Flags SIMU y estado con un solo criterio: la edad del último dato bueno (desde el arranque si nunca lo hubo). PROBLEM tiene prioridad: IMU 250 ms sin dato o calibración pendiente (tras 10 s de arranque), luz o ambiente 10 s sin dato, o GPS 10 s sin NMEA. Sale de PROBLEM tras 2 s sin causas. La falta de fix solo activa el flag 0x0002. Un impacto (`imu.last_impact_ms`) activa 0x0010 y PROBLEM durante 5 s. |
 | `output.c` | LPUART1 a 115200 8N1 con la API asíncrona de UART: `uart_tx` entrega el mensaje al DMA y el driver avisa con `UART_TX_DONE` al salir el último bit. El plazo (duración en el cable + 20 ms) se pasa a `uart_tx`: si vence, el driver aborta (`UART_TX_ABORTED`) y la salida no se queda ocupada ni bloquea el cambio de modo. |
 
 ## Watchdog

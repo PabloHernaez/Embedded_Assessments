@@ -9,6 +9,8 @@ pin. Cada vuelta:
 1. **Luz** cada 2 s: ADC y porcentaje (`acquisition_light.c`).
 2. **IMU** en cada vuelta (`acquisition_imu.c`): lectura, calibración inicial,
    movimiento y navegación. NO_NEW (solo en el sondeo de respaldo) no hace nada.
+   Una muestra con |a| ≥ 3 g o saturada guarda su instante en
+   `imu.last_impact_ms` (impacto).
 3. **Ambiente** cada 2 s (`acquisition_environment.c`): lanza F5 y recoge el par
    40 ms después, en otra vuelta, sin bloquear.
 4. **Publicación**: copia lo que cambió y acumula las estadísticas de NORMAL

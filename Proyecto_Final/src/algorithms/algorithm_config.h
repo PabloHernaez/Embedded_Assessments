@@ -19,6 +19,10 @@
 #define TRACKER_MOTION_GYRO_MIN_DPS     8.0f
 #define TRACKER_MOTION_CONFIRM_MS       300
 
+/* Impacto: |a| >= 3 g en una muestra, o un eje saturado (fondo de escala 4 g).
+ * En la mano o volando |a| no pasa de ~2 g; un golpe seco satura. */
+#define TRACKER_IMPACT_ACCEL_MPS2 (3.0f * TRACKER_GRAVITY_MPS2)
+
 /* Hueco maximo entre muestras para integrar; mas largo, dt = 0. */
 #define TRACKER_IMU_MAX_GAP_MS 50U
 

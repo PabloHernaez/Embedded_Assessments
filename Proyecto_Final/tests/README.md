@@ -59,6 +59,12 @@ Firmware de producción, capturando LPUART1 desde el PC:
 - GPS sin fix en interior: enlace vivo (NMEA cada ~0,4 s), UTC válida y estado IDLE.
 - Watchdog: suspendiendo adquisición, GPS o main se reinicia por `task_wdt`
   (`RESET=0x3`); con las interrupciones bloqueadas reinicia el IWDG (`RESET=0x11`).
+- DroneSIMU v0.3: su parser (versión reconstruida y verificada contra el bytecode)
+  acepta todas las tramas de la placa, 632 de una captura y 201 en vivo, con 0
+  errores y SEQ sin saltos; en vivo llegan 10,01 tramas/s al PC (intervalo TMS
+  100 ms; llegada al PC entre 78 y 125 ms por el buffer USB). Las líneas TEST y
+  NORMAL se ignoran, como hace el simulador. Se repite con
+  `tests/tools/check_dronesimu.py`.
 
 ### Desconexión de sensores (informes TEST cada 2 s, sin reinicios)
 

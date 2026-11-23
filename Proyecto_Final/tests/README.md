@@ -67,6 +67,9 @@ Firmware de producción, capturando LPUART1 desde el PC:
   `tests/tools/check_dronesimu.py`. En la interfaz de `DroneSIMU.exe` sobre COM5:
   tramas válidas, sin errores de parser ni timeouts, y toda la telemetría y las
   vistas del dron ([captura](../docs/img/DroneSIMU_placa_20261116.png)).
+- Giros de 90°: yaw +89,9° (error < 0,1° al volver); de canto −88,9° y −91,3° frente
+  a 89,5° y 92,1° medidos con el acelerómetro; error al volver ~1,2° (tabla en
+  [D3](../docs/D3_ESTIMACION.md)).
 - Deriva en 600 s de reposo sin tocar la placa: 0,26 m a 10 s, 41,6 m a 60 s y
   73,7 km a 600 s, sin reinicios ni movimiento falso (tabla en
   [D3](../docs/D3_ESTIMACION.md)).

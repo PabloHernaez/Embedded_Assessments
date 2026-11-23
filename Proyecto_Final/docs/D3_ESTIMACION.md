@@ -220,7 +220,27 @@ demostraciones cortas (decenas de segundos) y no la cambia a 10 minutos, donde
 la limita el giróscopo. Captura original: fuera del repositorio (scratchpad de la
 sesión); los valores de la tabla salen de sus informes TEST.
 
-**Pendiente:** giros de 90° conocidos para contrastar los ángulos.
+**Giros de 90° en placa (16/11/2026, firmware `bfb1eb9`).** Reinicio y calibración
+en plano; giros a mano contra una referencia recta, mantenidos ~10 s; ROLL/PITCH/YAW
+de los informes TEST (cada 2 s). Como referencia independiente de los giros de canto
+se usa el ángulo entre la gravedad medida antes y durante el giro (solo acelerómetro).
+
+| Giro | Estimador (respecto a la postura previa) | Referencia | Error al volver |
+| --- | --- | --- | --- |
+| Yaw 90° sobre la mesa | yaw +89,9° | 90° (escuadra) | < 0,1° |
+| Sobre el canto largo (gravedad a +X del sensor) | pitch −88,9° | 89,5° (acelerómetro) | ~1,2° |
+| Sobre el canto corto (gravedad a −Y del sensor) | roll −91,3° | 92,1° (acelerómetro) | ~1,2° |
+
+- En reposo los ángulos derivan unos 0,01 °/s (0,4° en 36 s), como en la medida de 600 s.
+- Al girar el yaw aparecen también roll +4,2° y pitch −3,3°: el MPU está inclinado
+  ~4,4° respecto a la base de la placa (la gravedad sigue en su eje X tras el giro),
+  y los ángulos son respecto a los ejes iniciales del sensor, no respecto a la vertical.
+- Con pitch cerca de −90°, roll y yaw por separado no significan nada (bloqueo de
+  cardán, propio de los ángulos de Euler) pero su suma es estable (~2°); el cuaternión
+  no sufre la singularidad.
+- Los errores al volver (~1°) se deben a la integración durante giros rápidos a mano.
+
+
 
 ## Pendientes para cerrar D3
 
